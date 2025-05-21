@@ -10,6 +10,9 @@ export ANDROID_HOME=$SDK_DIR
 export ANDROID_SDK_ROOT=$SDK_DIR
 export PATH=$PATH:$SDK_DIR/platform-tools
 
+# Set up gradle wrapper directories
+mkdir -p $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/4dxsxvlz075zraiywjxduzqqf
+
 # Create local.properties
 echo "sdk.dir=$SDK_DIR" > local.properties
 

@@ -14,6 +14,9 @@ mkdir -p $SDK_DIR/platform-tools
 # Create local.properties
 echo "sdk.dir=$SDK_DIR" > local.properties
 
+# Set up gradle wrapper directories
+mkdir -p $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/4dxsxvlz075zraiywjxduzqqf
+
 # Configure Gradle for offline build
 cat > gradle.properties << 'EOF'
 org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
