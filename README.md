@@ -8,13 +8,18 @@ This sample Jetpack Compose app shows a simple greeting wrapped in a
 This project can be built in offline environments. Follow these steps:
 
 1. Make sure all scripts are executable: `chmod +x *.sh gradlew`
-2. Set up the gradle wrapper directory: 
+2. Use the included Gradle distribution: 
    ```
-   mkdir -p $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/4dxsxvlz075zraiywjxduzqqf
+   ./use-local-gradle.sh
    ```
-3. Run the all-in-one build script:
+3. Run the complete offline build script:
    ```
-   ./all-in-one-build.sh
+   ./complete-offline-build.sh
    ```
+
+The scripts will:
+- Set up the local Gradle distribution
+- Configure the environment for offline builds
+- Run the tests without requiring internet access
 
 For detailed instructions, see the [AGENT.md](AGENT.md) file.

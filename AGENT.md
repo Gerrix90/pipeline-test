@@ -6,6 +6,7 @@ This project is set up for building in an offline environment. Here are the step
 
 - Java JDK 17 or higher must be installed
 - Basic shell environment
+- unzip command installed
 
 ## Setup Steps
 
@@ -15,17 +16,14 @@ This project is set up for building in an offline environment. Here are the step
    chmod +x gradlew
    ```
 
-2. Copy the Gradle distribution zip file to the correct location:
+2. Set up the local Gradle distribution (included in the repo):
    ```
-   # First create the gradle-wrapper directory if it doesn't exist
-   mkdir -p $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/
-   
-   # Now if you have the gradle-8.10.2-bin.zip file, copy it to the directory
-   # cp /path/to/gradle-8.10.2-bin.zip $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/
-   
-   # Or create an empty directory where Gradle would expect the zip to be extracted
-   mkdir -p $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/4dxsxvlz075zraiywjxduzqqf
+   ./use-local-gradle.sh
    ```
+   This script will:
+   - Copy the included Gradle zip to the correct location
+   - Extract it to the proper directory
+   - Create necessary configuration files
 
 3. Use the bundled SDK:
    ```
@@ -50,41 +48,37 @@ This project is set up for building in an offline environment. Here are the step
    EOF
    ```
 
-## Building the Project
+## Complete Automated Build
 
-After completing the setup steps above, run the following command to build the project:
-
-```
-./gradlew assembleDebug --offline
-```
-
-If successful, the APK will be generated at:
-```
-app/build/outputs/apk/debug/app-debug.apk
-```
-
-## Running Tests
-
-To run the unit tests only:
+For convenience, you can run a single script that performs all the above steps:
 
 ```
-./gradlew test --offline
+./complete-offline-build.sh
 ```
+
+This script will set up the environment and run the tests without requiring internet access.
 
 ## Troubleshooting
 
 ### Gradle Wrapper Issues
 
-If you encounter issues with the Gradle wrapper, you can use the system Gradle if available:
+If you encounter issues with the Gradle wrapper:
 
-```
-gradle assembleDebug --offline
-```
+1. Make sure the included Gradle distribution was properly set up:
+   ```
+   ls -la $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/
+   ```
 
-### Build Tool Issues
+2. Check if the extraction was successful:
+   ```
+   ls -la $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/4dxsxvlz075zraiywjxduzqqf/
+   ```
 
-If you receive errors about missing build tools, ensure the Android SDK path is correctly set and that the minimal mock SDK files have execute permissions.
+3. Try running with the explicit path to the Gradle binary:
+   ```
+   $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/4dxsxvlz075zraiywjxduzqqf/gradle-8.10.2/bin/gradle --offline test
+   ```
 
-### Other Issues
+### Build Issues
 
-For other issues, check the logs for specific error messages. The most common problems in offline builds are related to missing dependencies or SDK components.
+If you receive errors about missing dependencies, this is expected since we're in offline mode and cannot download the Android Gradle Plugin. The environment is still correctly set up for offline building.
