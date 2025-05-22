@@ -229,13 +229,28 @@ echo "Android SDK directory created: $([ -d "$ANDROID_SDK_DIR" ] && echo 'YES' |
 echo "local.properties created: $([ -f "local.properties" ] && echo 'YES' || echo 'NO')"
 echo ""
 
-# Test offline build capability
+# First, run an online build to populate Gradle cache with ALL dependencies
 echo ""
-echo "Testing offline build capability..."
-echo "Running: ./gradlew tasks --offline"
+echo "Running online build to populate Gradle cache..."
+echo "This will download all necessary dependencies for offline use."
 
-# Create a temp file for error output
-TEMP_LOG="/tmp/gradle_test.log"
+if ./gradlew tasks > /dev/null 2>&1; then
+    echo "✓ Online build successful - Gradle cache populated"
+    
+    # Now try assembleDebug online to cache build dependencies too
+    echo "Running online assembleDebug to cache build dependencies..."
+    if ./gradlew assembleDebug > /dev/null 2>&1; then
+        echo "✓ Online assembleDebug successful - all dependencies cached"
+    else
+        echo "⚠ Online assembleDebug had issues, but continuing with offline test"
+    fi
+    
+    echo ""
+    echo "Testing offline build capability..."
+    echo "Running: ./gradlew tasks --offline"
+
+    # Create a temp file for error output
+    TEMP_LOG="/tmp/gradle_test.log"
 
 if ./gradlew tasks --offline > "$TEMP_LOG" 2>&1; then
     echo "✓ Gradle tasks work offline"
@@ -283,6 +298,12 @@ fi
 
 # Cleanup
 rm -f "$TEMP_LOG"
+
+else
+    echo "❌ Online build failed. Cannot populate Gradle cache."
+    echo "This means offline builds will not work without manually downloaded dependencies."
+    echo "Consider checking network connectivity and Gradle configuration."
+fi
 
 echo ""
 echo "Setup finished. All necessary plugins and dependencies downloaded."
