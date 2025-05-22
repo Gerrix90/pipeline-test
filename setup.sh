@@ -120,6 +120,36 @@ curl -x http://proxy:8080 \
      -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-compose-compiler-gradle-plugin/$KOTLIN_VERSION/kotlin-compose-compiler-gradle-plugin-$KOTLIN_VERSION.pom" \
      -o "$KOTLIN_COMPOSE_DIR/kotlin-compose-compiler-gradle-plugin-$KOTLIN_VERSION.pom" 2>/dev/null || echo "Kotlin compose plugin pom not found, continuing..."
 
+# Download Kotlin Android Plugin artifacts
+KOTLIN_ANDROID_DIR="$MAVEN_REPO_DIR/org/jetbrains/kotlin/android/org.jetbrains.kotlin.android.gradle.plugin/$KOTLIN_VERSION"
+mkdir -p "$KOTLIN_ANDROID_DIR"
+
+echo "Downloading Kotlin Android Plugin artifact..."
+curl -x http://proxy:8080 \
+     --cacert $CODEX_PROXY_CERT \
+     -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/android/org.jetbrains.kotlin.android.gradle.plugin/$KOTLIN_VERSION/org.jetbrains.kotlin.android.gradle.plugin-$KOTLIN_VERSION.jar" \
+     -o "$KOTLIN_ANDROID_DIR/org.jetbrains.kotlin.android.gradle.plugin-$KOTLIN_VERSION.jar" 2>/dev/null || echo "Kotlin Android plugin jar not found, continuing..."
+
+curl -x http://proxy:8080 \
+     --cacert $CODEX_PROXY_CERT \
+     -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/android/org.jetbrains.kotlin.android.gradle.plugin/$KOTLIN_VERSION/org.jetbrains.kotlin.android.gradle.plugin-$KOTLIN_VERSION.pom" \
+     -o "$KOTLIN_ANDROID_DIR/org.jetbrains.kotlin.android.gradle.plugin-$KOTLIN_VERSION.pom" 2>/dev/null || echo "Kotlin Android plugin pom not found, continuing..."
+
+# Download Kotlin Compose Plugin artifacts 
+KOTLIN_COMPOSE_PLUGIN_DIR="$MAVEN_REPO_DIR/org/jetbrains/kotlin/plugin/compose/org.jetbrains.kotlin.plugin.compose.gradle.plugin/$KOTLIN_VERSION"
+mkdir -p "$KOTLIN_COMPOSE_PLUGIN_DIR"
+
+echo "Downloading Kotlin Compose Plugin artifact..."
+curl -x http://proxy:8080 \
+     --cacert $CODEX_PROXY_CERT \
+     -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/plugin/compose/org.jetbrains.kotlin.plugin.compose.gradle.plugin/$KOTLIN_VERSION/org.jetbrains.kotlin.plugin.compose.gradle.plugin-$KOTLIN_VERSION.jar" \
+     -o "$KOTLIN_COMPOSE_PLUGIN_DIR/org.jetbrains.kotlin.plugin.compose.gradle.plugin-$KOTLIN_VERSION.jar" 2>/dev/null || echo "Kotlin Compose plugin jar not found, continuing..."
+
+curl -x http://proxy:8080 \
+     --cacert $CODEX_PROXY_CERT \
+     -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/plugin/compose/org.jetbrains.kotlin.plugin.compose.gradle.plugin/$KOTLIN_VERSION/org.jetbrains.kotlin.plugin.compose.gradle.plugin-$KOTLIN_VERSION.pom" \
+     -o "$KOTLIN_COMPOSE_PLUGIN_DIR/org.jetbrains.kotlin.plugin.compose.gradle.plugin-$KOTLIN_VERSION.pom" 2>/dev/null || echo "Kotlin Compose plugin pom not found, continuing..."
+
 # Downloading other essential Android dependencies
 echo "Downloading key Android dependencies..."
 
