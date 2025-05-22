@@ -140,12 +140,26 @@ cat > "local.properties" << EOF
 sdk.dir=$ANDROID_SDK_DIR
 EOF
 
-# Try to run a test build to populate Gradle cache
-echo "Testing offline build capability..."
-./gradlew tasks --offline 2>/dev/null && echo "✓ Gradle tasks work offline" || echo "⚠ Gradle tasks may need more setup"
-
-echo "Setup complete!"
-echo "Android build environment is now configured for offline development."
-echo "All necessary plugins and dependencies have been downloaded."
+# Test offline build capability
 echo ""
-echo "Test the setup with: ./gradlew assembleDebug --offline"
+echo "Testing offline build capability..."
+echo "Running: ./gradlew tasks --offline"
+if ./gradlew tasks --offline >/dev/null 2>&1; then
+    echo "✓ Gradle tasks work offline"
+    
+    echo "Testing: ./gradlew assembleDebug --offline"
+    if ./gradlew assembleDebug --offline >/dev/null 2>&1; then
+        echo "✓ Offline build SUCCESS! Android app builds without internet."
+        echo ""
+        echo "🎉 Setup complete! You can now develop Android apps offline."
+        echo "Use: ./gradlew assembleDebug --offline to build the app"
+    else
+        echo "❌ Offline build FAILED. Some dependencies may be missing."
+        echo "Check the error with: ./gradlew assembleDebug --offline"
+    fi
+else
+    echo "❌ Gradle tasks failed offline. Basic setup incomplete."
+fi
+
+echo ""
+echo "Setup finished. All necessary plugins and dependencies downloaded."

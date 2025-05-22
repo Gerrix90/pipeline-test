@@ -1,33 +1,31 @@
 # Offline Build Instructions
 
-This project is set up for building in an offline environment. Here are the steps to successfully build the app without internet access:
+This project is set up for building in an offline environment after initial setup.
 
 ## Prerequisites
 
 - Java JDK 17 or higher must be installed
+- Internet access during initial setup (setup.sh)
 - Basic shell environment
-- Gradle installed on the system (optional)
 
 ## Setup Steps
 
-1. Make sure all shell scripts have execute permissions:
+1. **Initial setup** (requires internet access):
    ```
-   chmod +x *.sh
-   chmod +x gradlew
+   chmod +x setup.sh gradlew
+   ./setup.sh
    ```
-
-2. Run the extract-gradle script to set up the environment:
-   ```
-   ./extract-gradle.sh
-   ```
+   
    This script will:
-   - Look for Gradle in the system
-   - Set up directories to trick the wrapper into working offline
-   - Configure local properties and environment variables
+   - Download Android Gradle Plugin and all dependencies
+   - Download Kotlin Gradle Plugin and Compose Plugin
+   - Set up basic Android SDK structure
+   - Configure Gradle for offline development
+   - Test that offline builds work
 
-3. After running the script, try running the tests:
+2. **After setup** (works offline):
    ```
-   ./gradlew test --offline
+   ./gradlew assembleDebug --offline
    ```
 
 ## Code Validation After Changes
@@ -51,11 +49,11 @@ This project is set up for building in an offline environment. Here are the step
    ./gradlew tasks --offline
    ```
 
-### Alternative: Use Project Scripts
+### Simple Workflow
 
-The project includes dedicated scripts for testing:
+After setup.sh completes successfully, all validation can be done with:
 ```
-./test-only.sh
+./gradlew assembleDebug --offline
 ```
 
 ### Expected Behavior
@@ -68,29 +66,22 @@ If validation fails, check that setup.sh ran successfully and fix any code issue
 
 ## Troubleshooting
 
-### Gradle Wrapper Issues
+### If Offline Build Fails
 
-If you encounter issues with the Gradle wrapper:
+1. **Make sure setup.sh ran successfully**:
+   - setup.sh should show "✓ Offline build SUCCESS!" at the end
+   - If not, re-run setup.sh with internet access
 
-1. Check if Gradle is available on your system:
+2. **Check for permission issues**:
    ```
-   which gradle
-   ```
-
-2. If Gradle is available, you can run it directly:
-   ```
-   gradle test --offline
+   chmod +x gradlew
    ```
 
-3. Create the directory structure manually:
+3. **Clear Gradle cache if needed**:
    ```
-   mkdir -p $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/4dxsxvlz075zraiywjxduzqqf
-   touch $HOME/.gradle/wrapper/dists/gradle-8.10.2-bin/4dxsxvlz075zraiywjxduzqqf/gradle-8.10.2-bin.zip.ok
+   rm -rf ~/.gradle/caches
+   ./setup.sh
    ```
-
-### Build Issues
-
-If you receive errors about missing dependencies, this is expected since we're in offline mode and cannot download the Android Gradle Plugin. The environment is still correctly set up for offline building.
 
 ### Known Limitations
 
