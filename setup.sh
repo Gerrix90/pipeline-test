@@ -203,29 +203,29 @@ EOF
 
 # Set up basic Android SDK structure
 ANDROID_SDK_DIR="$HOME/android-sdk"
-mkdir -p "$ANDROID_SDK_DIR/platforms/android-35"
+mkdir -p "$ANDROID_SDK_DIR/platforms/android-34"
 mkdir -p "$ANDROID_SDK_DIR/build-tools/34.0.0"
 mkdir -p "$ANDROID_SDK_DIR/platform-tools"
 
 # Download and setup proper Android SDK platform
-echo "Setting up Android platform-35..."
-mkdir -p "$ANDROID_SDK_DIR/platforms/android-35"
+echo "Setting up Android platform-34..."
+mkdir -p "$ANDROID_SDK_DIR/platforms/android-34"
 
 # Create basic platform structure that Gradle expects
-cat > "$ANDROID_SDK_DIR/platforms/android-35/build.prop" << 'EOF'
-ro.build.version.sdk=35
+cat > "$ANDROID_SDK_DIR/platforms/android-34/build.prop" << 'EOF'
+ro.build.version.sdk=34
 ro.build.version.codename=REL
 EOF
 
-cat > "$ANDROID_SDK_DIR/platforms/android-35/source.properties" << 'EOF'
-Pkg.Desc=Android SDK Platform 35
+cat > "$ANDROID_SDK_DIR/platforms/android-34/source.properties" << 'EOF'
+Pkg.Desc=Android SDK Platform 34
 Pkg.UserSrc=false
-Pkg.Revision=1
-Platform.Version=15.0
-Platform.CodeName=VanillaIceCream
-Platform.ApiLevel=35
-AndroidVersion.ApiLevel=35
-AndroidVersion.CodeName=VanillaIceCream
+Pkg.Revision=3
+Platform.Version=14.0
+Platform.CodeName=UpsideDownCake
+Platform.ApiLevel=34
+AndroidVersion.ApiLevel=34
+AndroidVersion.CodeName=UpsideDownCake
 EOF
 
 # Skip package.xml - it causes XML parsing issues with wrong namespace
@@ -235,8 +235,8 @@ EOF
 echo "Downloading Android platform JAR..."
 if curl -x http://proxy:8080 \
      --cacert $CODEX_PROXY_CERT \
-     -L "https://dl.google.com/android/repository/android-35_r01.jar" \
-     -o "$ANDROID_SDK_DIR/platforms/android-35/android.jar" 2>/dev/null; then
+     -L "https://dl.google.com/android/repository/android-34_r03.jar" \
+     -o "$ANDROID_SDK_DIR/platforms/android-34/android.jar" 2>/dev/null; then
     echo "✓ Android platform JAR downloaded"
 else
     echo "⚠ Android platform JAR not found, creating stub version..."
@@ -246,8 +246,8 @@ else
 package android;
 public class Build {
     public static class VERSION {
-        public static final int SDK_INT = 35;
-        public static final String RELEASE = "15";
+        public static final int SDK_INT = 34;
+        public static final String RELEASE = "14";
     }
 }
 JAVAEOF
@@ -261,11 +261,11 @@ JAVAEOF
     # Try to compile if javac is available, otherwise create empty JAR
     if which javac >/dev/null 2>&1; then
         javac android/*.java 2>/dev/null || echo "Compilation failed, using minimal JAR"
-        jar cf "$ANDROID_SDK_DIR/platforms/android-35/android.jar" android/*.class 2>/dev/null || \
-        jar cf "$ANDROID_SDK_DIR/platforms/android-35/android.jar" android/*.java
+        jar cf "$ANDROID_SDK_DIR/platforms/android-34/android.jar" android/*.class 2>/dev/null || \
+        jar cf "$ANDROID_SDK_DIR/platforms/android-34/android.jar" android/*.java
     else
         # Create a larger minimal JAR if javac not available
-        jar cf "$ANDROID_SDK_DIR/platforms/android-35/android.jar" android/*.java
+        jar cf "$ANDROID_SDK_DIR/platforms/android-34/android.jar" android/*.java
     fi
     
     cd - >/dev/null
@@ -291,26 +291,26 @@ echo "local.properties created: $([ -f "local.properties" ] && echo 'YES' || ech
 echo ""
 echo "Android SDK structure:"
 echo "SDK directory: $ANDROID_SDK_DIR"
-if [ -d "$ANDROID_SDK_DIR/platforms/android-35" ]; then
-    echo "✓ android-35 platform directory exists"
-    echo "Contents of android-35:"
-    ls -la "$ANDROID_SDK_DIR/platforms/android-35/"
+if [ -d "$ANDROID_SDK_DIR/platforms/android-34" ]; then
+    echo "✓ android-34 platform directory exists"
+    echo "Contents of android-34:"
+    ls -la "$ANDROID_SDK_DIR/platforms/android-34/"
     
-    if [ -f "$ANDROID_SDK_DIR/platforms/android-35/android.jar" ]; then
-        echo "✓ android.jar exists ($(ls -lh "$ANDROID_SDK_DIR/platforms/android-35/android.jar" | awk '{print $5}'))"
+    if [ -f "$ANDROID_SDK_DIR/platforms/android-34/android.jar" ]; then
+        echo "✓ android.jar exists ($(ls -lh "$ANDROID_SDK_DIR/platforms/android-34/android.jar" | awk '{print $5}'))"
     else
         echo "❌ android.jar missing"
     fi
     
-    if [ -f "$ANDROID_SDK_DIR/platforms/android-35/source.properties" ]; then
+    if [ -f "$ANDROID_SDK_DIR/platforms/android-34/source.properties" ]; then
         echo "✓ source.properties exists"
         echo "Contents:"
-        cat "$ANDROID_SDK_DIR/platforms/android-35/source.properties"
+        cat "$ANDROID_SDK_DIR/platforms/android-34/source.properties"
     else
         echo "❌ source.properties missing"
     fi
 else
-    echo "❌ android-35 platform directory missing"
+    echo "❌ android-34 platform directory missing"
     echo "Available platforms:"
     ls -la "$ANDROID_SDK_DIR/platforms/" 2>/dev/null || echo "No platforms directory"
 fi
@@ -363,9 +363,9 @@ if ./gradlew tasks --offline > "$TEMP_LOG" 2>&1; then
         echo "Re-checking Android SDK after failure:"
         echo "SDK directory exists: $([ -d "$ANDROID_SDK_DIR" ] && echo 'YES' || echo 'NO')"
         echo "local.properties SDK path: $(grep sdk.dir local.properties 2>/dev/null || echo 'NOT FOUND')"
-        echo "android-35 platform: $([ -d "$ANDROID_SDK_DIR/platforms/android-35" ] && echo 'EXISTS' || echo 'MISSING')"
-        if [ -d "$ANDROID_SDK_DIR/platforms/android-35" ]; then
-            echo "android-35 contents: $(ls "$ANDROID_SDK_DIR/platforms/android-35/" 2>/dev/null || echo 'EMPTY')"
+        echo "android-34 platform: $([ -d "$ANDROID_SDK_DIR/platforms/android-34" ] && echo 'EXISTS' || echo 'MISSING')"
+        if [ -d "$ANDROID_SDK_DIR/platforms/android-34" ]; then
+            echo "android-34 contents: $(ls "$ANDROID_SDK_DIR/platforms/android-34/" 2>/dev/null || echo 'EMPTY')"
         fi
     fi
 else
