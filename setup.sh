@@ -16,15 +16,25 @@ mkdir -p "$AGP_DIR"
 echo "Downloading Android Gradle Plugin $AGP_VERSION and dependencies..."
 
 # Download main AGP JAR and POM
-curl -x http://proxy:8080 \
+echo "Downloading AGP JAR..."
+if curl -x http://proxy:8080 \
      --cacert $CODEX_PROXY_CERT \
      -L "https://dl.google.com/android/maven2/com/android/tools/build/gradle/$AGP_VERSION/gradle-$AGP_VERSION.jar" \
-     -o "$AGP_DIR/gradle-$AGP_VERSION.jar"
+     -o "$AGP_DIR/gradle-$AGP_VERSION.jar"; then
+    echo "✓ AGP JAR downloaded successfully"
+else
+    echo "❌ Failed to download AGP JAR"
+fi
 
-curl -x http://proxy:8080 \
+echo "Downloading AGP POM..."
+if curl -x http://proxy:8080 \
      --cacert $CODEX_PROXY_CERT \
      -L "https://dl.google.com/android/maven2/com/android/tools/build/gradle/$AGP_VERSION/gradle-$AGP_VERSION.pom" \
-     -o "$AGP_DIR/gradle-$AGP_VERSION.pom"
+     -o "$AGP_DIR/gradle-$AGP_VERSION.pom"; then
+    echo "✓ AGP POM downloaded successfully"
+else
+    echo "❌ Failed to download AGP POM"
+fi
 
 # Download AGP Builder and other critical dependencies
 AGP_BUILDER_DIR="$MAVEN_REPO_DIR/com/android/tools/build/builder/$AGP_VERSION"
@@ -140,26 +150,70 @@ cat > "local.properties" << EOF
 sdk.dir=$ANDROID_SDK_DIR
 EOF
 
+# Verify downloaded files
+echo ""
+echo "Verifying downloaded dependencies..."
+echo "AGP JAR size: $(ls -lh "$AGP_DIR/gradle-$AGP_VERSION.jar" 2>/dev/null | awk '{print $5}' || echo 'NOT FOUND')"
+echo "AGP POM size: $(ls -lh "$AGP_DIR/gradle-$AGP_VERSION.pom" 2>/dev/null | awk '{print $5}' || echo 'NOT FOUND')"
+echo "Gradle distribution size: $(ls -lh "$GRADLE_DIST_DIR/gradle-$GRADLE_VERSION-bin.zip" 2>/dev/null | awk '{print $5}' || echo 'NOT FOUND')"
+echo "Android SDK directory created: $([ -d "$ANDROID_SDK_DIR" ] && echo 'YES' || echo 'NO')"
+echo "local.properties created: $([ -f "local.properties" ] && echo 'YES' || echo 'NO')"
+echo ""
+
 # Test offline build capability
 echo ""
 echo "Testing offline build capability..."
 echo "Running: ./gradlew tasks --offline"
-if ./gradlew tasks --offline >/dev/null 2>&1; then
+
+# Create a temp file for error output
+TEMP_LOG="/tmp/gradle_test.log"
+
+if ./gradlew tasks --offline > "$TEMP_LOG" 2>&1; then
     echo "✓ Gradle tasks work offline"
     
     echo "Testing: ./gradlew assembleDebug --offline"
-    if ./gradlew assembleDebug --offline >/dev/null 2>&1; then
+    if ./gradlew assembleDebug --offline > "$TEMP_LOG" 2>&1; then
         echo "✓ Offline build SUCCESS! Android app builds without internet."
         echo ""
         echo "🎉 Setup complete! You can now develop Android apps offline."
         echo "Use: ./gradlew assembleDebug --offline to build the app"
     else
-        echo "❌ Offline build FAILED. Some dependencies may be missing."
-        echo "Check the error with: ./gradlew assembleDebug --offline"
+        echo "❌ Offline build FAILED. Error details:"
+        echo "--- START ERROR LOG ---"
+        cat "$TEMP_LOG" | tail -20
+        echo "--- END ERROR LOG ---"
+        echo ""
+        echo "Debugging info:"
+        echo "Maven repo contents:"
+        find "$HOME/.m2/repository" -name "*.jar" | head -10
+        echo "Gradle cache:"
+        ls -la "$HOME/.gradle/" 2>/dev/null || echo "No .gradle directory"
     fi
 else
-    echo "❌ Gradle tasks failed offline. Basic setup incomplete."
+    echo "❌ Gradle tasks failed offline. Error details:"
+    echo "--- START ERROR LOG ---"
+    cat "$TEMP_LOG"
+    echo "--- END ERROR LOG ---"
+    echo ""
+    echo "Debugging info:"
+    echo "Current directory contents:"
+    ls -la
+    echo ""
+    echo "local.properties content:"
+    cat local.properties 2>/dev/null || echo "No local.properties file"
+    echo ""
+    echo "gradle.properties content:"
+    cat gradle.properties 2>/dev/null || echo "No gradle.properties file"
+    echo ""
+    echo "Maven repo structure:"
+    find "$HOME/.m2/repository" -type d | head -15
+    echo ""
+    echo "Downloaded JARs:"
+    find "$HOME/.m2/repository" -name "*.jar" | head -10
 fi
+
+# Cleanup
+rm -f "$TEMP_LOG"
 
 echo ""
 echo "Setup finished. All necessary plugins and dependencies downloaded."
