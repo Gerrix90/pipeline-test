@@ -36,6 +36,21 @@ else
     echo "❌ Failed to download AGP POM"
 fi
 
+# Download the actual plugin artifact that Gradle looks for
+PLUGIN_DIR="$MAVEN_REPO_DIR/com/android/application/com.android.application.gradle.plugin/$AGP_VERSION"
+mkdir -p "$PLUGIN_DIR"
+
+echo "Downloading Android Application Plugin artifact..."
+curl -x http://proxy:8080 \
+     --cacert $CODEX_PROXY_CERT \
+     -L "https://dl.google.com/android/maven2/com/android/application/com.android.application.gradle.plugin/$AGP_VERSION/com.android.application.gradle.plugin-$AGP_VERSION.jar" \
+     -o "$PLUGIN_DIR/com.android.application.gradle.plugin-$AGP_VERSION.jar" 2>/dev/null || echo "Plugin jar not found, trying alternative..."
+
+curl -x http://proxy:8080 \
+     --cacert $CODEX_PROXY_CERT \
+     -L "https://dl.google.com/android/maven2/com/android/application/com.android.application.gradle.plugin/$AGP_VERSION/com.android.application.gradle.plugin-$AGP_VERSION.pom" \
+     -o "$PLUGIN_DIR/com.android.application.gradle.plugin-$AGP_VERSION.pom" 2>/dev/null || echo "Plugin pom not found, continuing..."
+
 # Download AGP Builder and other critical dependencies
 AGP_BUILDER_DIR="$MAVEN_REPO_DIR/com/android/tools/build/builder/$AGP_VERSION"
 mkdir -p "$AGP_BUILDER_DIR"
@@ -80,10 +95,16 @@ KOTLIN_VERSION="2.0.0"
 KOTLIN_PLUGIN_DIR="$MAVEN_REPO_DIR/org/jetbrains/kotlin/kotlin-gradle-plugin/$KOTLIN_VERSION"
 mkdir -p "$KOTLIN_PLUGIN_DIR"
 
+# Download Kotlin plugin artifacts
 curl -x http://proxy:8080 \
      --cacert $CODEX_PROXY_CERT \
      -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/$KOTLIN_VERSION/kotlin-gradle-plugin-$KOTLIN_VERSION.jar" \
      -o "$KOTLIN_PLUGIN_DIR/kotlin-gradle-plugin-$KOTLIN_VERSION.jar" 2>/dev/null || echo "Kotlin plugin jar not found, continuing..."
+
+curl -x http://proxy:8080 \
+     --cacert $CODEX_PROXY_CERT \
+     -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-gradle-plugin/$KOTLIN_VERSION/kotlin-gradle-plugin-$KOTLIN_VERSION.pom" \
+     -o "$KOTLIN_PLUGIN_DIR/kotlin-gradle-plugin-$KOTLIN_VERSION.pom" 2>/dev/null || echo "Kotlin plugin pom not found, continuing..."
 
 # Download Kotlin Compose Compiler Plugin
 KOTLIN_COMPOSE_DIR="$MAVEN_REPO_DIR/org/jetbrains/kotlin/kotlin-compose-compiler-gradle-plugin/$KOTLIN_VERSION"
@@ -93,6 +114,11 @@ curl -x http://proxy:8080 \
      --cacert $CODEX_PROXY_CERT \
      -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-compose-compiler-gradle-plugin/$KOTLIN_VERSION/kotlin-compose-compiler-gradle-plugin-$KOTLIN_VERSION.jar" \
      -o "$KOTLIN_COMPOSE_DIR/kotlin-compose-compiler-gradle-plugin-$KOTLIN_VERSION.jar" 2>/dev/null || echo "Kotlin compose plugin jar not found, continuing..."
+
+curl -x http://proxy:8080 \
+     --cacert $CODEX_PROXY_CERT \
+     -L "https://repo1.maven.org/maven2/org/jetbrains/kotlin/kotlin-compose-compiler-gradle-plugin/$KOTLIN_VERSION/kotlin-compose-compiler-gradle-plugin-$KOTLIN_VERSION.pom" \
+     -o "$KOTLIN_COMPOSE_DIR/kotlin-compose-compiler-gradle-plugin-$KOTLIN_VERSION.pom" 2>/dev/null || echo "Kotlin compose plugin pom not found, continuing..."
 
 # Downloading other essential Android dependencies
 echo "Downloading key Android dependencies..."
