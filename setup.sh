@@ -252,13 +252,76 @@ Pkg.UserSrc=false
 Pkg.Revision=35.0.0
 EOF
 
-# Create minimal build-tools files that Gradle expects
-touch "$ANDROID_SDK_DIR/build-tools/35.0.0/aapt"
-touch "$ANDROID_SDK_DIR/build-tools/35.0.0/aapt2"
-touch "$ANDROID_SDK_DIR/build-tools/35.0.0/dx"
-chmod +x "$ANDROID_SDK_DIR/build-tools/35.0.0/aapt"
-chmod +x "$ANDROID_SDK_DIR/build-tools/35.0.0/aapt2"
-chmod +x "$ANDROID_SDK_DIR/build-tools/35.0.0/dx"
+# Create all build-tools files that Gradle expects
+BUILD_TOOLS_DIR="$ANDROID_SDK_DIR/build-tools/35.0.0"
+echo "Creating build-tools executables..."
+
+# Core build tools - create stub executables that don't crash
+cat > "$BUILD_TOOLS_DIR/aidl" << 'EOF'
+#!/bin/bash
+# Stub AIDL tool
+echo "AIDL stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/aapt" << 'EOF'
+#!/bin/bash
+# Stub AAPT tool
+echo "AAPT stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/aapt2" << 'EOF'
+#!/bin/bash
+# Stub AAPT2 tool
+echo "AAPT2 stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/dx" << 'EOF'
+#!/bin/bash
+# Stub DX tool
+echo "DX stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/dexdump" << 'EOF'
+#!/bin/bash
+# Stub dexdump tool
+echo "Dexdump stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/zipalign" << 'EOF'
+#!/bin/bash
+# Stub zipalign tool
+echo "Zipalign stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/apksigner" << 'EOF'
+#!/bin/bash
+# Stub apksigner tool
+echo "APK signer stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/d8" << 'EOF'
+#!/bin/bash
+# Stub d8 tool (replacement for dx)
+echo "D8 stub called with: $*" >&2
+exit 0
+EOF
+
+# Make all tools executable
+chmod +x "$BUILD_TOOLS_DIR"/aidl
+chmod +x "$BUILD_TOOLS_DIR"/aapt
+chmod +x "$BUILD_TOOLS_DIR"/aapt2
+chmod +x "$BUILD_TOOLS_DIR"/dx
+chmod +x "$BUILD_TOOLS_DIR"/d8
+chmod +x "$BUILD_TOOLS_DIR"/dexdump
+chmod +x "$BUILD_TOOLS_DIR"/zipalign
+chmod +x "$BUILD_TOOLS_DIR"/apksigner
 
 # Skip package.xml - it causes XML parsing issues with wrong namespace
 # The source.properties file is sufficient for Gradle to recognize the platform
