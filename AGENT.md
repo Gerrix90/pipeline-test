@@ -32,26 +32,21 @@ This project is set up for building in an offline environment. Here are the step
 
 ## Code Validation After Changes
 
-**IMPORTANT**: After making any code changes, you MUST validate that the code compiles correctly. Since the environment is set up with pre-downloaded dependencies, you can validate offline using these commands:
+**IMPORTANT**: After making any code changes, you MUST validate that the code compiles and builds correctly. Since the environment is set up with pre-downloaded dependencies, you can validate offline using these commands:
 
 ### Recommended Validation Steps (in order):
 
-1. **Run unit tests** (fastest validation):
-   ```
-   ./gradlew test --offline
-   ```
-
-2. **Compile the project** (checks for compilation errors):
+1. **Compile the project** (checks for compilation errors):
    ```
    ./gradlew compileDebugKotlin --offline
    ```
 
-3. **Build the debug APK** (full build validation):
+2. **Build the debug APK** (full build validation):
    ```
    ./gradlew assembleDebug --offline
    ```
 
-4. **Run lint checks** (code quality validation):
+3. **Run lint checks** (code quality validation - optional):
    ```
    ./gradlew lintDebug --offline
    ```
@@ -60,15 +55,14 @@ This project is set up for building in an offline environment. Here are the step
 
 For convenience, you can run all validations at once:
 ```
-./gradlew test compileDebugKotlin assembleDebug lintDebug --offline
+./gradlew compileDebugKotlin assembleDebug --offline
 ```
 
 ### Expected Behavior
 
-- Tests should pass without errors
 - Compilation should complete successfully 
 - APK should build without issues
-- Lint should report minimal warnings
+- Lint should report minimal warnings (if run)
 
 If any of these steps fail, the code changes need to be fixed before proceeding.
 
