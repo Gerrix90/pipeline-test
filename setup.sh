@@ -228,27 +228,8 @@ AndroidVersion.ApiLevel=35
 AndroidVersion.CodeName=VanillaIceCream
 EOF
 
-# Also create package.xml for SDK manager compatibility
-cat > "$ANDROID_SDK_DIR/platforms/android-35/package.xml" << 'EOF'
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<sdk:sdk-repository xmlns:sdk="http://schemas.android.com/sdk/android/repository/12">
-  <sdk:localPackage path="platforms;android-35" obsolete="false">
-    <sdk:type-details>
-      <sdk:platform-details>
-        <sdk:api-level>35</sdk:api-level>
-        <sdk:codename>VanillaIceCream</sdk:codename>
-        <sdk:layoutlib>
-          <sdk:api>15</sdk:api>
-        </sdk:layoutlib>
-      </sdk:platform-details>
-    </sdk:type-details>
-    <sdk:revision>
-      <sdk:major>1</sdk:major>
-    </sdk:revision>
-    <sdk:display-name>Android SDK Platform 35</sdk:display-name>
-  </sdk:localPackage>
-</sdk:sdk-repository>
-EOF
+# Skip package.xml - it causes XML parsing issues with wrong namespace
+# The source.properties file is sufficient for Gradle to recognize the platform
 
 # Try to download Android platform JAR
 echo "Downloading Android platform JAR..."
