@@ -224,6 +224,30 @@ Pkg.Revision=1
 Platform.Version=15.0
 Platform.CodeName=VanillaIceCream
 Platform.ApiLevel=35
+AndroidVersion.ApiLevel=35
+AndroidVersion.CodeName=VanillaIceCream
+EOF
+
+# Also create package.xml for SDK manager compatibility
+cat > "$ANDROID_SDK_DIR/platforms/android-35/package.xml" << 'EOF'
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sdk:sdk-repository xmlns:sdk="http://schemas.android.com/sdk/android/repository/12">
+  <sdk:localPackage path="platforms;android-35" obsolete="false">
+    <sdk:type-details>
+      <sdk:platform-details>
+        <sdk:api-level>35</sdk:api-level>
+        <sdk:codename>VanillaIceCream</sdk:codename>
+        <sdk:layoutlib>
+          <sdk:api>15</sdk:api>
+        </sdk:layoutlib>
+      </sdk:platform-details>
+    </sdk:type-details>
+    <sdk:revision>
+      <sdk:major>1</sdk:major>
+    </sdk:revision>
+    <sdk:display-name>Android SDK Platform 35</sdk:display-name>
+  </sdk:localPackage>
+</sdk:sdk-repository>
 EOF
 
 # Try to download Android platform JAR
@@ -234,10 +258,38 @@ if curl -x http://proxy:8080 \
      -o "$ANDROID_SDK_DIR/platforms/android-35/android.jar" 2>/dev/null; then
     echo "✓ Android platform JAR downloaded"
 else
-    echo "⚠ Android platform JAR not found, creating minimal version..."
-    # Create a minimal android.jar (empty but valid JAR)
-    echo "UEsDBAoAAAAAAIdke0gAAAAAAAAAAAAAAAAJAAAATUVUQS1JTkYvUEsDBBQAAAAIAIdke0hd3+KSPgAAAEIAAAAUAAAATUVUQS1JTkYvTUFOSUZFU1QuTUaNz0EKgDAMBdAr5A7+2rpwI3gBF0KJadCxNi2xCt7eFRfuru97w4RsOSJJSXSTONNTe8rUlBtjEn+jHtPH+D9SZ9NuW10s73FcQK1/UEsDBAoAAAAAAIdke0gAAAAAAAAAAAAAAAAJAAAATUVUQS1JTkYvUEsBAi0ACgAAAAAAh2R7SAAAAAAAAAAAAAAAAAAJAAAAAAAAAAAAIAAAAAAAAABNRVRBLUFOR1gBCgAAAAAAh2R7SAsBAAAEAAABFAAAAAAAACAAAAAAAAAsAAAATUVUQS1JTkYvTUFOSUZFU1QuTUZQSwECLQAKAAAAAACHZHtIAAAAAAAAAAAAAAAACQAAAAAAAQAgAAAAgAAAAE1FVEEtSU5GLxLk3Cg==" | base64 -d > "$ANDROID_SDK_DIR/platforms/android-35/android.jar"
-    echo "✓ Minimal android.jar created"
+    echo "⚠ Android platform JAR not found, creating stub version..."
+    # Create a proper stub android.jar with some Android classes
+    mkdir -p /tmp/android_classes
+    cat > /tmp/android_classes/android.java << 'JAVAEOF'
+package android;
+public class Build {
+    public static class VERSION {
+        public static final int SDK_INT = 35;
+        public static final String RELEASE = "15";
+    }
+}
+JAVAEOF
+    
+    # Create Android JAR with proper structure
+    cd /tmp/android_classes
+    mkdir -p android
+    mv android.java android/
+    echo 'public class R {}' > android/R.java
+    
+    # Try to compile if javac is available, otherwise create empty JAR
+    if which javac >/dev/null 2>&1; then
+        javac android/*.java 2>/dev/null || echo "Compilation failed, using minimal JAR"
+        jar cf "$ANDROID_SDK_DIR/platforms/android-35/android.jar" android/*.class 2>/dev/null || \
+        jar cf "$ANDROID_SDK_DIR/platforms/android-35/android.jar" android/*.java
+    else
+        # Create a larger minimal JAR if javac not available
+        jar cf "$ANDROID_SDK_DIR/platforms/android-35/android.jar" android/*.java
+    fi
+    
+    cd - >/dev/null
+    rm -rf /tmp/android_classes
+    echo "✓ Stub android.jar created"
 fi
 
 # Create local.properties to point to Android SDK
