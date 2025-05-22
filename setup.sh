@@ -100,24 +100,37 @@ echo "Downloading key Android dependencies..."
 # Create comprehensive offline repositories configuration
 mkdir -p "$HOME/.gradle"
 cat > "$HOME/.gradle/init.gradle" << 'EOF'
-allprojects {
-    repositories {
-        mavenLocal()
-        maven {
-            url 'https://dl.google.com/dl/android/maven2/'
+settingsEvaluated { settings ->
+    settings.pluginManagement {
+        repositories {
+            maven {
+                url 'file://' + System.getProperty('user.home') + '/.m2/repository'
+            }
+            maven {
+                url 'https://dl.google.com/dl/android/maven2/'
+            }
+            maven {
+                url 'https://repo1.maven.org/maven2/'
+            }
+            mavenCentral()
+            google()
+            gradlePluginPortal()
         }
-        maven {
-            url 'https://repo1.maven.org/maven2/'
-        }
-        mavenCentral()
-        google()
-        gradlePluginPortal()
     }
-}
-
-gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    settings.dependencyResolutionManagement {
+        repositories {
+            maven {
+                url 'file://' + System.getProperty('user.home') + '/.m2/repository'
+            }
+            maven {
+                url 'https://dl.google.com/dl/android/maven2/'
+            }
+            maven {
+                url 'https://repo1.maven.org/maven2/'
+            }
+            mavenCentral()
+            google()
+        }
     }
 }
 EOF
