@@ -32,39 +32,39 @@ This project is set up for building in an offline environment. Here are the step
 
 ## Code Validation After Changes
 
-**IMPORTANT**: After making any code changes, you MUST validate that the code compiles and builds correctly. Since the environment is set up with pre-downloaded dependencies, you can validate offline using these commands:
+**IMPORTANT**: After making any code changes, you MUST validate that the code compiles and builds correctly. The setup.sh script downloads all necessary dependencies for offline development.
 
-### Recommended Validation Steps (in order):
+### Validation Steps for Offline Environment
 
-1. **Compile the project** (checks for compilation errors):
-   ```
-   ./gradlew compileDebugKotlin --offline
-   ```
-
-2. **Build the debug APK** (full build validation):
+1. **Full build validation** (recommended):
    ```
    ./gradlew assembleDebug --offline
    ```
 
-3. **Run lint checks** (code quality validation - optional):
+2. **Quick compilation check**:
    ```
-   ./gradlew lintDebug --offline
+   ./gradlew compileDebugKotlin --offline
    ```
 
-### Quick Validation Script
+3. **Gradle configuration check**:
+   ```
+   ./gradlew tasks --offline
+   ```
 
-For convenience, you can run all validations at once:
+### Alternative: Use Project Scripts
+
+The project includes dedicated scripts for testing:
 ```
-./gradlew compileDebugKotlin assembleDebug --offline
+./test-only.sh
 ```
 
 ### Expected Behavior
 
-- Compilation should complete successfully 
+- Compilation should complete successfully
 - APK should build without issues
-- Lint should report minimal warnings (if run)
+- All Gradle tasks should be accessible offline
 
-If any of these steps fail, the code changes need to be fixed before proceeding.
+If validation fails, check that setup.sh ran successfully and fix any code issues before proceeding.
 
 ## Troubleshooting
 
@@ -94,7 +94,8 @@ If you receive errors about missing dependencies, this is expected since we're i
 
 ### Known Limitations
 
-- ~~Full Android builds will not work in completely offline mode, as the Android Gradle Plugin is required~~ **UPDATED**: Full Android builds now work offline after setup.sh has run
-- Unit tests work reliably in offline mode
-- All compilation and build tasks work offline after initial setup
-- This setup supports complete development workflows in offline/restricted environments
+- **Initial setup required**: setup.sh must run successfully with internet access to download all dependencies
+- **Offline mode works after setup**: Full Android builds work offline after setup.sh completes
+- Unit tests work reliably in offline mode  
+- All Gradle functionality works offline after proper setup
+- Complete development workflow supported in offline environments
