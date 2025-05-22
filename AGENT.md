@@ -30,6 +30,48 @@ This project is set up for building in an offline environment. Here are the step
    ./gradlew test --offline
    ```
 
+## Code Validation After Changes
+
+**IMPORTANT**: After making any code changes, you MUST validate that the code compiles correctly. Since the environment is set up with pre-downloaded dependencies, you can validate offline using these commands:
+
+### Recommended Validation Steps (in order):
+
+1. **Run unit tests** (fastest validation):
+   ```
+   ./gradlew test --offline
+   ```
+
+2. **Compile the project** (checks for compilation errors):
+   ```
+   ./gradlew compileDebugKotlin --offline
+   ```
+
+3. **Build the debug APK** (full build validation):
+   ```
+   ./gradlew assembleDebug --offline
+   ```
+
+4. **Run lint checks** (code quality validation):
+   ```
+   ./gradlew lintDebug --offline
+   ```
+
+### Quick Validation Script
+
+For convenience, you can run all validations at once:
+```
+./gradlew test compileDebugKotlin assembleDebug lintDebug --offline
+```
+
+### Expected Behavior
+
+- Tests should pass without errors
+- Compilation should complete successfully 
+- APK should build without issues
+- Lint should report minimal warnings
+
+If any of these steps fail, the code changes need to be fixed before proceeding.
+
 ## Troubleshooting
 
 ### Gradle Wrapper Issues
@@ -58,6 +100,7 @@ If you receive errors about missing dependencies, this is expected since we're i
 
 ### Known Limitations
 
-- Full Android builds will not work in completely offline mode, as the Android Gradle Plugin is required
-- Unit tests might work if they don't depend on Android-specific components
-- This setup is primarily for development environments with limited connectivity
+- ~~Full Android builds will not work in completely offline mode, as the Android Gradle Plugin is required~~ **UPDATED**: Full Android builds now work offline after setup.sh has run
+- Unit tests work reliably in offline mode
+- All compilation and build tasks work offline after initial setup
+- This setup supports complete development workflows in offline/restricted environments

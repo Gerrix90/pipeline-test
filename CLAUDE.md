@@ -31,6 +31,24 @@ The project uses Gradle with the Gradle Kotlin DSL for build configuration. Depe
 ./gradlew app:installDebug
 ```
 
+### Offline Environment Support
+
+This project supports building in offline/restricted environments:
+
+```bash
+# Setup for offline builds (extracts Gradle from system)
+./extract-gradle.sh
+
+# Run tests in offline mode
+./gradlew test --offline
+
+# Run unit tests only (works without Android dependencies)
+./test-only.sh
+
+# Complete offline build setup
+./setup-offline-build.sh
+```
+
 ### Testing
 
 ```bash
@@ -80,5 +98,13 @@ The application follows a standard Android architecture:
    - Target SDK: 35
    - Compose BOM: 2024.04.01
    - Kotlin version: 2.0.0
+   - AGP version: 8.8.2
+   - Java target: 11
 
-The app currently has minimal functionality, serving as a template or starting point for a more fully-featured application.
+3. **Build Configuration**:
+   - Uses Gradle version catalog (`gradle/libs.versions.toml`)
+   - Supports both online and offline build environments
+   - Includes pre-built dependencies for offline scenarios
+   - Multiple shell scripts for different deployment scenarios
+
+The app currently has minimal functionality, serving as a template or starting point for a more fully-featured application. The project includes extensive offline build support for deployment in restricted environments.
