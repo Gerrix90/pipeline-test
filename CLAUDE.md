@@ -138,24 +138,33 @@ Failed to find target with hash string 'android-34' in: /root/android-sdk
 
 ### Current Status
 - **Working**: Plugin resolution, dependency caching, Gradle tasks offline
-- **Not Working**: Android platform recognition for compilation
-- **Next**: Need to investigate why Gradle cannot recognize the android-34 platform despite proper SDK structure
+- **Not Working**: Android platform recognition for compilation (both online and offline)
+- **Hypothesis**: Online assembleDebug may be failing first, causing incomplete dependency cache
+- **Next**: Added debugging to capture online build errors to identify root cause
+
+### Recent Investigation
+
+4. **Online Build Debugging** 🔄 IN PROGRESS
+   - Added detailed logging for online assembleDebug failures
+   - Hypothesis: If online build fails due to SDK issues, offline will also fail
+   - Need to determine if problem is circular (online → offline) or SDK-specific
+   - Result: Will show whether online assembleDebug succeeds or fails with same error
 
 ### Next Steps to Try
 
-1. **Investigate Gradle SDK Detection**
-   - Check how AGP searches for Android platforms
-   - Verify if additional SDK metadata files are needed
-   - Test with different SDK directory structures
+1. **Analyze Online vs Offline Build Results**
+   - Compare online assembleDebug error with offline error
+   - If same error: problem is SDK setup, not dependency caching
+   - If different: problem is incomplete dependency cache
 
-2. **Alternative Approaches**
-   - Try using pre-built Android SDK platform from official sources
-   - Investigate using Android SDK manager for proper platform setup
-   - Consider using container with pre-installed Android SDK
+2. **SDK Structure Investigation**
+   - Try older Android API versions (33, 32) for better compatibility
+   - Research exact AGP requirements for platform detection
+   - Compare with real Android SDK installation structure
 
-3. **Debugging Enhancement**
-   - Add more detailed SDK structure validation
-   - Test platform recognition independently from build
-   - Compare with working Android SDK installations
+3. **Alternative Approaches**
+   - Download actual Android SDK platform files instead of creating stubs
+   - Use Android SDK manager (sdkmanager) if available in container
+   - Test with minimal Android SDK installation from official sources
 
 The goal remains: achieve complete offline Android builds with setup.sh preparing all necessary components for subsequent offline development.
