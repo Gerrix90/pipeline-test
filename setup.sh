@@ -204,8 +204,9 @@ EOF
 # Set up basic Android SDK structure
 ANDROID_SDK_DIR="$HOME/android-sdk"
 mkdir -p "$ANDROID_SDK_DIR/platforms/android-35"
-mkdir -p "$ANDROID_SDK_DIR/build-tools/34.0.0"
+mkdir -p "$ANDROID_SDK_DIR/build-tools/35.0.0"
 mkdir -p "$ANDROID_SDK_DIR/platform-tools"
+mkdir -p "$ANDROID_SDK_DIR/licenses"
 
 # Download and setup proper Android SDK platform
 echo "Setting up Android platform-35..."
@@ -227,6 +228,37 @@ Platform.ApiLevel=35
 AndroidVersion.ApiLevel=35
 AndroidVersion.CodeName=VanillaIceCream
 EOF
+
+# Accept Android SDK licenses
+echo "Setting up Android SDK licenses..."
+cat > "$ANDROID_SDK_DIR/licenses/android-sdk-license" << 'EOF'
+24333f8a63b6825ea9c5514f83c2829b004d1fee
+EOF
+
+cat > "$ANDROID_SDK_DIR/licenses/android-sdk-arm-dbt-license" << 'EOF'
+859f317696f67ef3d7f30a50a5560e7834b43903
+EOF
+
+cat > "$ANDROID_SDK_DIR/licenses/google-gdk-license" << 'EOF'
+33b6a2b64607f11b759f320ef9dff4ae5c47d97a
+EOF
+
+# Set up build-tools 35.0.0
+echo "Setting up build-tools 35.0.0..."
+mkdir -p "$ANDROID_SDK_DIR/build-tools/35.0.0"
+cat > "$ANDROID_SDK_DIR/build-tools/35.0.0/source.properties" << 'EOF'
+Pkg.Desc=Android SDK Build-Tools 35
+Pkg.UserSrc=false
+Pkg.Revision=35.0.0
+EOF
+
+# Create minimal build-tools files that Gradle expects
+touch "$ANDROID_SDK_DIR/build-tools/35.0.0/aapt"
+touch "$ANDROID_SDK_DIR/build-tools/35.0.0/aapt2"
+touch "$ANDROID_SDK_DIR/build-tools/35.0.0/dx"
+chmod +x "$ANDROID_SDK_DIR/build-tools/35.0.0/aapt"
+chmod +x "$ANDROID_SDK_DIR/build-tools/35.0.0/aapt2"
+chmod +x "$ANDROID_SDK_DIR/build-tools/35.0.0/dx"
 
 # Skip package.xml - it causes XML parsing issues with wrong namespace
 # The source.properties file is sufficient for Gradle to recognize the platform
@@ -271,6 +303,12 @@ JAVAEOF
     cd - >/dev/null
     rm -rf /tmp/android_classes
     echo "✓ Stub android.jar created"
+fi
+
+# Remove any package.xml that might have been created - it causes SDK detection issues
+if [ -f "$ANDROID_SDK_DIR/platforms/android-35/package.xml" ]; then
+    echo "Removing problematic package.xml..."
+    rm -f "$ANDROID_SDK_DIR/platforms/android-35/package.xml"
 fi
 
 # Create local.properties to point to Android SDK
