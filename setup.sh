@@ -253,6 +253,34 @@ echo "AGP POM size: $(ls -lh "$AGP_DIR/gradle-$AGP_VERSION.pom" 2>/dev/null | aw
 echo "Gradle distribution size: $(ls -lh "$GRADLE_DIST_DIR/gradle-$GRADLE_VERSION-bin.zip" 2>/dev/null | awk '{print $5}' || echo 'NOT FOUND')"
 echo "Android SDK directory created: $([ -d "$ANDROID_SDK_DIR" ] && echo 'YES' || echo 'NO')"
 echo "local.properties created: $([ -f "local.properties" ] && echo 'YES' || echo 'NO')"
+
+# Debug Android SDK structure
+echo ""
+echo "Android SDK structure:"
+echo "SDK directory: $ANDROID_SDK_DIR"
+if [ -d "$ANDROID_SDK_DIR/platforms/android-35" ]; then
+    echo "✓ android-35 platform directory exists"
+    echo "Contents of android-35:"
+    ls -la "$ANDROID_SDK_DIR/platforms/android-35/"
+    
+    if [ -f "$ANDROID_SDK_DIR/platforms/android-35/android.jar" ]; then
+        echo "✓ android.jar exists ($(ls -lh "$ANDROID_SDK_DIR/platforms/android-35/android.jar" | awk '{print $5}'))"
+    else
+        echo "❌ android.jar missing"
+    fi
+    
+    if [ -f "$ANDROID_SDK_DIR/platforms/android-35/source.properties" ]; then
+        echo "✓ source.properties exists"
+        echo "Contents:"
+        cat "$ANDROID_SDK_DIR/platforms/android-35/source.properties"
+    else
+        echo "❌ source.properties missing"
+    fi
+else
+    echo "❌ android-35 platform directory missing"
+    echo "Available platforms:"
+    ls -la "$ANDROID_SDK_DIR/platforms/" 2>/dev/null || echo "No platforms directory"
+fi
 echo ""
 
 # First, run an online build to populate Gradle cache with ALL dependencies
@@ -298,6 +326,14 @@ if ./gradlew tasks --offline > "$TEMP_LOG" 2>&1; then
         find "$HOME/.m2/repository" -name "*.jar" | head -10
         echo "Gradle cache:"
         ls -la "$HOME/.gradle/" 2>/dev/null || echo "No .gradle directory"
+        echo ""
+        echo "Re-checking Android SDK after failure:"
+        echo "SDK directory exists: $([ -d "$ANDROID_SDK_DIR" ] && echo 'YES' || echo 'NO')"
+        echo "local.properties SDK path: $(grep sdk.dir local.properties 2>/dev/null || echo 'NOT FOUND')"
+        echo "android-35 platform: $([ -d "$ANDROID_SDK_DIR/platforms/android-35" ] && echo 'EXISTS' || echo 'MISSING')"
+        if [ -d "$ANDROID_SDK_DIR/platforms/android-35" ]; then
+            echo "android-35 contents: $(ls "$ANDROID_SDK_DIR/platforms/android-35/" 2>/dev/null || echo 'EMPTY')"
+        fi
     fi
 else
     echo "❌ Gradle tasks failed offline. Error details:"
