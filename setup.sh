@@ -313,6 +313,41 @@ echo "D8 stub called with: $*" >&2
 exit 0
 EOF
 
+cat > "$BUILD_TOOLS_DIR/split-select" << 'EOF'
+#!/bin/bash
+# Stub split-select tool
+echo "Split-select stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/llvm-rs-cc" << 'EOF'
+#!/bin/bash
+# Stub llvm-rs-cc tool
+echo "LLVM-RS-CC stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/bcc_compat" << 'EOF'
+#!/bin/bash
+# Stub bcc_compat tool
+echo "BCC_compat stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/arm-linux-androideabi-ld" << 'EOF'
+#!/bin/bash
+# Stub linker tool
+echo "ARM linker stub called with: $*" >&2
+exit 0
+EOF
+
+cat > "$BUILD_TOOLS_DIR/ld" << 'EOF'
+#!/bin/bash
+# Stub ld tool
+echo "LD stub called with: $*" >&2
+exit 0
+EOF
+
 # Make all tools executable
 chmod +x "$BUILD_TOOLS_DIR"/aidl
 chmod +x "$BUILD_TOOLS_DIR"/aapt
@@ -322,6 +357,11 @@ chmod +x "$BUILD_TOOLS_DIR"/d8
 chmod +x "$BUILD_TOOLS_DIR"/dexdump
 chmod +x "$BUILD_TOOLS_DIR"/zipalign
 chmod +x "$BUILD_TOOLS_DIR"/apksigner
+chmod +x "$BUILD_TOOLS_DIR"/split-select
+chmod +x "$BUILD_TOOLS_DIR"/llvm-rs-cc
+chmod +x "$BUILD_TOOLS_DIR"/bcc_compat
+chmod +x "$BUILD_TOOLS_DIR"/arm-linux-androideabi-ld
+chmod +x "$BUILD_TOOLS_DIR"/ld
 
 # Skip package.xml - it causes XML parsing issues with wrong namespace
 # The source.properties file is sufficient for Gradle to recognize the platform
@@ -368,11 +408,15 @@ JAVAEOF
     echo "✓ Stub android.jar created"
 fi
 
-# Remove any package.xml that might have been created - it causes SDK detection issues
-if [ -f "$ANDROID_SDK_DIR/platforms/android-35/package.xml" ]; then
-    echo "Removing problematic package.xml..."
-    rm -f "$ANDROID_SDK_DIR/platforms/android-35/package.xml"
-fi
+# Force remove any package.xml that might have been created - it causes SDK detection issues
+echo "Removing any problematic package.xml files..."
+rm -f "$ANDROID_SDK_DIR/platforms/android-35/package.xml"
+rm -f "$ANDROID_SDK_DIR/platforms/android-35-2/package.xml" 2>/dev/null
+rm -f "$ANDROID_SDK_DIR/platforms/android-VanillaIceCream/package.xml" 2>/dev/null
+
+# Also clean up any inconsistent platform directories
+rm -rf "$ANDROID_SDK_DIR/platforms/android-35-2" 2>/dev/null
+rm -rf "$ANDROID_SDK_DIR/platforms/android-VanillaIceCream" 2>/dev/null
 
 # Create local.properties to point to Android SDK
 cat > "local.properties" << EOF
@@ -499,6 +543,12 @@ else
     echo "Downloaded JARs:"
     find "$HOME/.m2/repository" -name "*.jar" | head -10
 fi
+
+# Final cleanup - remove any SDK inconsistencies that may have been created during online builds
+echo "Final cleanup of SDK inconsistencies..."
+rm -f "$ANDROID_SDK_DIR/platforms/android-35/package.xml" 2>/dev/null
+rm -rf "$ANDROID_SDK_DIR/platforms/android-35-2" 2>/dev/null
+rm -rf "$ANDROID_SDK_DIR/platforms/android-VanillaIceCream" 2>/dev/null
 
 # Cleanup
 rm -f "$TEMP_LOG"
