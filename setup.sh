@@ -326,11 +326,19 @@ if ./gradlew tasks > /dev/null 2>&1; then
     
     # Now try assembleDebug online to cache build dependencies too
     echo "Running online assembleDebug to cache build dependencies..."
-    if ./gradlew assembleDebug > /dev/null 2>&1; then
+    ONLINE_BUILD_LOG="/tmp/online_build.log"
+    if ./gradlew assembleDebug > "$ONLINE_BUILD_LOG" 2>&1; then
         echo "✓ Online assembleDebug successful - all dependencies cached"
     else
-        echo "⚠ Online assembleDebug had issues, but continuing with offline test"
+        echo "❌ Online assembleDebug FAILED. Error details:"
+        echo "--- ONLINE BUILD ERROR LOG ---"
+        cat "$ONLINE_BUILD_LOG" | tail -20
+        echo "--- END ONLINE BUILD ERROR LOG ---"
+        echo ""
+        echo "This means offline build will likely fail due to incomplete dependency cache."
+        echo "Continuing with offline test anyway..."
     fi
+    rm -f "$ONLINE_BUILD_LOG"
     
     echo ""
     echo "Testing offline build capability..."
