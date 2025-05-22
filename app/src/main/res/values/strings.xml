@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Pipeline test</string>
+    <string name="new_button_label">New Button</string>
 </resources>
