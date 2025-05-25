@@ -104,11 +104,10 @@ class DailyCountdownWidget : AppWidgetProvider() {
             val hours = seconds / 3_600
             seconds %= 3_600
             val minutes = seconds / 60
-            seconds %= 60
             return if (days > 0) {
-                String.format("%d days %02d:%02d:%02d", days, hours, minutes, seconds)
+                String.format("%d days %02d:%02d", days, hours, minutes)
             } else {
-                String.format("%02d:%02d:%02d", hours, minutes, seconds)
+                String.format("%02d:%02d", hours, minutes)
             }
         }
     }
