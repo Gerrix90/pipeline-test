@@ -8,6 +8,12 @@ import androidx.compose.ui.unit.sp
 
 // TODO: replace FontFamily.Default with Inter font family when font resources are available
 val Typography = Typography(
+    displayMedium = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 48.sp,
+        lineHeight = 52.sp
+    ),
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,

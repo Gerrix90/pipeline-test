@@ -1,7 +1,12 @@
 package com.jahi.pipelinetest
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
@@ -9,6 +14,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
+import com.jahi.pipelinetest.ui.theme.AppDimens
+import com.jahi.pipelinetest.ui.theme.Slate100
+import com.jahi.pipelinetest.ui.theme.Slate400
+import com.jahi.pipelinetest.ui.theme.SurfaceDark
+
+@Composable
+private fun CountdownCard(title: String, value: String) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(AppDimens.StandardPadding),
+        colors = CardDefaults.cardColors(containerColor = SurfaceDark.copy(alpha = 0.7f))
+    ) {
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = title, color = Slate400)
+            Text(
+                text = value,
+                color = Slate100,
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
 
 @Composable
 fun CountdownsScreen(
@@ -18,21 +51,30 @@ fun CountdownsScreen(
     val now by viewModel.now.collectAsState()
 
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Daily Countdown", fontWeight = FontWeight.Bold)
-        Text(text = viewModel.formatDuration(viewModel.durationToEndOfDay(now)))
+        CountdownCard(
+            title = "Daily Countdown",
+            value = viewModel.formatDuration(viewModel.durationToEndOfDay(now))
+        )
 
         if (viewModel.showYearCountdown) {
-            Text(text = "Year Countdown", fontWeight = FontWeight.Bold)
-            Text(text = viewModel.daysUntilEndOfYear(now).toString() + " days")
+            CountdownCard(
+                title = "Year Countdown",
+                value = viewModel.daysUntilEndOfYear(now).toString() + " days"
+            )
         }
 
         val eventDate = viewModel.eventDate
         if (eventDate.isNotBlank()) {
-            Text(text = viewModel.eventName, fontWeight = FontWeight.Bold)
             val diff = viewModel.durationToEvent(eventDate, now)
             if (diff != null) {
-                Text(text =
-                    if (viewModel.eventShowTime) viewModel.formatDuration(diff) else "${diff.toDays()} days")
+                CountdownCard(
+                    title = viewModel.eventName,
+                    value = if (viewModel.eventShowTime) {
+                        viewModel.formatDuration(diff)
+                    } else {
+                        "${diff.toDays()} days"
+                    }
+                )
             }
         }
     }
