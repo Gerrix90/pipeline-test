@@ -17,24 +17,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingsDialog(prefs: Prefs, onDismiss: () -> Unit) {
-    var showYear by remember { mutableStateOf(prefs.showYearCountdown) }
-    var eventName by remember { mutableStateOf(prefs.eventName) }
-    var eventDate by remember { mutableStateOf(prefs.eventDate) }
-    var eventTime by remember { mutableStateOf(prefs.eventShowTime) }
-    var currentAge by remember { mutableStateOf(prefs.currentAge.toString()) }
-    var targetAge by remember { mutableStateOf(prefs.targetAge.toString()) }
+fun SettingsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
+    var showYear by remember { mutableStateOf(viewModel.showYearCountdown) }
+    var eventName by remember { mutableStateOf(viewModel.eventName) }
+    var eventDate by remember { mutableStateOf(viewModel.eventDate) }
+    var eventTime by remember { mutableStateOf(viewModel.eventShowTime) }
+    var currentAge by remember { mutableStateOf(viewModel.currentAge.toString()) }
+    var targetAge by remember { mutableStateOf(viewModel.targetAge.toString()) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
             Button(onClick = {
-                prefs.showYearCountdown = showYear
-                prefs.eventName = eventName
-                prefs.eventDate = eventDate
-                prefs.eventShowTime = eventTime
-                prefs.currentAge = currentAge.toIntOrNull() ?: prefs.currentAge
-                prefs.targetAge = targetAge.toIntOrNull() ?: prefs.targetAge
+                viewModel.showYearCountdown = showYear
+                viewModel.eventName = eventName
+                viewModel.eventDate = eventDate
+                viewModel.eventShowTime = eventTime
+                viewModel.currentAge = currentAge.toIntOrNull() ?: viewModel.currentAge
+                viewModel.targetAge = targetAge.toIntOrNull() ?: viewModel.targetAge
                 onDismiss()
             }) { Text("Save") }
         },
