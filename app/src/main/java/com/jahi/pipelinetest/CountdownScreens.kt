@@ -53,7 +53,7 @@ fun CountdownsScreen(
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         CountdownCard(
             title = "Daily Countdown",
-            value = viewModel.formatDuration(viewModel.durationToEndOfDay(now))
+            value = viewModel.formatTime(viewModel.durationToEndOfDay(now))
         )
 
         if (viewModel.showYearCountdown) {
