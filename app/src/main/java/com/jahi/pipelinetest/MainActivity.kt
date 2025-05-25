@@ -6,6 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,9 +17,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,11 +42,19 @@ class MainActivity : ComponentActivity() {
             PipelineTestTheme {
                 var screen by rememberSaveable { mutableStateOf(0) }
                 var showSettings by rememberSaveable { mutableStateOf(false) }
+                val gradient = remember { Brush.linearGradient(listOf(com.jahi.pipelinetest.ui.theme.Slate900, com.jahi.pipelinetest.ui.theme.Slate800)) }
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(gradient),
+                    containerColor = Color.Transparent,
                     topBar = {
                         TopAppBar(
                             title = { Text(text = "Time Fomo") },
+                            colors = TopAppBarDefaults.smallTopAppBarColors(
+                                containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f),
+                                titleContentColor = com.jahi.pipelinetest.ui.theme.Slate100
+                            ),
                             actions = {
                                 IconButton(onClick = { showSettings = true }) {
                                     Icon(Icons.Default.Settings, contentDescription = "Settings")
@@ -49,18 +63,32 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     bottomBar = {
-                        NavigationBar {
+                        NavigationBar(containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f)) {
                             NavigationBarItem(
                                 selected = screen == 0,
                                 onClick = { screen = 0 },
                                 label = { Text("Countdowns") },
-                                icon = { }
+                                icon = { },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                    selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                    unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                    unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                    indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
+                                )
                             )
                             NavigationBarItem(
                                 selected = screen == 1,
                                 onClick = { screen = 1 },
                                 label = { Text("Life") },
-                                icon = { }
+                                icon = { },
+                                colors = NavigationBarItemDefaults.colors(
+                                    selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                    selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                    unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                    unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                    indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
+                                )
                             )
                         }
                     }
