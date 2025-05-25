@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Time Fomo</string>
+    <string name="daily_countdown_widget_label">Daily Countdown</string>
 </resources>
