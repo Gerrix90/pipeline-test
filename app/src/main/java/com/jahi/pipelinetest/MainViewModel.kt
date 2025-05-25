@@ -105,6 +105,15 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
         seconds %= 60
         return String.format("%d days %02d:%02d:%02d", days, hours, minutes, seconds)
     }
+
+    fun formatTime(d: Duration): String {
+        var seconds = d.seconds
+        val hours = seconds / 3600
+        seconds %= 3600
+        val minutes = seconds / 60
+        seconds %= 60
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    }
 }
 
 class MainViewModelFactory(private val prefs: Prefs) : ViewModelProvider.Factory {
