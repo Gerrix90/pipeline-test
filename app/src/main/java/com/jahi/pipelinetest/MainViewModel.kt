@@ -80,14 +80,19 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
     }
 
     fun durationToEvent(dateStr: String, now: Instant = this.now.value): Duration? {
-        return try {
-            val date = LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-            val z = ZoneId.systemDefault()
-            val instant = date.atZone(z).toInstant()
-            Duration.between(now, instant)
+        val trimmed = dateStr.trim()
+        val z = ZoneId.systemDefault()
+        val dateTime = try {
+            LocalDateTime.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         } catch (e: Exception) {
-            null
+            try {
+                LocalDate.parse(trimmed, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay()
+            } catch (e2: Exception) {
+                return null
+            }
         }
+        val instant = dateTime.atZone(z).toInstant()
+        return Duration.between(now, instant)
     }
 
     fun formatDuration(d: Duration): String {
