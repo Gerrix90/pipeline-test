@@ -33,6 +33,23 @@ class DailyCountdownWidget : AppWidgetProvider() {
         cancelUpdates(context)
     }
 
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+        if (intent.action == Intent.ACTION_TIME_CHANGED ||
+            intent.action == Intent.ACTION_TIMEZONE_CHANGED ||
+            intent.action == Intent.ACTION_DATE_CHANGED
+        ) {
+            val manager = AppWidgetManager.getInstance(context)
+            val ids = manager.getAppWidgetIds(
+                ComponentName(context, DailyCountdownWidget::class.java)
+            )
+            for (id in ids) {
+                updateAppWidget(context, manager, id)
+            }
+            scheduleUpdates(context)
+        }
+    }
+
     private fun scheduleUpdates(context: Context) {
         val intent = Intent(context, DailyCountdownWidget::class.java).apply {
             action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
