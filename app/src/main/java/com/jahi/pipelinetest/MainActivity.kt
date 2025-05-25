@@ -24,9 +24,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModelProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,11 +35,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val prefs = Prefs(this)
+        val viewModel = ViewModelProvider(this, MainViewModelFactory(prefs))[MainViewModel::class.java]
         enableEdgeToEdge()
         setContent {
             PipelineTestTheme {
-                var screen by rememberSaveable { mutableStateOf(0) }
-                var showSettings by rememberSaveable { mutableStateOf(false) }
                 val gradient = remember { Brush.linearGradient(listOf(com.jahi.pipelinetest.ui.theme.Slate900, com.jahi.pipelinetest.ui.theme.Slate800)) }
                 Scaffold(
                     modifier = Modifier
@@ -56,7 +53,7 @@ class MainActivity : ComponentActivity() {
                                 titleContentColor = com.jahi.pipelinetest.ui.theme.Slate100
                             ),
                             actions = {
-                                IconButton(onClick = { showSettings = true }) {
+                                IconButton(onClick = { viewModel.openSettings() }) {
                                     Icon(Icons.Default.Settings, contentDescription = "Settings")
                                 }
                             }
@@ -65,8 +62,8 @@ class MainActivity : ComponentActivity() {
                     bottomBar = {
                         NavigationBar(containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f)) {
                             NavigationBarItem(
-                                selected = screen == 0,
-                                onClick = { screen = 0 },
+                                selected = viewModel.screen == 0,
+                                onClick = { viewModel.selectScreen(0) },
                                 label = { Text("Countdowns") },
                                 icon = { },
                                 colors = NavigationBarItemDefaults.colors(
@@ -78,8 +75,8 @@ class MainActivity : ComponentActivity() {
                                 )
                             )
                             NavigationBarItem(
-                                selected = screen == 1,
-                                onClick = { screen = 1 },
+                                selected = viewModel.screen == 1,
+                                onClick = { viewModel.selectScreen(1) },
                                 label = { Text("Life") },
                                 icon = { },
                                 colors = NavigationBarItemDefaults.colors(
@@ -93,13 +90,13 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { innerPadding ->
-                    if (screen == 0) {
-                        CountdownsScreen(prefs, Modifier.padding(innerPadding))
+                    if (viewModel.screen == 0) {
+                        CountdownsScreen(viewModel, Modifier.padding(innerPadding))
                     } else {
-                        LifeHourglassScreen(prefs, Modifier.padding(innerPadding))
+                        LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
                     }
-                    if (showSettings) {
-                        SettingsDialog(prefs) { showSettings = false }
+                    if (viewModel.showSettings) {
+                        SettingsDialog(viewModel) { viewModel.closeSettings() }
                     }
                 }
             }
@@ -111,6 +108,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DefaultPreview() {
     PipelineTestTheme {
-        CountdownsScreen(Prefs(androidx.compose.ui.platform.LocalContext.current))
+        val context = LocalContext.current
+        val vm = remember { MainViewModel(Prefs(context)) }
+        CountdownsScreen(vm)
     }
 }
