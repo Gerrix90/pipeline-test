@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.content.ComponentName
 import android.widget.RemoteViews
 import java.time.Duration
 import java.time.Instant
@@ -35,6 +36,9 @@ class DailyCountdownWidget : AppWidgetProvider() {
     private fun scheduleUpdates(context: Context) {
         val intent = Intent(context, DailyCountdownWidget::class.java).apply {
             action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            val ids = AppWidgetManager.getInstance(context)
+                .getAppWidgetIds(ComponentName(context, DailyCountdownWidget::class.java))
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -54,6 +58,9 @@ class DailyCountdownWidget : AppWidgetProvider() {
     private fun cancelUpdates(context: Context) {
         val intent = Intent(context, DailyCountdownWidget::class.java).apply {
             action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            val ids = AppWidgetManager.getInstance(context)
+                .getAppWidgetIds(ComponentName(context, DailyCountdownWidget::class.java))
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
