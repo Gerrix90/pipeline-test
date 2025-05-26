@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.DatePicker
@@ -121,10 +120,10 @@ fun SettingsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         DatePicker(state = datePickerState)
                     }
                 }
-                RowRadioButtons(
+                RowCheckbox(
                     label = "Display Custom Event",
-                    selected = showCustomEvent,
-                    onSelected = { showCustomEvent = it }
+                    checked = showCustomEvent,
+                    onChecked = { showCustomEvent = it }
                 )
                 RowCheckbox(label = "Show Event Time", checked = eventTime) { eventTime = it }
                 TextField(
@@ -155,16 +154,3 @@ private fun RowCheckbox(label: String, checked: Boolean, onChecked: (Boolean) ->
     }
 }
 
-@Composable
-private fun RowRadioButtons(label: String, selected: Boolean, onSelected: (Boolean) -> Unit) {
-    androidx.compose.foundation.layout.Row(
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 4.dp)
-    ) {
-        Text(text = label, modifier = Modifier.padding(end = 8.dp))
-        RadioButton(selected = selected, onClick = { onSelected(true) })
-        Text(text = "Show", modifier = Modifier.padding(end = 8.dp))
-        RadioButton(selected = !selected, onClick = { onSelected(false) })
-        Text(text = "Hide")
-    }
-}
