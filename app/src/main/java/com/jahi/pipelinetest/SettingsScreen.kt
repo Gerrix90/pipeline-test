@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
@@ -20,6 +21,9 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.platform.LocalContext
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.CustomEvent
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,11 +110,23 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                             label = { Text("Event Name") },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        val context = LocalContext.current
                         TextField(
                             value = event.date,
-                            onValueChange = { events[index] = event.copy(date = it) },
-                            label = { Text("Event Date (yyyy-MM-ddTHH:mm)") },
-                            modifier = Modifier.fillMaxWidth()
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Event Date") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    openDateTimePicker(
+                                        context,
+                                        event.date,
+                                        event.showTime
+                                    ) { selected ->
+                                        events[index] = event.copy(date = selected)
+                                    }
+                                }
                         )
                         RowCheckbox("Show Time", event.showTime) {
                             events[index] = event.copy(showTime = it)
@@ -132,3 +151,47 @@ private fun RowCheckbox(label: String, checked: Boolean, onChecked: (Boolean) ->
         Text(text = label)
     }
 }
+
+private fun openDateTimePicker(
+    context: android.content.Context,
+    value: String,
+    showTime: Boolean,
+    onSelected: (String) -> Unit
+) {
+    var dateTime = run {
+        try {
+            LocalDateTime.parse(value)
+        } catch (_: Exception) {
+            try {
+                LocalDate.parse(value).atStartOfDay()
+            } catch (_: Exception) {
+                LocalDateTime.now()
+            }
+        }
+    }
+
+    DatePickerDialog(
+        context,
+        { _, year, month, day ->
+            dateTime = dateTime.withYear(year).withMonth(month + 1).withDayOfMonth(day)
+            if (showTime) {
+                TimePickerDialog(
+                    context,
+                    { _, hour, minute ->
+                        dateTime = dateTime.withHour(hour).withMinute(minute)
+                        onSelected(dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                    },
+                    dateTime.hour,
+                    dateTime.minute,
+                    true
+                ).show()
+            } else {
+                onSelected(dateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
+            }
+        },
+        dateTime.year,
+        dateTime.monthValue - 1,
+        dateTime.dayOfMonth
+    ).show()
+}
+
