@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
@@ -199,10 +200,13 @@ private fun HourglassItem(year: Int, state: HourglassState) {
         HourglassState.NEUTRAL -> Slate400
     }
 
+    val disabledAlpha = if (state == HourglassState.PAST) 0.4f else 1f
+
     Column(
         modifier = Modifier
             .padding(4.dp)
             .size(60.dp)
+            .alpha(disabledAlpha)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
