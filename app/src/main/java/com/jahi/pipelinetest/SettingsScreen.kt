@@ -20,6 +20,8 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +31,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.CustomEvent
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.content.Context
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeParseException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +51,8 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
     val events = remember {
         mutableStateListOf<CustomEvent>().also { it.addAll(viewModel.events) }
     }
+
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -105,9 +117,25 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         )
                         TextField(
                             value = event.date,
-                            onValueChange = { events[index] = event.copy(date = it) },
+                            onValueChange = {},
                             label = { Text("Event Date (yyyy-MM-ddTHH:mm)") },
-                            modifier = Modifier.fillMaxWidth()
+                            isError = !isValidDate(event.date),
+                            supportingText = {
+                                if (!isValidDate(event.date)) {
+                                    Text("Use yyyy-MM-dd or yyyy-MM-ddTHH:mm")
+                                }
+                            },
+                            readOnly = true,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    openDateTimePicker(
+                                        context,
+                                        event.date
+                                    ) { result ->
+                                        events[index] = event.copy(date = result)
+                                    }
+                                }
                         )
                         RowCheckbox("Show Time", event.showTime) {
                             events[index] = event.copy(showTime = it)
@@ -131,4 +159,52 @@ private fun RowCheckbox(label: String, checked: Boolean, onChecked: (Boolean) ->
         Checkbox(checked = checked, onCheckedChange = onChecked)
         Text(text = label)
     }
+}
+
+private fun isValidDate(input: String): Boolean {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty()) return false
+    return try {
+        LocalDateTime.parse(trimmed)
+        true
+    } catch (e: DateTimeParseException) {
+        try {
+            LocalDate.parse(trimmed)
+            true
+        } catch (_: DateTimeParseException) {
+            false
+        }
+    }
+}
+
+private fun openDateTimePicker(
+    context: Context,
+    initial: String,
+    onResult: (String) -> Unit
+) {
+    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+    val initialDateTime = try {
+        LocalDateTime.parse(initial, formatter)
+    } catch (_: Exception) {
+        LocalDateTime.now()
+    }
+    DatePickerDialog(
+        context,
+        { _, year, month, day ->
+            val date = LocalDate.of(year, month + 1, day)
+            TimePickerDialog(
+                context,
+                { _, hour, minute ->
+                    val dt = LocalDateTime.of(date, LocalTime.of(hour, minute))
+                    onResult(dt.format(formatter))
+                },
+                initialDateTime.hour,
+                initialDateTime.minute,
+                true
+            ).show()
+        },
+        initialDateTime.year,
+        initialDateTime.monthValue - 1,
+        initialDateTime.dayOfMonth
+    ).show()
 }
