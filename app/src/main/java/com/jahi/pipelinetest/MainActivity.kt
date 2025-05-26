@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.jahi.pipelinetest.ui.theme.PipelineTestTheme
+import com.jahi.pipelinetest.SettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -96,7 +97,7 @@ class MainActivity : ComponentActivity() {
                         LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
                     }
                     if (viewModel.showSettings) {
-                        SettingsDialog(viewModel) { viewModel.closeSettings() }
+                        SettingsScreen(viewModel) { viewModel.closeSettings() }
                     }
                 }
             }

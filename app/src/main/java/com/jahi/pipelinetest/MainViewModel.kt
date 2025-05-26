@@ -1,6 +1,7 @@
 package com.jahi.pipelinetest
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.jahi.pipelinetest.model.CustomEvent
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -28,7 +30,11 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
     private val _now = MutableStateFlow(Instant.now())
     val now: StateFlow<Instant> = _now.asStateFlow()
 
+    var events = mutableStateListOf<CustomEvent>()
+        private set
+
     init {
+        events.addAll(prefs.customEvents)
         viewModelScope.launch {
             while (true) {
                 _now.value = Instant.now()
@@ -46,22 +52,6 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
         get() = prefs.showYearCountdown
         set(value) { prefs.showYearCountdown = value }
 
-    var eventName: String
-        get() = prefs.eventName
-        set(value) { prefs.eventName = value }
-
-    var eventDate: String
-        get() = prefs.eventDate
-        set(value) { prefs.eventDate = value }
-
-    var eventShowTime: Boolean
-        get() = prefs.eventShowTime
-        set(value) { prefs.eventShowTime = value }
-
-    var showCustomEvent: Boolean
-        get() = prefs.showCustomEvent
-        set(value) { prefs.showCustomEvent = value }
-
     var currentAge: Int
         get() = prefs.currentAge
         set(value) { prefs.currentAge = value }
@@ -69,6 +59,31 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
     var targetAge: Int
         get() = prefs.targetAge
         set(value) { prefs.targetAge = value }
+
+    fun addEvent(event: CustomEvent) {
+        events.add(event)
+        prefs.customEvents = events
+    }
+
+    fun updateEvent(index: Int, event: CustomEvent) {
+        if (index in events.indices) {
+            events[index] = event
+            prefs.customEvents = events
+        }
+    }
+
+    fun removeEvent(index: Int) {
+        if (index in events.indices) {
+            events.removeAt(index)
+            prefs.customEvents = events
+        }
+    }
+
+    fun setEvents(newEvents: List<CustomEvent>) {
+        events.clear()
+        events.addAll(newEvents)
+        prefs.customEvents = events
+    }
 
     fun durationToEndOfDay(now: Instant = this.now.value): Duration {
         val z = ZoneId.systemDefault()
