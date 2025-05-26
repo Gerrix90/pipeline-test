@@ -128,6 +128,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                 value = event.date,
                                 onValueChange = {},
                                 readOnly = true,
+                                enabled = false,
                                 label = { Text("Event Date") },
                                 modifier = Modifier.fillMaxWidth()
                             )
