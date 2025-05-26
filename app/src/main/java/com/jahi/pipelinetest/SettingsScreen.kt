@@ -29,6 +29,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.CustomEvent
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeParseException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -107,6 +110,12 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                             value = event.date,
                             onValueChange = { events[index] = event.copy(date = it) },
                             label = { Text("Event Date (yyyy-MM-ddTHH:mm)") },
+                            isError = !isValidDate(event.date),
+                            supportingText = {
+                                if (!isValidDate(event.date)) {
+                                    Text("Use yyyy-MM-dd or yyyy-MM-ddTHH:mm")
+                                }
+                            },
                             modifier = Modifier.fillMaxWidth()
                         )
                         RowCheckbox("Show Time", event.showTime) {
@@ -130,5 +139,21 @@ private fun RowCheckbox(label: String, checked: Boolean, onChecked: (Boolean) ->
     Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
         Checkbox(checked = checked, onCheckedChange = onChecked)
         Text(text = label)
+    }
+}
+
+private fun isValidDate(input: String): Boolean {
+    val trimmed = input.trim()
+    if (trimmed.isEmpty()) return false
+    return try {
+        LocalDateTime.parse(trimmed)
+        true
+    } catch (e: DateTimeParseException) {
+        try {
+            LocalDate.parse(trimmed)
+            true
+        } catch (_: DateTimeParseException) {
+            false
+        }
     }
 }
