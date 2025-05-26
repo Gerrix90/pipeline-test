@@ -122,7 +122,7 @@ fun CountdownsScreen(
 
 @Composable
 fun LifeHourglassScreen(viewModel: MainViewModel, modifier: Modifier = Modifier) {
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         val current = viewModel.currentAge
         val target = viewModel.targetAge
 
@@ -148,7 +148,8 @@ fun LifeHourglassScreen(viewModel: MainViewModel, modifier: Modifier = Modifier)
             state = gridState,
             modifier = Modifier
                 .padding(8.dp)
-                .heightIn(max = 400.dp)
+                .fillMaxWidth()
+                .weight(1f)
         ) {
             items(target + 1) { year ->
                 val state = when {
