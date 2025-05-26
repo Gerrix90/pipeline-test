@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.DatePicker
@@ -38,6 +39,7 @@ fun SettingsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
     var eventName by remember { mutableStateOf(viewModel.eventName) }
     var eventDate by remember { mutableStateOf(viewModel.eventDate) }
     var eventTime by remember { mutableStateOf(viewModel.eventShowTime) }
+    var showCustomEvent by remember { mutableStateOf(viewModel.showCustomEvent) }
     var currentAge by remember { mutableStateOf(viewModel.currentAge.toString()) }
     var targetAge by remember { mutableStateOf(viewModel.targetAge.toString()) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -59,6 +61,7 @@ fun SettingsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 viewModel.eventName = eventName
                 viewModel.eventDate = eventDate
                 viewModel.eventShowTime = eventTime
+                viewModel.showCustomEvent = showCustomEvent
                 viewModel.currentAge = currentAge.toIntOrNull() ?: viewModel.currentAge
                 viewModel.targetAge = targetAge.toIntOrNull() ?: viewModel.targetAge
                 onDismiss()
@@ -118,6 +121,11 @@ fun SettingsDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         DatePicker(state = datePickerState)
                     }
                 }
+                RowRadioButtons(
+                    label = "Display Custom Event",
+                    selected = showCustomEvent,
+                    onSelected = { showCustomEvent = it }
+                )
                 RowCheckbox(label = "Show Event Time", checked = eventTime) { eventTime = it }
                 TextField(
                     value = currentAge,
@@ -144,5 +152,19 @@ private fun RowCheckbox(label: String, checked: Boolean, onChecked: (Boolean) ->
     ) {
         Checkbox(checked = checked, onCheckedChange = onChecked)
         Text(text = label)
+    }
+}
+
+@Composable
+private fun RowRadioButtons(label: String, selected: Boolean, onSelected: (Boolean) -> Unit) {
+    androidx.compose.foundation.layout.Row(
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        Text(text = label, modifier = Modifier.padding(end = 8.dp))
+        RadioButton(selected = selected, onClick = { onSelected(true) })
+        Text(text = "Show", modifier = Modifier.padding(end = 8.dp))
+        RadioButton(selected = !selected, onClick = { onSelected(false) })
+        Text(text = "Hide")
     }
 }

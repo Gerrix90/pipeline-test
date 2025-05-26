@@ -103,7 +103,7 @@ fun CountdownsScreen(
         }
 
         val eventDate = viewModel.eventDate
-        if (eventDate.isNotBlank()) {
+        if (viewModel.showCustomEvent && eventDate.isNotBlank()) {
             val diff = viewModel.durationToEvent(eventDate, now)
             if (diff != null) {
                 CountdownCard(
