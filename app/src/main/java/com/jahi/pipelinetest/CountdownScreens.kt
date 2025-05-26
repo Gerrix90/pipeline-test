@@ -102,19 +102,20 @@ fun CountdownsScreen(
             )
         }
 
-        val eventDate = viewModel.eventDate
-        if (viewModel.showCustomEvent && eventDate.isNotBlank()) {
-            val diff = viewModel.durationToEvent(eventDate, now)
-            if (diff != null) {
-                CountdownCard(
-                    title = viewModel.eventName,
-                    value = if (viewModel.eventShowTime) {
-                        viewModel.formatDuration(diff)
-                    } else {
-                        "${diff.toDays()} days"
-                    },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
+        viewModel.events.forEach { event ->
+            if (event.date.isNotBlank()) {
+                val diff = viewModel.durationToEvent(event.date, now)
+                if (diff != null) {
+                    CountdownCard(
+                        title = event.name,
+                        value = if (event.showTime) {
+                            viewModel.formatDuration(diff)
+                        } else {
+                            "${diff.toDays()} days"
+                        },
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
             }
         }
     }
