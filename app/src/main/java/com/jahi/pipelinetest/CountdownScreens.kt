@@ -39,7 +39,9 @@ private fun CountdownCard(
         colors = CardDefaults.cardColors(containerColor = SurfaceDark.copy(alpha = 0.7f))
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (showTitle) {
