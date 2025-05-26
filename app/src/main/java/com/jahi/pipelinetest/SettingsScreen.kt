@@ -111,11 +111,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                             modifier = Modifier.fillMaxWidth()
                         )
                         val context = LocalContext.current
-                        TextField(
-                            value = event.date,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Event Date") },
+                        androidx.compose.foundation.layout.Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -127,7 +123,15 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                         events[index] = event.copy(date = selected)
                                     }
                                 }
-                        )
+                        ) {
+                            TextField(
+                                value = event.date,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Event Date") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                         RowCheckbox("Show Time", event.showTime) {
                             events[index] = event.copy(showTime = it)
                         }
