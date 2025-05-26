@@ -58,6 +58,10 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
         get() = prefs.eventShowTime
         set(value) { prefs.eventShowTime = value }
 
+    var showCustomEvent: Boolean
+        get() = prefs.showCustomEvent
+        set(value) { prefs.showCustomEvent = value }
+
     var currentAge: Int
         get() = prefs.currentAge
         set(value) { prefs.currentAge = value }

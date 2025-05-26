@@ -23,6 +23,10 @@ class Prefs(context: Context) {
         get() = prefs.getBoolean("eventShowTime", false)
         set(value) { prefs.edit().putBoolean("eventShowTime", value).apply() }
 
+    var showCustomEvent: Boolean
+        get() = prefs.getBoolean("showCustomEvent", true)
+        set(value) { prefs.edit().putBoolean("showCustomEvent", value).apply() }
+
     var currentAge: Int
         get() = prefs.getInt("currentAge", 30)
         set(value) { prefs.edit().putInt("currentAge", value).apply() }
