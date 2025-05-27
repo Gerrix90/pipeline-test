@@ -2,6 +2,7 @@ package com.jahi.pipelinetest
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -111,11 +112,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                             modifier = Modifier.fillMaxWidth()
                         )
                         val context = LocalContext.current
-                        TextField(
-                            value = event.date,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Event Date") },
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
@@ -127,7 +124,15 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                         events[index] = event.copy(date = selected)
                                     }
                                 }
-                        )
+                        ) {
+                            TextField(
+                                value = event.date,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Event Date") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                         RowCheckbox("Show Time", event.showTime) {
                             events[index] = event.copy(showTime = it)
                         }
