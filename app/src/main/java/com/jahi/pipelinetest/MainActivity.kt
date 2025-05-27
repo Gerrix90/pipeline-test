@@ -40,64 +40,72 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PipelineTestTheme {
-                val gradient = remember { Brush.linearGradient(listOf(com.jahi.pipelinetest.ui.theme.Slate900, com.jahi.pipelinetest.ui.theme.Slate800)) }
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(gradient),
-                    containerColor = Color.Transparent,
-                    topBar = {
-                        TopAppBar(
-                            title = { Text(text = "Time Fomo") },
-                            colors = TopAppBarDefaults.smallTopAppBarColors(
-                                containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f),
-                                titleContentColor = com.jahi.pipelinetest.ui.theme.Slate100
-                            ),
-                            actions = {
-                                IconButton(onClick = { viewModel.openSettings() }) {
-                                    Icon(Icons.Default.Settings, contentDescription = "Settings")
-                                }
-                            }
+                if (viewModel.showSettings) {
+                    SettingsScreen(viewModel) { viewModel.closeSettings() }
+                } else {
+                    val gradient = remember {
+                        Brush.linearGradient(
+                            listOf(
+                                com.jahi.pipelinetest.ui.theme.Slate900,
+                                com.jahi.pipelinetest.ui.theme.Slate800
+                            )
                         )
-                    },
-                    bottomBar = {
-                        NavigationBar(containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f)) {
-                            NavigationBarItem(
-                                selected = viewModel.screen == 0,
-                                onClick = { viewModel.selectScreen(0) },
-                                label = { Text("Countdowns") },
-                                icon = { },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
-                                    selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
-                                    unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
-                                    unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
-                                    indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
-                                )
+                    }
+                    Scaffold(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(gradient),
+                        containerColor = Color.Transparent,
+                        topBar = {
+                            TopAppBar(
+                                title = { Text(text = "Time Fomo") },
+                                colors = TopAppBarDefaults.smallTopAppBarColors(
+                                    containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f),
+                                    titleContentColor = com.jahi.pipelinetest.ui.theme.Slate100
+                                ),
+                                actions = {
+                                    IconButton(onClick = { viewModel.openSettings() }) {
+                                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                                    }
+                                }
                             )
-                            NavigationBarItem(
-                                selected = viewModel.screen == 1,
-                                onClick = { viewModel.selectScreen(1) },
-                                label = { Text("Life") },
-                                icon = { },
-                                colors = NavigationBarItemDefaults.colors(
-                                    selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
-                                    selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
-                                    unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
-                                    unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
-                                    indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
+                        },
+                        bottomBar = {
+                            NavigationBar(containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f)) {
+                                NavigationBarItem(
+                                    selected = viewModel.screen == 0,
+                                    onClick = { viewModel.selectScreen(0) },
+                                    label = { Text("Countdowns") },
+                                    icon = { },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
+                                    )
                                 )
-                            )
+                                NavigationBarItem(
+                                    selected = viewModel.screen == 1,
+                                    onClick = { viewModel.selectScreen(1) },
+                                    label = { Text("Life") },
+                                    icon = { },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
+                                    )
+                                )
+                            }
                         }
-                    }
-                ) { innerPadding ->
-                    if (viewModel.screen == 0) {
-                        CountdownsScreen(viewModel, Modifier.padding(innerPadding))
-                    } else {
-                        LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
-                    }
-                    if (viewModel.showSettings) {
-                        SettingsScreen(viewModel) { viewModel.closeSettings() }
+                    ) { innerPadding ->
+                        if (viewModel.screen == 0) {
+                            CountdownsScreen(viewModel, Modifier.padding(innerPadding))
+                        } else {
+                            LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
+                        }
                     }
                 }
             }
