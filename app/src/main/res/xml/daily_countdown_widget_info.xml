@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:minWidth="146dp"
-    android:minHeight="72dp"
+    android:minHeight="0dp"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/daily_countdown_widget"
     android:label="@string/daily_countdown_widget_label"
