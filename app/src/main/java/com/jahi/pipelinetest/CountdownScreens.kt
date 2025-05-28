@@ -46,6 +46,7 @@ import com.jahi.pipelinetest.ui.theme.SurfaceDark
 import com.jahi.pipelinetest.ui.theme.Turquoise400
 import com.jahi.pipelinetest.ui.theme.Indigo200
 import com.jahi.pipelinetest.ui.theme.Yellow300
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 private fun CountdownCard(
@@ -68,12 +69,19 @@ private fun CountdownCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (showTitle) {
-                Text(text = title, color = Slate400)
+                Text(
+                    text = title,
+                    color = Slate400,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
             }
             Text(
                 text = value,
                 color = Slate100,
                 style = MaterialTheme.typography.displayMedium,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold
             )
         }
