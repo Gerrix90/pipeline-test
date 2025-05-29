@@ -37,10 +37,12 @@ import com.jahi.pipelinetest.model.CustomEvent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import android.content.Intent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
+    val context = LocalContext.current
     var tabIndex by remember { mutableStateOf(0) }
     var showYear by remember { mutableStateOf(viewModel.showYearCountdown) }
     var currentAge by remember { mutableStateOf(viewModel.currentAge.toString()) }
@@ -68,6 +70,12 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     viewModel.currentAge = currentAge.toIntOrNull() ?: viewModel.currentAge
                     viewModel.targetAge = targetAge.toIntOrNull() ?: viewModel.targetAge
                     viewModel.setEvents(events)
+                    
+                    // Send broadcast to update widget
+                    val intent = Intent(EventCountdownWidget.ACTION_UPDATE_EVENT_WIDGET)
+                    intent.setPackage(context.packageName)
+                    context.sendBroadcast(intent)
+                    
                     onDismiss()
                 }) { Text("Save") }
             }
@@ -137,6 +145,9 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         RowCheckbox("Show Time", event.showTime) {
                             events[index] = event.copy(showTime = it)
                         }
+                        RowCheckbox("Show in Widget", event.showInWidget) {
+                            events[index] = event.copy(showInWidget = it)
+                        }
                         Button(onClick = { events.removeAt(index) }) {
                             Text("Remove")
                         }
@@ -200,4 +211,3 @@ private fun openDateTimePicker(
         dateTime.dayOfMonth
     ).show()
 }
-
