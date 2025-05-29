@@ -22,11 +22,12 @@ class Prefs(context: Context) {
             for (i in 0 until arr.length()) {
                 val obj = arr.getJSONObject(i)
                 list.add(
-                    CustomEvent(
-                        name = obj.optString("name"),
-                        date = obj.optString("date"),
-                        showTime = obj.optBoolean("showTime")
-                    )
+                        CustomEvent(
+                            name = obj.optString("name"),
+                            date = obj.optString("date"),
+                            showTime = obj.optBoolean("showTime"),
+                            showInWidget = obj.optBoolean("showInWidget", false)
+                        )
                 )
             }
             return list
@@ -38,6 +39,7 @@ class Prefs(context: Context) {
                 obj.put("name", it.name)
                 obj.put("date", it.date)
                 obj.put("showTime", it.showTime)
+                obj.put("showInWidget", it.showInWidget)
                 arr.put(obj)
             }
             prefs.edit().putString("customEvents", arr.toString()).apply()

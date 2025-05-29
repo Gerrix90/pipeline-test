@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an Android application project called "Pipeline test" built with Kotlin and Jetpack Compose. It's a simple Android app that displays a "Hello Android!" greeting.
+This is an Android application called "Time Fomo" built with Kotlin and Jetpack Compose. The app provides countdown timers for various time periods (daily, yearly, custom events) and a life visualization feature showing past/current/future years as hourglasses. It includes Android home screen widgets for quick access to countdowns.
 
 ## Build System
 
@@ -89,20 +89,30 @@ The application follows a standard Android architecture:
 
 2. **Project Configuration**:
    - Minimum SDK: 30 (Android 11)
-   - Target SDK: 34 (Android 14)
-   - Compile SDK: 34 (Android 14)
+   - Target SDK: 35 (Android 14 UPSIDE_DOWN_CAKE)
+   - Compile SDK: 35 (Android 14)
    - Compose BOM: 2024.04.01
    - Kotlin version: 2.0.0
    - AGP version: 8.8.2
    - Java target: 11
 
-3. **Build Configuration**:
-   - Uses Gradle version catalog (`gradle/libs.versions.toml`)
-   - Supports both online and offline build environments
-   - Includes pre-built dependencies for offline scenarios
-   - Multiple shell scripts for different deployment scenarios
+3. **App Architecture**:
+   - **MVVM Pattern**: `MainViewModel` manages app state with Compose state
+   - **Navigation**: Bottom navigation bar for switching between Countdowns and Life screens
+   - **Data Persistence**: `Prefs` wrapper around SharedPreferences for settings/events
+   - **UI Screens**:
+     - `CountdownsScreen`: Shows daily, yearly, and custom event countdowns
+     - `LifeHourglassScreen`: Visualizes life years as hourglasses
+     - `SettingsScreen`: Manages birthdate and custom events
+   - **Widgets**: Three home screen widgets (`DailyCountdownWidget`, `CircularProgressWidget`, `EventCountdownWidget`)
 
-The app currently has minimal functionality, serving as a template or starting point for a more fully-featured application. The project includes extensive offline build support for deployment in restricted environments.
+4. **Key Components**:
+   - `MainActivity.kt`: Entry point with navigation setup
+   - `MainViewModel.kt`: Central state management
+   - `CountdownScreens.kt`: Countdown UI implementations
+   - `Prefs.kt`: SharedPreferences wrapper for data persistence
+   - `model/CustomEvent.kt`: Data model for custom countdown events
+   - `*Widget.kt` files: Android home screen widget implementations
 
 ## Android Build Solution ✅ RESOLVED
 
@@ -151,3 +161,7 @@ The setup.sh script now provides **automatic Android SDK installation**:
 ```
 
 The Android build solution is now complete and works in both local environments and Docker containers without pre-installed Android tools.
+
+## Critical Validation Requirements
+
+**IMPORTANT**: Always run `./gradlew assembleDebug --offline` after making ANY code changes to ensure the build compiles correctly. Never proceed with broken builds.
