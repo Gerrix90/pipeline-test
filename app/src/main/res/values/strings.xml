@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Time Fomo</string>
     <string name="daily_countdown_widget_label">Daily Countdown</string>
+    <string name="circular_progress_widget_description">Shows elapsed time with circular progress</string>
 </resources>
