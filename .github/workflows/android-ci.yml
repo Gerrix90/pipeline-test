@@ -38,7 +38,7 @@ jobs:
       run: ./gradlew assembleDebug -PbuildNumber=${{ github.run_number }}
 
     - name: Distribute Debug APK to Firebase App Distribution
-      uses: wzieba/firebase-app-distribution@v1.7.1
+      uses: wzieba/Firebase-Distribution-Github-Action@v1
       with:
         appId: ${{ secrets.FIREBASE_APP_ID }}
         serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_JSON_CONTENT }}
