@@ -11,7 +11,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import android.media.MediaPlayer
 import android.widget.RemoteViews
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.concurrent.thread
+import kotlin.random.Random
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -47,6 +53,9 @@ class CircularProgressWidget : AppWidgetProvider() {
                 val thisWidget = ComponentName(context, CircularProgressWidget::class.java)
                 val appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
                 onUpdate(context, appWidgetManager, appWidgetIds)
+            }
+            ACTION_GENERATE_AUDIO -> {
+                generateAndPlay(context)
             }
         }
     }
@@ -94,6 +103,13 @@ class CircularProgressWidget : AppWidgetProvider() {
     companion object {
         private const val REQUEST_CODE_UPDATE = 200
         private const val UPDATE_INTERVAL_MILLIS = 60000 // Update every minute
+        const val ACTION_GENERATE_AUDIO = "com.jahi.pipelinetest.GENERATE_AUDIO"
+
+        private val motivationalSentences = listOf(
+            "You can achieve anything you set your mind to.",
+            "Believe in yourself and all that you are.",
+            "Every day is a chance to get better."
+        )
 
         internal fun updateAppWidget(
             context: Context,
@@ -140,7 +156,18 @@ class CircularProgressWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.circular_progress_widget_container, pendingIntent)
-            
+
+            val genIntent = Intent(context, CircularProgressWidget::class.java).apply {
+                action = ACTION_GENERATE_AUDIO
+            }
+            val genPending = PendingIntent.getBroadcast(
+                context,
+                1,
+                genIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.generate_button, genPending)
+
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
         
@@ -194,6 +221,48 @@ class CircularProgressWidget : AppWidgetProvider() {
             }
             
             return bitmap
+        }
+
+        private fun generateAndPlay(context: Context) {
+            thread {
+                val text = motivationalSentences[Random.nextInt(motivationalSentences.size)]
+                val file = fetchAudio(context, text)
+                file?.let { playAudio(it) }
+            }
+        }
+
+        private fun fetchAudio(context: Context, text: String): File? {
+            return try {
+                val url = URL("https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL/stream")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.setRequestProperty("xi-api-key", BuildConfig.ELEVEN_LAB_KEY)
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.doOutput = true
+                val body = "{\"text\": \"$text\"}"
+                conn.outputStream.use { it.write(body.toByteArray()) }
+                if (conn.responseCode == HttpURLConnection.HTTP_OK) {
+                    val file = File.createTempFile("tts", ".mp3", context.cacheDir)
+                    conn.inputStream.use { input -> file.outputStream().use { input.copyTo(it) } }
+                    file
+                } else null
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        private fun playAudio(file: File) {
+            try {
+                val mp = MediaPlayer()
+                mp.setDataSource(file.absolutePath)
+                mp.setOnCompletionListener {
+                    it.release()
+                    file.delete()
+                }
+                mp.prepare()
+                mp.start()
+            } catch (_: Exception) {
+            }
         }
     }
 }
