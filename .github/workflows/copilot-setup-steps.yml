@@ -1,0 +1,247 @@
+name: Copilot Development Environment Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      force_setup:
+        description: 'Force complete environment setup'
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Run weekly to ensure environment stays updated
+    - cron: '0 2 * * 1'
+
+jobs:
+  setup_environment:
+    name: Setup Android Development Environment
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'gradle'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 35
+        build-tools-version: 35.0.0
+        
+    - name: Cache Android SDK
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.android/sdk
+          ~/.android/avd
+        key: android-sdk-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: |
+          android-sdk-${{ runner.os }}-
+
+    - name: Cache Gradle Dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: |
+          gradle-${{ runner.os }}-
+
+    - name: Create google-services.json for build
+      run: |
+        # Create minimal google-services.json for development builds
+        cat > app/google-services.json << 'EOF'
+        {
+          "project_info": {
+            "project_number": "000000000000",
+            "project_id": "copilot-dev-project",
+            "storage_bucket": "copilot-dev-project.firebasestorage.app"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "1:000000000000:android:fake000000000000000000",
+                "android_client_info": {
+                  "package_name": "com.jahi.pipelinetest"
+                }
+              },
+              "oauth_client": [],
+              "api_key": [
+                {
+                  "current_key": "fake-api-key-for-development"
+                }
+              ],
+              "services": {
+                "appinvite_service": {
+                  "other_platform_oauth_client": []
+                }
+              }
+            }
+          ],
+          "configuration_version": "1"
+        }
+        EOF
+        echo "✅ Development google-services.json created"
+
+    - name: Grant execute permissions
+      run: chmod +x gradlew setup.sh
+
+    - name: Validate Environment with Setup Script
+      run: |
+        echo "🔧 Running project setup script..."
+        ./setup.sh
+        echo "✅ Setup script completed"
+
+    - name: Validate Gradle Build
+      run: |
+        echo "🏗️ Testing Gradle build..."
+        ./gradlew assembleDebug --stacktrace
+        echo "✅ Build validation successful"
+
+    - name: Run Basic Tests
+      run: |
+        echo "🧪 Running unit tests..."
+        ./gradlew test --continue
+        echo "✅ Unit tests completed"
+
+    - name: Run Lint Checks
+      run: |
+        echo "🔍 Running lint analysis..."
+        ./gradlew lint --continue
+        echo "✅ Lint checks completed"
+
+    - name: Verify APK Generation
+      run: |
+        echo "📱 Verifying APK was created..."
+        if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+          echo "✅ APK successfully generated"
+          echo "APK size: $(stat -c%s app/build/outputs/apk/debug/app-debug.apk) bytes"
+        else
+          echo "❌ APK generation failed"
+          exit 1
+        fi
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: development-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 7
+
+    - name: Environment Summary
+      run: |
+        echo "📋 Development Environment Summary:"
+        echo "Java version: $(java -version 2>&1 | head -n 1)"
+        echo "Gradle version: $(./gradlew --version | grep Gradle)"
+        echo "Android SDK: ${ANDROID_HOME:-Not set}"
+        echo "Build tools: $(ls $ANDROID_HOME/build-tools/ 2>/dev/null | head -1 || echo 'Not found')"
+        echo ""
+        echo "🎉 Environment setup complete!"
+        echo ""
+        echo "🚀 Ready for Android development with:"
+        echo "  - Java 17 JDK"
+        echo "  - Android SDK API 35"
+        echo "  - Gradle build system"
+        echo "  - Validated build pipeline"
+        echo ""
+        echo "💡 Next steps for developers:"
+        echo "  1. Clone this repository"
+        echo "  2. Run: chmod +x setup.sh gradlew"
+        echo "  3. Run: ./setup.sh"
+        echo "  4. Start coding and always validate with: ./gradlew assembleDebug --offline"
+
+  validate_offline_capability:
+    name: Validate Offline Build Capability
+    runs-on: ubuntu-latest
+    needs: setup_environment
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+        cache: 'gradle'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+      with:
+        api-level: 35
+        build-tools-version: 35.0.0
+
+    - name: Restore Gradle Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle/wrapper/gradle-wrapper.properties') }}
+        restore-keys: |
+          gradle-${{ runner.os }}-
+
+    - name: Create google-services.json
+      run: |
+        cat > app/google-services.json << 'EOF'
+        {
+          "project_info": {
+            "project_number": "000000000000",
+            "project_id": "offline-test-project",
+            "storage_bucket": "offline-test-project.firebasestorage.app"
+          },
+          "client": [
+            {
+              "client_info": {
+                "mobilesdk_app_id": "1:000000000000:android:fake000000000000000000",
+                "android_client_info": {
+                  "package_name": "com.jahi.pipelinetest"
+                }
+              },
+              "oauth_client": [],
+              "api_key": [
+                {
+                  "current_key": "fake-api-key-for-offline-build"
+                }
+              ],
+              "services": {
+                "appinvite_service": {
+                  "other_platform_oauth_client": []
+                }
+              }
+            }
+          ],
+          "configuration_version": "1"
+        }
+        EOF
+
+    - name: Grant execute permissions
+      run: chmod +x gradlew
+
+    - name: Test Offline Build Capability
+      run: |
+        echo "🔌 Testing offline build capability..."
+        echo "First, doing an online build to cache dependencies..."
+        ./gradlew assembleDebug
+        
+        echo ""
+        echo "Now testing offline build..."
+        ./gradlew clean
+        ./gradlew assembleDebug --offline
+        
+        echo "✅ Offline build capability verified!"
+
+    - name: Upload Offline APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: offline-build-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 3
