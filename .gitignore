@@ -1,18 +1,51 @@
-*.iml
+# Gradle files
 .gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.gradle/
+**/build/
+!src/**/build/
+
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+*.iws
+
+# Local configuration file (sdk path, etc)
 local.properties
 
-# Firebase
+# Android Studio captures folder
+captures/
+
+# Android Keystore files
+*.jks
+*.keystore
+
+# External native build folder generated in Android Studio 2.2 and later
+.externalNativeBuild
+.cxx/
+
+# Google Services (Firebase)
 google-services.json
+
+# Version control
+.svn/
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files
+*.log
+
+# Android Profiling
+*.hprof
+
+# Crashlytics generated file
+crashlytics-build.properties
+
+# Fabric generated files
+fabric.properties
