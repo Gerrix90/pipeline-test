@@ -193,18 +193,24 @@ google-services.json
 - **Name**: `FIREBASE_SERVICE_ACCOUNT_KEY_JSON_CONTENT`
 - **Value**: Complete JSON content from the service account key file
 - **How to get the value**:
-  1. Open the JSON file you downloaded from Google Cloud Console
-  2. Copy the **entire content** of the file (including all curly braces)
-  3. The content should start with `{` and end with `}`
-  4. Example structure:
+  1. **CRITICAL**: Go to Firebase Console → Project Settings → Service Accounts tab
+  2. **Generate new private key** (click the button, don't use existing keys)
+  3. Download the JSON file that gets generated
+  4. Open this JSON file and copy the **entire content** (including all curly braces)
+  5. The content should start with `{` and end with `}`
+  6. **Verify it contains all required fields**:
   ```json
   {
     "type": "service_account",
     "project_id": "your-project-id",
-    "private_key_id": "...",
-    "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
+    "private_key_id": "abcd1234...",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...\n-----END PRIVATE KEY-----\n",
     "client_email": "firebase-app-distribution@your-project.iam.gserviceaccount.com",
-    ...
+    "client_id": "123456789012345678901",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-app-distribution%40your-project.iam.gserviceaccount.com"
   }
   ```
 
@@ -264,8 +270,24 @@ jobs:
         build-tools-version: 34.0.0
 
     - name: Create google-services.json
-      if: env.GOOGLE_SERVICES_JSON_CONTENT != ''
-      run: echo "${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}" > app/google-services.json
+      run: |
+        cat > app/google-services.json << 'EOF'
+        ${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}
+        EOF
+
+    - name: Verify google-services.json created
+      run: |
+        if [ -f app/google-services.json ]; then
+          echo "✅ google-services.json created successfully"
+          echo "File size: $(stat -c%s app/google-services.json) bytes"
+          echo "Checking for project_info:"
+          grep -c "project_info" app/google-services.json || echo "❌ project_info not found"
+          echo "JSON validation:"
+          python3 -m json.tool app/google-services.json > /dev/null && echo "✅ Valid JSON" || echo "❌ Invalid JSON"
+        else
+          echo "❌ google-services.json not found"
+          exit 1
+        fi
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -274,7 +296,7 @@ jobs:
       run: ./gradlew assembleDebug -PbuildNumber=${{ github.run_number }}
 
     - name: Distribute Debug APK to Firebase App Distribution
-      uses: wzieba/firebase-app-distribution@v1.7.1
+      uses: wzieba/Firebase-Distribution-Github-Action@v1
       with:
         appId: ${{ secrets.FIREBASE_APP_ID }}
         serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_JSON_CONTENT }}
@@ -313,21 +335,34 @@ jobs:
 
 ### Common Issues and Solutions
 
-#### 1. "App not found" Error
+#### 1. "Failed to authenticate, have you run firebase login?" Error
+**Symptoms**: Firebase distribution step fails with authentication error
+**Root Cause**: Invalid or incomplete service account credentials
+**Solution**:
+1. **CRITICAL**: Go to Firebase Console → Project Settings → Service Accounts
+2. Click **"Generate new private key"** (don't reuse old keys)
+3. Download the JSON file and copy **entire content** to GitHub secret
+4. Verify the JSON has all required fields (type, project_id, private_key, client_email, etc.)
+5. Replace the `FIREBASE_SERVICE_ACCOUNT_KEY_JSON_CONTENT` secret completely
+
+#### 2. "Missing project_info object" Error
+**Symptoms**: Build fails during Google Services processing
+**Root Cause**: Corrupted or incomplete google-services.json content
+**Solution**:
+1. Download fresh `google-services.json` from Firebase Console
+2. Open file and copy **entire JSON content** (should be ~671 characters)
+3. Verify JSON is valid using online validator
+4. Must contain `project_info` object with `project_number` and `project_id`
+5. Replace the `GOOGLE_SERVICES_JSON_CONTENT` secret completely
+
+#### 3. "App not found" Error
 **Symptoms**: GitHub Actions fails with app not found
 **Solutions**:
 - Verify `FIREBASE_APP_ID` is correct in GitHub Secrets
 - Ensure you clicked "Get Started" in Firebase App Distribution
 - Check that the Android app is properly registered in Firebase
 
-#### 2. Authentication Errors
-**Symptoms**: "Permission denied" or authentication failures
-**Solutions**:
-- Verify the service account has "Firebase App Distribution Admin" role
-- Ensure the JSON content in `FIREBASE_SERVICE_ACCOUNT_KEY_JSON_CONTENT` is complete and valid
-- Check that you're using the correct Google Cloud project
-
-#### 3. Build Failures
+#### 4. Build Failures
 **Symptoms**: Gradle build fails in GitHub Actions
 **Solutions**:
 - Verify `google-services.json` content is valid in `GOOGLE_SERVICES_JSON_CONTENT`
@@ -354,12 +389,30 @@ jobs:
 1. **Check GitHub Actions Logs**:
    - Go to Actions tab → Failed workflow → Click on job → Expand each step
    - Look for specific error messages
+   - Pay attention to file sizes and validation output
 
 2. **Verify All Secrets**:
    - Go to repository Settings → Secrets and variables → Actions
    - Ensure all three secrets are present and not empty
+   - **CRITICAL**: Check secret character counts:
+     - `GOOGLE_SERVICES_JSON_CONTENT`: Should be ~671 characters
+     - `FIREBASE_SERVICE_ACCOUNT_KEY_JSON_CONTENT`: Should be much larger (~2000+ characters)
+     - `FIREBASE_APP_ID`: Should be format like `1:123456789:android:abcdef123456`
 
-3. **Test Locally**:
+3. **Test Secret Content**:
+   ```bash
+   # Test google-services.json locally
+   echo 'YOUR_GOOGLE_SERVICES_JSON_CONTENT' > test-google-services.json
+   python3 -m json.tool test-google-services.json
+   grep "project_info" test-google-services.json
+   
+   # Test service account JSON locally
+   echo 'YOUR_SERVICE_ACCOUNT_JSON' > test-service-account.json
+   python3 -m json.tool test-service-account.json
+   grep "private_key" test-service-account.json
+   ```
+
+4. **Test Locally**:
    ```bash
    # Test building locally
    ./gradlew assembleDebug
@@ -368,9 +421,32 @@ jobs:
    ls -la app/build/outputs/apk/debug/
    ```
 
-4. **Validate JSON Files**:
+5. **Validate JSON Files**:
    - Use online JSON validators to check your secret contents
    - Ensure no extra characters or formatting issues
+   - Verify all required fields are present
+
+### Secret Content Validation Checklist
+
+#### ✅ GOOGLE_SERVICES_JSON_CONTENT Checklist:
+- [ ] File size around 671 characters
+- [ ] Contains `"project_info"` object
+- [ ] Contains `"project_number"` and `"project_id"`
+- [ ] Valid JSON format (no syntax errors)
+- [ ] Downloaded fresh from Firebase Console
+
+#### ✅ FIREBASE_SERVICE_ACCOUNT_KEY_JSON_CONTENT Checklist:
+- [ ] File size 2000+ characters
+- [ ] Contains `"type": "service_account"`
+- [ ] Contains `"private_key"` with BEGIN/END PRIVATE KEY
+- [ ] Contains `"client_email"` field
+- [ ] Generated fresh from Firebase Console → Project Settings → Service Accounts
+- [ ] Downloaded as new private key (not reused)
+
+#### ✅ FIREBASE_APP_ID Checklist:
+- [ ] Format: `1:123456789:android:abcdef123456`
+- [ ] Copied from Firebase Console → Project Settings → Your App
+- [ ] Matches the correct Android app registration
 
 ## Manual Distribution (Fallback)
 
