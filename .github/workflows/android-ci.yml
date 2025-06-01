@@ -27,9 +27,27 @@ jobs:
         api-level: 34
         build-tools-version: 34.0.0
 
+    - name: Debug secrets availability
+      run: |
+        echo "Checking if secrets are available..."
+        if [ -n "${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}" ]; then
+          echo "✅ GOOGLE_SERVICES_JSON_CONTENT is available"
+        else
+          echo "❌ GOOGLE_SERVICES_JSON_CONTENT is NOT available"
+        fi
+
     - name: Create google-services.json
-      if: env.GOOGLE_SERVICES_JSON_CONTENT != ''
-      run: echo "${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}" > app/google-services.json
+      run: echo '${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}' > app/google-services.json
+
+    - name: Verify google-services.json created
+      run: |
+        if [ -f app/google-services.json ]; then
+          echo "✅ google-services.json created successfully"
+          echo "File size: $(stat -c%s app/google-services.json) bytes"
+        else
+          echo "❌ google-services.json not found"
+          exit 1
+        fi
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
