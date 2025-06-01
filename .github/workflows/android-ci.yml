@@ -50,10 +50,13 @@ jobs:
         if [ -f app/google-services.json ]; then
           echo "✅ google-services.json created successfully"
           echo "File size: $(stat -c%s app/google-services.json) bytes"
-          echo "First few lines:"
-          head -10 app/google-services.json
+          echo "=== FULL FILE CONTENT ==="
+          cat app/google-services.json
+          echo "========================="
           echo "Checking for project_info:"
           grep -c "project_info" app/google-services.json || echo "❌ project_info not found"
+          echo "JSON validation:"
+          python3 -m json.tool app/google-services.json > /dev/null && echo "✅ Valid JSON" || echo "❌ Invalid JSON"
         else
           echo "❌ google-services.json not found"
           exit 1
