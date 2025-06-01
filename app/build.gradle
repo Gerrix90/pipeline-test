@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -12,7 +13,7 @@ android {
         applicationId "com.jahi.pipelinetest"
         minSdk 30
         targetSdk 35
-        versionCode 1
+        versionCode project.hasProperty('buildNumber') ? project.buildNumber.toInteger() : 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -37,6 +38,11 @@ android {
 }
 
 dependencies {
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:33.14.0')
+
+    // Firebase Analytics
+    implementation 'com.google.firebase:firebase-analytics'
 
     implementation libs.androidx.core.ktx
     implementation libs.androidx.lifecycle.runtime.ktx
