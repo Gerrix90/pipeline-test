@@ -27,19 +27,6 @@ jobs:
         api-level: 34
         build-tools-version: 34.0.0
 
-    - name: Debug secrets availability
-      run: |
-        echo "Checking if secrets are available..."
-        if [ -n "$GOOGLE_SERVICES_CONTENT" ]; then
-          echo "✅ GOOGLE_SERVICES_JSON_CONTENT is available"
-          echo "Content length: ${#GOOGLE_SERVICES_CONTENT} characters"
-        else
-          echo "❌ GOOGLE_SERVICES_JSON_CONTENT is NOT available"
-        fi
-        echo "Testing with updated secret content..."
-      env:
-        GOOGLE_SERVICES_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}
-
     - name: Create google-services.json
       run: |
         cat > app/google-services.json << 'EOF'
@@ -51,9 +38,6 @@ jobs:
         if [ -f app/google-services.json ]; then
           echo "✅ google-services.json created successfully"
           echo "File size: $(stat -c%s app/google-services.json) bytes"
-          echo "=== FULL FILE CONTENT ==="
-          cat app/google-services.json
-          echo "========================="
           echo "Checking for project_info:"
           grep -c "project_info" app/google-services.json || echo "❌ project_info not found"
           echo "JSON validation:"
