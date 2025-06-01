@@ -9,12 +9,16 @@ android {
     namespace 'com.jahi.pipelinetest'
     compileSdk 35
 
+    def elevenLabKey = project.hasProperty('elevenLabKey') ? project.elevenLabKey : ""
+
     defaultConfig {
         applicationId "com.jahi.pipelinetest"
         minSdk 30
         targetSdk 35
         versionCode project.hasProperty('buildNumber') ? project.buildNumber.toInteger() : 1
         versionName "1.0"
+
+        buildConfigField 'String', 'ELEVEN_LAB_KEY', "\"${elevenLabKey}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,6 +38,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
 }
 
