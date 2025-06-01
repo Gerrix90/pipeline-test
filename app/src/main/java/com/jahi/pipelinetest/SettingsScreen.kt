@@ -21,6 +21,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.platform.LocalContext
 import android.app.DatePickerDialog
@@ -34,6 +36,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.CustomEvent
+import com.jahi.pipelinetest.ui.theme.Green500
+import com.jahi.pipelinetest.ui.theme.Slate100
+import com.jahi.pipelinetest.ui.theme.Slate400
+import com.jahi.pipelinetest.ui.theme.Slate700
+import com.jahi.pipelinetest.ui.theme.SurfaceDark
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -92,14 +99,14 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
             }
             if (tabIndex == 0) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    RowCheckbox("Show Year Countdown", showYear) { showYear = it }
-                    TextField(
+                        RowCheckbox("Show Year Countdown", showYear) { showYear = it }
+                    DarkTextField(
                         value = currentAge,
                         onValueChange = { currentAge = it },
                         label = { Text("Current Age") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    TextField(
+                    DarkTextField(
                         value = targetAge,
                         onValueChange = { targetAge = it },
                         label = { Text("Target Age") },
@@ -113,7 +120,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         .verticalScroll(rememberScrollState())
                 ) {
                     events.forEachIndexed { index, event ->
-                        TextField(
+                        DarkTextField(
                             value = event.name,
                             onValueChange = { events[index] = event.copy(name = it) },
                             label = { Text("Event Name") },
@@ -133,7 +140,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                     }
                                 }
                         ) {
-                            TextField(
+                            DarkTextField(
                                 value = event.date,
                                 onValueChange = {},
                                 readOnly = true,
@@ -167,6 +174,33 @@ private fun RowCheckbox(label: String, checked: Boolean, onChecked: (Boolean) ->
         Checkbox(checked = checked, onCheckedChange = onChecked)
         Text(text = label)
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DarkTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: @Composable (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    readOnly: Boolean = false,
+    enabled: Boolean = true
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        readOnly = readOnly,
+        enabled = enabled,
+        label = label,
+        modifier = modifier,
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            containerColor = SurfaceDark,
+            focusedBorderColor = Green500,
+            unfocusedBorderColor = Slate700,
+            disabledBorderColor = Slate700,
+            cursorColor = Green500
+        )
+    )
 }
 
 private fun openDateTimePicker(
