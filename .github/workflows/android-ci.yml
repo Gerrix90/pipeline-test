@@ -51,7 +51,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug -PbuildNumber=${{ github.run_number }}
+      run: ./gradlew assembleDebug -PbuildNumber=${{ github.run_number }} -PelevenLabKey=${{ secrets.ELEVENLAB_KEY }}
 
     - name: Distribute Debug APK to Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1
