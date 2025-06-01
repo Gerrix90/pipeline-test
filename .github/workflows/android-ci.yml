@@ -36,6 +36,7 @@ jobs:
         else
           echo "❌ GOOGLE_SERVICES_JSON_CONTENT is NOT available"
         fi
+        echo "Testing with updated secret content..."
       env:
         GOOGLE_SERVICES_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}
 
