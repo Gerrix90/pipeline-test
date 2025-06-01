@@ -9,7 +9,6 @@ on:
 jobs:
   build_and_distribute:
     runs-on: ubuntu-latest
-    environment: firebase-distribution  # Requires environment setup in repo settings
 
     steps:
     - name: Checkout Repository
