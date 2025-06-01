@@ -12,12 +12,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.widget.RemoteViews
-import android.media.MediaPlayer
-import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.concurrent.thread
-import kotlin.random.Random
+import com.jahi.pipelinetest.domain.GenerateAudioUseCase
+import com.jahi.pipelinetest.viewmodel.WidgetViewModel
 import com.jahi.pipelinetest.model.CustomEvent
 import java.time.Duration
 import java.time.LocalDateTime
@@ -61,7 +57,8 @@ class EventCountdownWidget : AppWidgetProvider() {
                 onUpdate(context, appWidgetManager, appWidgetIds)
             }
             ACTION_GENERATE_AUDIO -> {
-                generateAndPlay(context)
+                val vm = WidgetViewModel(GenerateAudioUseCase(context))
+                vm.playMotivationalAudio()
             }
         }
     }
@@ -111,12 +108,6 @@ class EventCountdownWidget : AppWidgetProvider() {
         private const val UPDATE_INTERVAL_MILLIS = 60000 // Update every minute
         const val ACTION_UPDATE_EVENT_WIDGET = "com.jahi.pipelinetest.UPDATE_EVENT_WIDGET"
         const val ACTION_GENERATE_AUDIO = "com.jahi.pipelinetest.GENERATE_AUDIO"
-
-        private val motivationalSentences = listOf(
-            "You can achieve anything you set your mind to.",
-            "Believe in yourself and all that you are.",
-            "Every day is a chance to get better."
-        )
 
         private fun parseEventDateTime(dateString: String): LocalDateTime {
             return try {
@@ -295,46 +286,5 @@ class EventCountdownWidget : AppWidgetProvider() {
             return bitmap
         }
 
-        private fun generateAndPlay(context: Context) {
-            thread {
-                val text = motivationalSentences[Random.nextInt(motivationalSentences.size)]
-                val file = fetchAudio(context, text)
-                file?.let { playAudio(it) }
-            }
-        }
-
-        private fun fetchAudio(context: Context, text: String): File? {
-            return try {
-                val url = URL("https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL/stream")
-                val conn = url.openConnection() as HttpURLConnection
-                conn.requestMethod = "POST"
-                conn.setRequestProperty("xi-api-key", BuildConfig.ELEVEN_LAB_KEY)
-                conn.setRequestProperty("Content-Type", "application/json")
-                conn.doOutput = true
-                val body = "{\"text\": \"$text\"}"
-                conn.outputStream.use { it.write(body.toByteArray()) }
-                if (conn.responseCode == HttpURLConnection.HTTP_OK) {
-                    val file = File.createTempFile("tts", ".mp3", context.cacheDir)
-                    conn.inputStream.use { input -> file.outputStream().use { input.copyTo(it) } }
-                    file
-                } else null
-            } catch (e: Exception) {
-                null
-            }
-        }
-
-        private fun playAudio(file: File) {
-            try {
-                val mp = MediaPlayer()
-                mp.setDataSource(file.absolutePath)
-                mp.setOnCompletionListener {
-                    it.release()
-                    file.delete()
-                }
-                mp.prepare()
-                mp.start()
-            } catch (_: Exception) {
-            }
-        }
     }
 }
