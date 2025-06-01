@@ -60,6 +60,44 @@ if [ -n "$ANDROID_SDK_ROOT" ]; then
     echo "✓ Android SDK configured"
 fi
 
+# Create fake google-services.json for offline builds
+if [ ! -f "app/google-services.json" ]; then
+    echo "Creating fake google-services.json for offline build..."
+    mkdir -p app
+    cat > app/google-services.json << 'EOF'
+{
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "fake-project-id",
+    "storage_bucket": "fake-project-id.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:fake000000000000000000",
+        "android_client_info": {
+          "package_name": "com.jahi.pipelinetest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "fake-api-key-for-offline-build"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+EOF
+    echo "✓ Fake google-services.json created"
+fi
+
 # Test Android build
 echo "Testing Android build..."
 BUILD_LOG="/tmp/build.log"
