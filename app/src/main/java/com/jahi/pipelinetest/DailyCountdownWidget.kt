@@ -4,10 +4,16 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ComponentName
+import android.media.MediaPlayer
 import android.widget.RemoteViews
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
+import kotlin.concurrent.thread
+import kotlin.random.Random
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -47,6 +53,8 @@ class DailyCountdownWidget : AppWidgetProvider() {
                 updateAppWidget(context, manager, id)
             }
             scheduleUpdates(context)
+        } else if (intent.action == ACTION_GENERATE_AUDIO) {
+            generateAndPlay(context)
         }
     }
 
@@ -90,6 +98,14 @@ class DailyCountdownWidget : AppWidgetProvider() {
     }
 
     companion object {
+        const val ACTION_GENERATE_AUDIO = "com.jahi.pipelinetest.GENERATE_AUDIO"
+
+        private val motivationalSentences = listOf(
+            "You can achieve anything you set your mind to.",
+            "Believe in yourself and all that you are.",
+            "Every day is a chance to get better."
+        )
+
         fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             val views = RemoteViews(context.packageName, R.layout.daily_countdown_widget)
             val remaining = durationToEndOfDay()
@@ -103,6 +119,17 @@ class DailyCountdownWidget : AppWidgetProvider() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
             )
             views.setOnClickPendingIntent(R.id.countdown_container, pendingIntent)
+
+            val genIntent = Intent(context, DailyCountdownWidget::class.java).apply {
+                action = ACTION_GENERATE_AUDIO
+            }
+            val genPending = PendingIntent.getBroadcast(
+                context,
+                1,
+                genIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.generate_button, genPending)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
@@ -125,6 +152,48 @@ class DailyCountdownWidget : AppWidgetProvider() {
                 String.format("%d days %02d:%02d", days, hours, minutes)
             } else {
                 String.format("%02d:%02d", hours, minutes)
+            }
+        }
+
+        private fun generateAndPlay(context: Context) {
+            thread {
+                val text = motivationalSentences[Random.nextInt(motivationalSentences.size)]
+                val file = fetchAudio(context, text)
+                file?.let { playAudio(it) }
+            }
+        }
+
+        private fun fetchAudio(context: Context, text: String): File? {
+            return try {
+                val url = URL("https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL/stream")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.setRequestProperty("xi-api-key", BuildConfig.ELEVEN_LAB_KEY)
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.doOutput = true
+                val body = "{\"text\": \"$text\"}"
+                conn.outputStream.use { it.write(body.toByteArray()) }
+                if (conn.responseCode == HttpURLConnection.HTTP_OK) {
+                    val file = File.createTempFile("tts", ".mp3", context.cacheDir)
+                    conn.inputStream.use { input -> file.outputStream().use { input.copyTo(it) } }
+                    file
+                } else null
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        private fun playAudio(file: File) {
+            try {
+                val mp = MediaPlayer()
+                mp.setDataSource(file.absolutePath)
+                mp.setOnCompletionListener {
+                    it.release()
+                    file.delete()
+                }
+                mp.prepare()
+                mp.start()
+            } catch (_: Exception) {
             }
         }
     }
