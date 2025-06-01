@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 // Base grayscale
 val Slate900 = Color(0xFF1A202C)
 val Slate800 = Color(0xFF2D3748)
+val Slate700 = Color(0xFF4A5568)
 val Slate100 = Color(0xFFF1F5F9)
 val Slate400 = Color(0xFF94A3B8)
 
