@@ -5,5 +5,6 @@
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/daily_countdown_widget"
     android:label="@string/daily_countdown_widget_label"
+    android:description="@string/daily_countdown_widget_description"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen" />

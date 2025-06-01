@@ -2,4 +2,6 @@
     <string name="app_name">Time Fomo</string>
     <string name="daily_countdown_widget_label">Daily Countdown</string>
     <string name="circular_progress_widget_description">Shows elapsed time with circular progress</string>
+    <string name="daily_countdown_widget_description">Counts down to the end of the day</string>
+    <string name="event_countdown_widget_description">Shows time remaining until your next event</string>
 </resources>
