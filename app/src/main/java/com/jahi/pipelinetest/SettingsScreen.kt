@@ -45,11 +45,13 @@ import com.jahi.pipelinetest.ui.theme.Green500
 import com.jahi.pipelinetest.ui.theme.Green600
 import com.jahi.pipelinetest.ui.theme.OutlineDark
 import com.jahi.pipelinetest.ui.theme.SurfaceDark
+import com.jahi.pipelinetest.ui.theme.Slate400
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import android.content.Intent
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -119,7 +121,9 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
             TabRow(selectedTabIndex = tabIndex) {
                 Tab(selected = tabIndex == 0, onClick = { tabIndex = 0 }) { Text("General") }
                 Tab(selected = tabIndex == 1, onClick = { tabIndex = 1 }) { Text("Events") }
+                Tab(selected = tabIndex == 2, onClick = { tabIndex = 2 }) { Text("History") }
             }
+
             if (tabIndex == 0) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     RowCheckbox("Show Year Countdown", showYear) { showYear = it }
@@ -136,7 +140,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-            } else {
+            } else if (tabIndex == 1) {
                 Column(
                     modifier = Modifier
                         .padding(16.dp)
@@ -200,6 +204,40 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     }
                     Button(onClick = { events.add(CustomEvent()) }, modifier = Modifier.padding(top = 8.dp)) {
                         Text("Add Event")
+                    }
+                }
+            } else {
+                val nowInstant by viewModel.now.collectAsState()
+                val systemZone = remember { ZoneId.systemDefault() }
+                val nowLocal = remember(nowInstant) { LocalDateTime.ofInstant(nowInstant, systemZone) }
+                val pastEvents = remember(events, nowLocal) {
+                    events
+                        .mapNotNull { ev ->
+                            parseEventDateTimeOrNull(ev.date)?.let { time -> ev to time }
+                        }
+                        .filter { (_, time) -> time.isBefore(nowLocal) }
+                        .sortedByDescending { (_, time) -> time }
+                }
+                val dateFormatter = remember {
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                }
+
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    if (pastEvents.isEmpty()) {
+                        Text("No past events", color = Slate400)
+                    } else {
+                        pastEvents.forEach { (event, time) ->
+                            Text(event.name)
+                            Text(
+                                dateFormatter.format(time),
+                                color = Slate400,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
                     }
                 }
             }
