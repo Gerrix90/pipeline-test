@@ -37,6 +37,7 @@ class EventAlarmReceiver : BroadcastReceiver() {
             .setContentTitle(eventName)
             .setContentText(context.getString(R.string.event_alarm_triggered))
             .setAutoCancel(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .addAction(0, context.getString(R.string.dismiss), dismissPending)
             .build()
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
