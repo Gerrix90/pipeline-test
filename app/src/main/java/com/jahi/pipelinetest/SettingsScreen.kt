@@ -31,6 +31,7 @@ import com.jahi.pipelinetest.scheduleEventAlarms
 import com.jahi.pipelinetest.cancelEventAlarms
 import com.jahi.pipelinetest.parseEventDateTimeOrNull
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,8 +43,10 @@ import com.jahi.pipelinetest.model.CustomEvent
 import com.jahi.pipelinetest.ui.theme.Green500
 import com.jahi.pipelinetest.ui.theme.OutlineDark
 import com.jahi.pipelinetest.ui.theme.SurfaceDark
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import android.content.Intent
 
@@ -131,9 +134,15 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         .padding(16.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
+                    val currentInstant by viewModel.now.collectAsState()
+                    val systemZone = remember { ZoneId.systemDefault() }
+                    val currentLocalDateTimeForEditCheck = remember(currentInstant) {
+                        LocalDateTime.ofInstant(currentInstant, systemZone)
+                    }
+
                     events.forEachIndexed { index, event ->
                         val time = parseEventDateTimeOrNull(event.date)
-                        val editable = time == null || time.isAfter(java.time.LocalDateTime.now())
+                        val editable = time == null || time.isAfter(currentLocalDateTimeForEditCheck)
 
                         DarkTextField(
                             value = event.name,
