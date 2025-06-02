@@ -20,7 +20,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import com.jahi.pipelinetest.Prefs
-import java.time.LocalDate
 
 class EventCountdownWidget : AppWidgetProvider() {
 
@@ -110,18 +109,8 @@ class EventCountdownWidget : AppWidgetProvider() {
         const val ACTION_GENERATE_AUDIO = "com.jahi.pipelinetest.GENERATE_AUDIO"
 
         private fun parseEventDateTime(dateString: String): LocalDateTime {
-            return try {
-                // Try parsing as LocalDateTime first
-                LocalDateTime.parse(dateString)
-            } catch (e: Exception) {
-                try {
-                    // If that fails, try parsing as LocalDate and convert to LocalDateTime
-                    LocalDate.parse(dateString).atStartOfDay()
-                } catch (e2: Exception) {
-                    // If both fail, throw the original exception
-                    throw e
-                }
-            }
+            return com.jahi.pipelinetest.parseEventDateTime(dateString)
+                ?: throw IllegalArgumentException("Invalid date format")
         }
 
         internal fun updateAppWidget(
