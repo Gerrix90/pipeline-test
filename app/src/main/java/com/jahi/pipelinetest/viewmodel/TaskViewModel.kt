@@ -3,9 +3,6 @@ package com.jahi.pipelinetest.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.jahi.pipelinetest.domain.*
 import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.repository.TaskRepository
@@ -30,13 +27,7 @@ class TaskViewModel(
 
     val allTasks: StateFlow<List<Task>> =
         taskRepository.tasks
-            .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptyList())
-
-    var isAddingTask by mutableStateOf(false)
-        private set
-    
-    var newTaskDescription by mutableStateOf("")
-        private set
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun loadTasksForEvent(eventId: Int) {
         viewModelScope.launch {
@@ -72,25 +63,6 @@ class TaskViewModel(
         }
     }
 
-    fun startAddingTask() {
-        isAddingTask = true
-    }
-
-    fun cancelAddingTask() {
-        isAddingTask = false
-        newTaskDescription = ""
-    }
-
-    fun updateNewTaskDescription(description: String) {
-        newTaskDescription = description
-    }
-
-    fun confirmAddTask(eventId: Int) {
-        if (newTaskDescription.isNotBlank()) {
-            addTask(eventId, newTaskDescription)
-            cancelAddingTask()
-        }
-    }
 }
 
 class TaskViewModelFactory(
