@@ -22,12 +22,13 @@ class Prefs(context: Context) {
             for (i in 0 until arr.length()) {
                 val obj = arr.getJSONObject(i)
                 list.add(
-                        CustomEvent(
-                            name = obj.optString("name"),
-                            date = obj.optString("date"),
-                            showTime = obj.optBoolean("showTime"),
-                            showInWidget = obj.optBoolean("showInWidget", false)
-                        )
+                    CustomEvent(
+                        id = obj.optInt("id", kotlin.random.Random.nextInt()),
+                        name = obj.optString("name"),
+                        date = obj.optString("date"),
+                        showTime = obj.optBoolean("showTime"),
+                        showInWidget = obj.optBoolean("showInWidget", false)
+                    )
                 )
             }
             return list
@@ -36,6 +37,7 @@ class Prefs(context: Context) {
             val arr = JSONArray()
             value.forEach {
                 val obj = JSONObject()
+                obj.put("id", it.id)
                 obj.put("name", it.name)
                 obj.put("date", it.date)
                 obj.put("showTime", it.showTime)
