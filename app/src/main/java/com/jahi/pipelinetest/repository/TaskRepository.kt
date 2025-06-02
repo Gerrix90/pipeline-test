@@ -17,7 +17,7 @@ class TaskRepository(private val prefs: Prefs) {
     
     private fun saveTasks(tasks: List<Task>) {
         prefs.tasks = tasks.toMutableList()
-        _tasks.value = tasks
+        _tasks.value = tasks.toMutableList()
     }
     
     fun addTask(task: Task) {
