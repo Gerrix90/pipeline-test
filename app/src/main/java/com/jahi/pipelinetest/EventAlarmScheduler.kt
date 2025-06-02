@@ -31,10 +31,12 @@ internal fun scheduleEventAlarms(context: Context, events: List<CustomEvent>): I
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pending)
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
             } else {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAt, pending)
             }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
         } else {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pending)
         }
