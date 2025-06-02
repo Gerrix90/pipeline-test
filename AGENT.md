@@ -31,6 +31,13 @@ This project supports Android development in both online and offline environment
    ./gradlew assembleDebug --offline
    ```
 
+## Architecture Guidelines
+
+- Build new features using the **MVVM** pattern so UI logic resides in ViewModel
+  classes.
+- When possible, encapsulate business logic in **use case** classes and access
+  data through dedicated **repository** classes.
+
 ## ⚠️ MANDATORY Code Validation
 
 **CRITICAL REQUIREMENT**: After making ANY code changes, you MUST validate that the code compiles and builds correctly before considering your work complete.
