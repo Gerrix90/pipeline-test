@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 
 class EventAlarmReceiver : BroadcastReceiver() {
@@ -20,6 +21,13 @@ class EventAlarmReceiver : BroadcastReceiver() {
             nm.cancel(notificationId)
             return
         }
+        
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wakeLock = powerManager.newWakeLock(
+            PowerManager.SCREEN_BRIGHT_WAKE_LOCK or PowerManager.ACQUIRE_CAUSES_WAKEUP,
+            "EventAlarm:WakeLock"
+        )
+        wakeLock.acquire(30000)
         createChannel(context)
         val dismissIntent = Intent(context, EventAlarmReceiver::class.java).apply {
             action = ACTION_DISMISS
@@ -37,11 +45,18 @@ class EventAlarmReceiver : BroadcastReceiver() {
             .setContentTitle(eventName)
             .setContentText(context.getString(R.string.event_alarm_triggered))
             .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setFullScreenIntent(dismissPending, true)
             .addAction(0, context.getString(R.string.dismiss), dismissPending)
             .build()
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(notificationId, notification)
+        
+        if (wakeLock.isHeld) {
+            wakeLock.release()
+        }
     }
 
     private fun createChannel(context: Context) {
@@ -52,6 +67,10 @@ class EventAlarmReceiver : BroadcastReceiver() {
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = context.getString(R.string.event_alarm_channel_description)
+                setBypassDnd(true)
+                setShowBadge(true)
+                enableVibration(true)
+                enableLights(true)
             }
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.createNotificationChannel(channel)
