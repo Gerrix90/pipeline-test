@@ -15,12 +15,13 @@ import android.widget.RemoteViews
 import com.jahi.pipelinetest.domain.GenerateAudioUseCase
 import com.jahi.pipelinetest.viewmodel.WidgetViewModel
 import com.jahi.pipelinetest.model.CustomEvent
+import com.jahi.pipelinetest.parseEventDateTime
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import com.jahi.pipelinetest.Prefs
-import java.time.LocalDate
 
 class EventCountdownWidget : AppWidgetProvider() {
 
@@ -109,21 +110,6 @@ class EventCountdownWidget : AppWidgetProvider() {
         const val ACTION_UPDATE_EVENT_WIDGET = "com.jahi.pipelinetest.UPDATE_EVENT_WIDGET"
         const val ACTION_GENERATE_AUDIO = "com.jahi.pipelinetest.GENERATE_AUDIO"
 
-        private fun parseEventDateTime(dateString: String): LocalDateTime {
-            return try {
-                // Try parsing as LocalDateTime first
-                LocalDateTime.parse(dateString)
-            } catch (e: Exception) {
-                try {
-                    // If that fails, try parsing as LocalDate and convert to LocalDateTime
-                    LocalDate.parse(dateString).atStartOfDay()
-                } catch (e2: Exception) {
-                    // If both fail, throw the original exception
-                    throw e
-                }
-            }
-        }
-
         internal fun updateAppWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
@@ -142,28 +128,23 @@ class EventCountdownWidget : AppWidgetProvider() {
                     views.setTextViewText(R.id.time_text, "--:--")
                     views.setImageViewResource(R.id.circular_progress_view, R.drawable.widget_background)
                 } else {
-                    // Filter out past events and find next upcoming event
-                    val futureEvents = events.filter { event ->
-                        try {
-                            val eventDateTime = parseEventDateTime(event.date)
-                            eventDateTime.isAfter(now)
-                        } catch (e: Exception) {
-                            false
-                        }
+                    // Parse events and find next upcoming one
+                    val parsed = events.mapNotNull { e ->
+                        parseEventDateTime(e.date)?.let { dt -> e to dt }
                     }
-                    
-                    val nextEvent = futureEvents.minByOrNull { event ->
-                        val eventDateTime = parseEventDateTime(event.date)
-                        ChronoUnit.MILLIS.between(now, eventDateTime)
+                    val futureEvents = parsed.filter { it.second.isAfter(now) }
+                    val nextPair = futureEvents.minByOrNull { pair ->
+                        ChronoUnit.MILLIS.between(now, pair.second)
                     }
-                    
-                    if (nextEvent == null) {
+
+                    if (nextPair == null) {
                         views.setTextViewText(R.id.event_name, "No upcoming events")
                         views.setTextViewText(R.id.time_text, "--:--")
                         views.setImageViewResource(R.id.circular_progress_view, R.drawable.widget_background)
                     } else {
                         // Calculate remaining time to event
-                        val eventTime = parseEventDateTime(nextEvent.date)
+                        val nextEvent = nextPair.first
+                        val eventTime = nextPair.second
                         val remainingDuration = Duration.between(now, eventTime)
                         val remainingSeconds = remainingDuration.seconds
                         
