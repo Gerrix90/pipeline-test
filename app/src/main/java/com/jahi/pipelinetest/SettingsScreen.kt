@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,9 +39,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.CustomEvent
 import com.jahi.pipelinetest.ui.theme.Green500
+import com.jahi.pipelinetest.ui.theme.Green600
 import com.jahi.pipelinetest.ui.theme.OutlineDark
 import com.jahi.pipelinetest.ui.theme.SurfaceDark
 import java.time.Instant
@@ -76,30 +79,36 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
         },
         bottomBar = {
             Row(modifier = Modifier.padding(16.dp)) {
-                Button(onClick = {
-                    viewModel.showYearCountdown = showYear
-                    viewModel.currentAge = currentAge.toIntOrNull() ?: viewModel.currentAge
-                    viewModel.targetAge = targetAge.toIntOrNull() ?: viewModel.targetAge
-                    val oldEvents = viewModel.events.toList()
-                    viewModel.setEvents(events)
+                Button(
+                    onClick = {
+                        viewModel.showYearCountdown = showYear
+                        viewModel.currentAge = currentAge.toIntOrNull() ?: viewModel.currentAge
+                        viewModel.targetAge = targetAge.toIntOrNull() ?: viewModel.targetAge
+                        val oldEvents = viewModel.events.toList()
+                        viewModel.setEvents(events)
 
-                    // Send broadcast to update widget
-                    val intent = Intent(EventCountdownWidget.ACTION_UPDATE_EVENT_WIDGET)
-                    intent.setPackage(context.packageName)
-                    context.sendBroadcast(intent)
+                        // Send broadcast to update widget
+                        val intent = Intent(EventCountdownWidget.ACTION_UPDATE_EVENT_WIDGET)
+                        intent.setPackage(context.packageName)
+                        context.sendBroadcast(intent)
 
-                    cancelEventAlarms(context, oldEvents)
-                    val scheduled = scheduleEventAlarms(context, events)
-                    if (scheduled > 0) {
-                        android.widget.Toast.makeText(
-                            context,
-                            context.getString(R.string.events_scheduled),
-                            android.widget.Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                        cancelEventAlarms(context, oldEvents)
+                        val scheduled = scheduleEventAlarms(context, events)
+                        if (scheduled > 0) {
+                            android.widget.Toast.makeText(
+                                context,
+                                context.getString(R.string.events_scheduled),
+                                android.widget.Toast.LENGTH_SHORT
+                            ).show()
+                        }
 
-                    onDismiss()
-                }) { Text("Save") }
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Green500,
+                        contentColor = Color.White
+                    )
+                ) { Text("Save") }
             }
         }
     ) { innerPadding ->
