@@ -40,10 +40,21 @@ class EventAlarmReceiver : BroadcastReceiver() {
             dismissIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        
+        // Create intent to open MainActivity when notification is clicked
+        val openAppIntent = Intent(context, MainActivity::class.java)
+        val openAppPending = PendingIntent.getActivity(
+            context,
+            notificationId + 1000, // Use different request code to avoid conflicts
+            openAppIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(eventName)
             .setContentText(context.getString(R.string.event_alarm_triggered))
+            .setContentIntent(openAppPending)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
