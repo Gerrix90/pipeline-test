@@ -11,8 +11,9 @@ import com.jahi.pipelinetest.parseEventDateTimeOrNull
 
 private const val MAX_ALARMS = 50
 
-internal fun scheduleEventAlarms(context: Context, events: List<CustomEvent>) {
+internal fun scheduleEventAlarms(context: Context, events: List<CustomEvent>): Int {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    var count = 0
     events.take(MAX_ALARMS).forEach { event ->
         if (event.date.isBlank()) return@forEach
         val time = parseEventDateTimeOrNull(event.date) ?: return@forEach
@@ -37,7 +38,9 @@ internal fun scheduleEventAlarms(context: Context, events: List<CustomEvent>) {
         } else {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pending)
         }
+        count++
     }
+    return count
 }
 
 internal fun cancelEventAlarms(context: Context, events: List<CustomEvent>) {

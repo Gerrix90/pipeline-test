@@ -31,7 +31,7 @@ Time Fomo is an Android application built with Kotlin and Jetpack Compose that h
 - **Java**: JDK 17 or higher
 - **Build Tools**: Gradle 8.10.2+, Android Gradle Plugin 8.8.2
 - **Target SDK**: API level 35 (Android 14)
-- **Permissions**: Requires the `SCHEDULE_EXACT_ALARM` permission for precise event alarms
+- **Permissions**: Requires the `SCHEDULE_EXACT_ALARM` and `POST_NOTIFICATIONS` permissions for event alarms and notifications
 
 ## Build Instructions
 

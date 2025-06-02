@@ -85,7 +85,14 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     context.sendBroadcast(intent)
 
                     cancelEventAlarms(context, oldEvents)
-                    scheduleEventAlarms(context, events)
+                    val scheduled = scheduleEventAlarms(context, events)
+                    if (scheduled > 0) {
+                        android.widget.Toast.makeText(
+                            context,
+                            context.getString(R.string.events_scheduled),
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
 
                     onDismiss()
                 }) { Text("Save") }
