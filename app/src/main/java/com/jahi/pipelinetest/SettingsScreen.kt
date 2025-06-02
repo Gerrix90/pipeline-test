@@ -29,6 +29,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import com.jahi.pipelinetest.scheduleEventAlarms
 import com.jahi.pipelinetest.cancelEventAlarms
+import com.jahi.pipelinetest.parseEventDateTimeOrNull
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -131,25 +132,34 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         .verticalScroll(rememberScrollState())
                 ) {
                     events.forEachIndexed { index, event ->
+                        val time = parseEventDateTimeOrNull(event.date)
+                        val editable = time == null || time.isAfter(java.time.LocalDateTime.now())
+
                         DarkTextField(
                             value = event.name,
                             onValueChange = { events[index] = event.copy(name = it) },
                             label = { Text("Event Name") },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            readOnly = !editable,
+                            enabled = editable
                         )
                         val context = LocalContext.current
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    openDateTimePicker(
-                                        context,
-                                        event.date,
-                                        event.showTime
-                                    ) { selected ->
-                                        events[index] = event.copy(date = selected)
+                            modifier = if (editable) {
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        openDateTimePicker(
+                                            context,
+                                            event.date,
+                                            event.showTime
+                                        ) { selected ->
+                                            events[index] = event.copy(date = selected)
+                                        }
                                     }
-                                }
+                            } else {
+                                Modifier.fillMaxWidth()
+                            }
                         ) {
                             DarkTextField(
                                 value = event.date,
@@ -160,10 +170,11 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
-                        RowCheckbox("Show Time", event.showTime) {
+
+                        RowCheckbox("Show Time", event.showTime, enabled = editable) {
                             events[index] = event.copy(showTime = it)
                         }
-                        RowCheckbox("Show in Widget", event.showInWidget) {
+                        RowCheckbox("Show in Widget", event.showInWidget, enabled = editable) {
                             events[index] = event.copy(showInWidget = it)
                         }
                         Button(onClick = { events.removeAt(index) }) {
@@ -180,9 +191,21 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun RowCheckbox(label: String, checked: Boolean, onChecked: (Boolean) -> Unit) {
-    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-        Checkbox(checked = checked, onCheckedChange = onChecked)
+private fun RowCheckbox(
+    label: String,
+    checked: Boolean,
+    enabled: Boolean = true,
+    onChecked: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = { if (enabled) onChecked(it) },
+            enabled = enabled
+        )
         Text(text = label)
     }
 }

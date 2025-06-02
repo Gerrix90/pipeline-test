@@ -113,7 +113,7 @@ fun CountdownsScreen(
         viewModel.events.forEach { event ->
             if (event.date.isNotBlank()) {
                 val diff = viewModel.durationToEvent(event.date, now)
-                if (diff != null) {
+                if (diff != null && !diff.isNegative && !diff.isZero) {
                     CountdownCard(
                         title = event.name,
                         value = if (event.showTime) {
