@@ -3,8 +3,11 @@ package com.jahi.pipelinetest
 import android.content.Context
 import android.content.SharedPreferences
 import com.jahi.pipelinetest.model.CustomEvent
+import com.jahi.pipelinetest.model.Task
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class Prefs(context: Context) {
     private val prefs: SharedPreferences =
@@ -54,4 +57,45 @@ class Prefs(context: Context) {
     var targetAge: Int
         get() = prefs.getInt("targetAge", 80)
         set(value) { prefs.edit().putInt("targetAge", value).apply() }
+
+    var tasks: MutableList<Task>
+        get() {
+            val json = prefs.getString("tasks", "[]") ?: "[]"
+            val arr = JSONArray(json)
+            val list = mutableListOf<Task>()
+            for (i in 0 until arr.length()) {
+                val obj = arr.getJSONObject(i)
+                list.add(
+                    Task(
+                        id = obj.optInt("id", kotlin.random.Random.nextInt()),
+                        eventId = obj.getInt("eventId"),
+                        description = obj.optString("description"),
+                        isCompleted = obj.optBoolean("isCompleted"),
+                        createdAt = obj.optString("createdAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
+                        dueDate = if (obj.has("dueDate") && !obj.isNull("dueDate")) {
+                            obj.optString("dueDate")
+                        } else {
+                            null
+                        }
+                    )
+                )
+            }
+            return list
+        }
+        set(value) {
+            val arr = JSONArray()
+            value.forEach {
+                val obj = JSONObject()
+                obj.put("id", it.id)
+                obj.put("eventId", it.eventId)
+                obj.put("description", it.description)
+                obj.put("isCompleted", it.isCompleted)
+                obj.put("createdAt", it.createdAt)
+                it.dueDate?.let { dueDate ->
+                    obj.put("dueDate", dueDate)
+                }
+                arr.put(obj)
+            }
+            prefs.edit().putString("tasks", arr.toString()).apply()
+        }
 }

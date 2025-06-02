@@ -34,6 +34,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.jahi.pipelinetest.ui.theme.PipelineTestTheme
 import com.jahi.pipelinetest.SettingsScreen
+import com.jahi.pipelinetest.repository.TaskRepository
+import com.jahi.pipelinetest.domain.*
+import com.jahi.pipelinetest.viewmodel.TaskViewModel
+import com.jahi.pipelinetest.viewmodel.TaskViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -41,6 +45,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val prefs = Prefs(this)
         val viewModel = ViewModelProvider(this, MainViewModelFactory(prefs))[MainViewModel::class.java]
+        
+        // Initialize task dependencies
+        val taskRepository = TaskRepository(prefs)
+        val addTaskToEventUseCase = AddTaskToEventUseCase(taskRepository)
+        val getTasksForEventUseCase = GetTasksForEventUseCase(taskRepository)
+        val updateTaskUseCase = UpdateTaskUseCase(taskRepository)
+        val deleteTaskUseCase = DeleteTaskUseCase(taskRepository)
+        val toggleTaskCompletionUseCase = ToggleTaskCompletionUseCase(taskRepository)
+        
+        val taskViewModelFactory = TaskViewModelFactory(
+            addTaskToEventUseCase,
+            getTasksForEventUseCase,
+            updateTaskUseCase,
+            deleteTaskUseCase,
+            toggleTaskCompletionUseCase
+        )
+        val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
+        
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -119,7 +141,7 @@ class MainActivity : ComponentActivity() {
                         }
                     ) { innerPadding ->
                         if (viewModel.screen == 0) {
-                            CountdownsScreen(viewModel, Modifier.padding(innerPadding))
+                            CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
                         } else {
                             LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
                         }

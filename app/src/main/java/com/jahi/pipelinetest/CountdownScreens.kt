@@ -9,16 +9,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -46,20 +52,34 @@ import com.jahi.pipelinetest.ui.theme.SurfaceDark
 import com.jahi.pipelinetest.ui.theme.Turquoise400
 import com.jahi.pipelinetest.ui.theme.Indigo200
 import com.jahi.pipelinetest.ui.theme.Yellow300
+import com.jahi.pipelinetest.ui.components.TaskList
+import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 private fun CountdownCard(
     title: String,
     value: String,
+    eventId: Int? = null,
+    taskViewModel: TaskViewModel? = null,
     modifier: Modifier = Modifier
 ) {
     var showTitle by remember { mutableStateOf(true) }
+    var showTasks by remember { mutableStateOf(false) }
+    val tasks by (taskViewModel?.tasks?.collectAsState() ?: remember { mutableStateOf(emptyList()) })
+    val eventTasks = eventId?.let { id -> tasks.filter { it.eventId == id } } ?: emptyList()
+    
     Card(
         modifier = modifier
             .fillMaxWidth()
             .padding(AppDimens.StandardPadding)
-            .clickable { showTitle = !showTitle },
+            .clickable { 
+                if (eventId != null) {
+                    showTasks = !showTasks
+                } else {
+                    showTitle = !showTitle
+                }
+            },
         colors = CardDefaults.cardColors(containerColor = SurfaceDark.copy(alpha = 0.7f))
     ) {
         Column(
@@ -68,7 +88,7 @@ private fun CountdownCard(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (showTitle) {
+            if (showTitle || eventId != null) {
                 Text(
                     text = title,
                     color = Slate400,
@@ -84,6 +104,49 @@ private fun CountdownCard(
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Bold
             )
+            
+            // Show task progress for events
+            if (eventId != null && eventTasks.isNotEmpty()) {
+                val completedTasks = eventTasks.count { it.isCompleted }
+                val totalTasks = eventTasks.size
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Tasks: $completedTasks/$totalTasks",
+                        color = Slate400,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    LinearProgressIndicator(
+                        progress = if (totalTasks > 0) completedTasks.toFloat() / totalTasks else 0f,
+                        modifier = Modifier
+                            .width(80.dp)
+                            .height(6.dp)
+                    )
+                }
+            }
+            
+            // Show tasks when expanded
+            if (showTasks && eventId != null && taskViewModel != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                TaskList(
+                    eventId = eventId,
+                    tasks = eventTasks,
+                    taskViewModel = taskViewModel,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else if (eventId != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Tap to manage tasks",
+                    color = Slate400,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }
@@ -91,6 +154,7 @@ private fun CountdownCard(
 @Composable
 fun CountdownsScreen(
     viewModel: MainViewModel,
+    taskViewModel: TaskViewModel? = null,
     modifier: Modifier = Modifier
 ) {
     val now by viewModel.now.collectAsState()
@@ -121,6 +185,8 @@ fun CountdownsScreen(
                         } else {
                             "${diff.toDays()} days"
                         },
+                        eventId = event.id,
+                        taskViewModel = taskViewModel,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
