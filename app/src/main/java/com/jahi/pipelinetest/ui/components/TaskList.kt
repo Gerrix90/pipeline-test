@@ -6,6 +6,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,10 +29,9 @@ fun TaskList(
 ) {
     val completedTasks = tasks.count { it.isCompleted }
     val totalTasks = tasks.size
-    
-    LaunchedEffect(eventId) {
-        taskViewModel.loadTasksForEvent(eventId)
-    }
+
+    var isAdding by remember { mutableStateOf(false) }
+    var newDescription by remember { mutableStateOf("") }
     
     Column(modifier = modifier) {
         // Task progress header
@@ -63,7 +65,7 @@ fun TaskList(
         }
         
         // Add task button
-        if (taskViewModel.isAddingTask) {
+        if (isAdding) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -76,8 +78,8 @@ fun TaskList(
                     modifier = Modifier.padding(12.dp)
                 ) {
                     OutlinedTextField(
-                        value = taskViewModel.newTaskDescription,
-                        onValueChange = taskViewModel::updateNewTaskDescription,
+                        value = newDescription,
+                        onValueChange = { newDescription = it },
                         label = { Text("Task description") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -87,12 +89,21 @@ fun TaskList(
                             .padding(top = 8.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        TextButton(onClick = taskViewModel::cancelAddingTask) {
+                        TextButton(onClick = {
+                            isAdding = false
+                            newDescription = ""
+                        }) {
                             Text("Cancel")
                         }
                         TextButton(
-                            onClick = { taskViewModel.confirmAddTask(eventId) },
-                            enabled = taskViewModel.newTaskDescription.isNotBlank()
+                            onClick = {
+                                if (newDescription.isNotBlank()) {
+                                    taskViewModel.addTask(eventId, newDescription)
+                                    isAdding = false
+                                    newDescription = ""
+                                }
+                            },
+                            enabled = newDescription.isNotBlank()
                         ) {
                             Text("Add")
                         }
@@ -101,7 +112,7 @@ fun TaskList(
             }
         } else {
             Button(
-                onClick = taskViewModel::startAddingTask,
+                onClick = { isAdding = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -119,7 +130,8 @@ fun TaskList(
                     TaskItem(
                         task = task,
                         onToggleCompletion = { taskViewModel.toggleTaskCompletion(task) },
-                        onDelete = { taskViewModel.deleteTask(task) }
+                        onDelete = { taskViewModel.deleteTask(task) },
+                        onUpdate = { updated -> taskViewModel.updateTask(updated) }
                     )
                 }
             }
@@ -132,6 +144,7 @@ fun TaskItem(
     task: Task,
     onToggleCompletion: () -> Unit,
     onDelete: () -> Unit,
+    onUpdate: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -139,12 +152,15 @@ fun TaskItem(
             .fillMaxWidth()
             .padding(vertical = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (task.isCompleted) 
+            containerColor = if (task.isCompleted)
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            else 
+            else
                 MaterialTheme.colorScheme.surface
         )
     ) {
+        var isEditing by remember { mutableStateOf(false) }
+        var editText by remember { mutableStateOf(task.description) }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -155,23 +171,59 @@ fun TaskItem(
                 checked = task.isCompleted,
                 onCheckedChange = { onToggleCompletion() }
             )
-            Text(
-                text = task.description,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
-                textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
-                color = if (task.isCompleted) 
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                else 
-                    MaterialTheme.colorScheme.onSurface
-            )
-            IconButton(onClick = onDelete) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "Delete task",
-                    tint = MaterialTheme.colorScheme.error
+
+            if (isEditing) {
+                OutlinedTextField(
+                    value = editText,
+                    onValueChange = { editText = it },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
+                    singleLine = true
                 )
+                IconButton(
+                    onClick = {
+                        onUpdate(task.copy(description = editText))
+                        isEditing = false
+                    }
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = "Save task")
+                }
+                IconButton(
+                    onClick = {
+                        isEditing = false
+                        editText = task.description
+                    }
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Cancel edit")
+                }
+            } else {
+                Text(
+                    text = task.description,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
+                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
+                    color = if (task.isCompleted)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    else
+                        MaterialTheme.colorScheme.onSurface
+                )
+                IconButton(
+                    onClick = {
+                        editText = task.description
+                        isEditing = true
+                    }
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit task")
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete task",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
         }
     }

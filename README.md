@@ -10,6 +10,7 @@ Time Fomo is an Android application built with Kotlin and Jetpack Compose that h
 - **Custom Events**: Create and track countdowns to important personal events and milestones
 - **Event Alarms**: Save events in Settings to automatically schedule alarms with dismissible notifications when your custom events occur
 - **Event History**: View past custom events from the new History tab in Settings, listed most recent first
+- **Task Management**: Manage tasks for each custom event with full CRUD operations
 
 ### Life Visualization
 - **Life Hourglass**: Visualize your entire lifespan as hourglasses representing past, current, and future years
@@ -107,10 +108,11 @@ The app follows modern Android development practices:
 ## Usage
 
 1. **Countdowns Tab**: View daily and yearly countdowns, create custom events
-2. **Life Tab**: Explore your life timeline with the hourglass visualization  
+2. **Life Tab**: Explore your life timeline with the hourglass visualization
 3. **Settings**: Configure your birthdate and manage custom countdown events
-4. **Widgets**: Add countdown widgets to your home screen for quick access
-5. **Notifications**: Receive alerts when an event alarm triggers
+4. **Tasks Tab**: Add, edit, and delete tasks associated with your events
+5. **Widgets**: Add countdown widgets to your home screen for quick access
+6. **Notifications**: Receive alerts when an event alarm triggers
 
 ## Development
 
