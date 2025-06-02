@@ -9,6 +9,7 @@ Time Fomo is an Android application built with Kotlin and Jetpack Compose that h
 - **Yearly Countdown**: See how much time is left in the current year
 - **Custom Events**: Create and track countdowns to important personal events and milestones
 - **Event Alarms**: Save events in Settings to automatically schedule alarms with dismissible notifications when your custom events occur
+- **Event History**: View past custom events from the new History tab in Settings
 
 ### Life Visualization
 - **Life Hourglass**: Visualize your entire lifespan as hourglasses representing past, current, and future years
