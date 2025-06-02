@@ -29,10 +29,9 @@ fun TaskList(
 ) {
     val completedTasks = tasks.count { it.isCompleted }
     val totalTasks = tasks.size
-    
-    LaunchedEffect(eventId) {
-        taskViewModel.loadTasksForEvent(eventId)
-    }
+
+    var isAdding by remember { mutableStateOf(false) }
+    var newDescription by remember { mutableStateOf("") }
     
     Column(modifier = modifier) {
         // Task progress header
@@ -66,7 +65,7 @@ fun TaskList(
         }
         
         // Add task button
-        if (taskViewModel.isAddingTask) {
+        if (isAdding) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -79,8 +78,8 @@ fun TaskList(
                     modifier = Modifier.padding(12.dp)
                 ) {
                     OutlinedTextField(
-                        value = taskViewModel.newTaskDescription,
-                        onValueChange = taskViewModel::updateNewTaskDescription,
+                        value = newDescription,
+                        onValueChange = { newDescription = it },
                         label = { Text("Task description") },
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -90,12 +89,21 @@ fun TaskList(
                             .padding(top = 8.dp),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        TextButton(onClick = taskViewModel::cancelAddingTask) {
+                        TextButton(onClick = {
+                            isAdding = false
+                            newDescription = ""
+                        }) {
                             Text("Cancel")
                         }
                         TextButton(
-                            onClick = { taskViewModel.confirmAddTask(eventId) },
-                            enabled = taskViewModel.newTaskDescription.isNotBlank()
+                            onClick = {
+                                if (newDescription.isNotBlank()) {
+                                    taskViewModel.addTask(eventId, newDescription)
+                                    isAdding = false
+                                    newDescription = ""
+                                }
+                            },
+                            enabled = newDescription.isNotBlank()
                         ) {
                             Text("Add")
                         }
@@ -104,7 +112,7 @@ fun TaskList(
             }
         } else {
             Button(
-                onClick = taskViewModel::startAddingTask,
+                onClick = { isAdding = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
@@ -201,7 +209,12 @@ fun TaskItem(
                     else
                         MaterialTheme.colorScheme.onSurface
                 )
-                IconButton(onClick = { isEditing = true }) {
+                IconButton(
+                    onClick = {
+                        editText = task.description
+                        isEditing = true
+                    }
+                ) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit task")
                 }
                 IconButton(onClick = onDelete) {
