@@ -38,6 +38,7 @@ import com.jahi.pipelinetest.repository.TaskRepository
 import com.jahi.pipelinetest.domain.*
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.viewmodel.TaskViewModelFactory
+import com.jahi.pipelinetest.TaskOverviewScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -59,7 +60,8 @@ class MainActivity : ComponentActivity() {
             getTasksForEventUseCase,
             updateTaskUseCase,
             deleteTaskUseCase,
-            toggleTaskCompletionUseCase
+            toggleTaskCompletionUseCase,
+            taskRepository
         )
         val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
         
@@ -137,13 +139,26 @@ class MainActivity : ComponentActivity() {
                                         indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
                                     )
                                 )
+                                NavigationBarItem(
+                                    selected = viewModel.screen == 2,
+                                    onClick = { viewModel.selectScreen(2) },
+                                    label = { Text("Tasks") },
+                                    icon = { },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
+                                    )
+                                )
                             }
                         }
                     ) { innerPadding ->
-                        if (viewModel.screen == 0) {
-                            CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
-                        } else {
-                            LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
+                        when (viewModel.screen) {
+                            0 -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
+                            1 -> LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
+                            else -> TaskOverviewScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
                         }
                     }
                 }

@@ -8,21 +8,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.jahi.pipelinetest.domain.*
 import com.jahi.pipelinetest.model.Task
+import com.jahi.pipelinetest.repository.TaskRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 
 class TaskViewModel(
     private val addTaskToEventUseCase: AddTaskToEventUseCase,
     private val getTasksForEventUseCase: GetTasksForEventUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase
+    private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase,
+    private val taskRepository: com.jahi.pipelinetest.repository.TaskRepository
 ) : ViewModel() {
 
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
+
+    val allTasks: StateFlow<List<Task>> =
+        taskRepository.tasks
+            .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.Eagerly, emptyList())
 
     var isAddingTask by mutableStateOf(false)
         private set
@@ -90,7 +98,8 @@ class TaskViewModelFactory(
     private val getTasksForEventUseCase: GetTasksForEventUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
-    private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase
+    private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase,
+    private val taskRepository: com.jahi.pipelinetest.repository.TaskRepository
 ) : ViewModelProvider.Factory {
     
     @Suppress("UNCHECKED_CAST")
@@ -101,7 +110,8 @@ class TaskViewModelFactory(
                 getTasksForEventUseCase,
                 updateTaskUseCase,
                 deleteTaskUseCase,
-                toggleTaskCompletionUseCase
+                toggleTaskCompletionUseCase,
+                taskRepository
             ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
