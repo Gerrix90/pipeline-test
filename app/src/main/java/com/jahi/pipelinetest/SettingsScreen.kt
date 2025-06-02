@@ -27,6 +27,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.platform.LocalContext
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import com.jahi.pipelinetest.scheduleEventAlarms
+import com.jahi.pipelinetest.cancelEventAlarms
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -74,13 +76,17 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     viewModel.showYearCountdown = showYear
                     viewModel.currentAge = currentAge.toIntOrNull() ?: viewModel.currentAge
                     viewModel.targetAge = targetAge.toIntOrNull() ?: viewModel.targetAge
+                    val oldEvents = viewModel.events.toList()
                     viewModel.setEvents(events)
-                    
+
                     // Send broadcast to update widget
                     val intent = Intent(EventCountdownWidget.ACTION_UPDATE_EVENT_WIDGET)
                     intent.setPackage(context.packageName)
                     context.sendBroadcast(intent)
-                    
+
+                    cancelEventAlarms(context, oldEvents)
+                    scheduleEventAlarms(context, events)
+
                     onDismiss()
                 }) { Text("Save") }
             }
