@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.platform.LocalContext
 import com.jahi.pipelinetest.util.openDateTimePicker
@@ -294,8 +295,9 @@ private fun DarkTextField(
         enabled = enabled,
         label = label,
         modifier = modifier,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            containerColor = SurfaceDark,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = SurfaceDark,
+            unfocusedContainerColor = SurfaceDark,
             focusedBorderColor = Green500,
             unfocusedBorderColor = OutlineDark, // Use OutlineDark instead of Slate700 for accessibility
             disabledBorderColor = OutlineDark,  // Use OutlineDark instead of Slate700 for accessibility

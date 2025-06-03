@@ -1,14 +1,32 @@
 [versions]
 agp = "8.8.2"
-kotlin = "2.0.0"
-coreKtx = "1.16.0"
+kotlin = "2.1.0"
+serializationPlugin = "2.0.21"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.0"
 activityCompose = "1.10.1"
-composeBom = "2024.04.01"
+composeBom = "2025.05.00"
 securityCrypto = "1.0.0"
+navigation = "2.8.9"
+serializationJson = "1.7.3"
+materialIconExtended = "1.7.8"
+workRuntime = "2.10.0"
+dataStore = "1.1.4"
+gson = "2.12.1"
+mediapipeTasksText = "0.10.21"
+mediapipeTasksGenai = "0.10.24"
+mediapipeTasksImageGenerator = "0.10.21"
+commonmark = "1.0.0-alpha02"
+richtext = "1.0.0-alpha02"
+tfliteJava = "16.4.0"
+tfliteGpu = "16.4.0"
+cameraX = "1.4.2"
+splashscreen = "1.2.0-beta01"
+netOpenidAppauth = "0.11.1"
+lifecycleProcess = "2.8.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -26,9 +44,31 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
+androidx-compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
+material-icon-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconExtended" }
+androidx-work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntime" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "dataStore" }
+com-google-code-gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+mediapipe-tasks-text = { group = "com.google.mediapipe", name = "tasks-text", version.ref = "mediapipeTasksText" }
+mediapipe-tasks-genai = { group = "com.google.mediapipe", name = "tasks-genai", version.ref = "mediapipeTasksGenai" }
+mediapipe-tasks-imagegen = { group = "com.google.mediapipe", name = "tasks-vision-image-generator", version.ref = "mediapipeTasksImageGenerator" }
+commonmark = { group = "com.halilibo.compose-richtext", name = "richtext-commonmark", version.ref = "commonmark" }
+richtext = { group = "com.halilibo.compose-richtext", name = "richtext-ui-material3", version.ref = "richtext" }
+tflite = { group = "com.google.android.gms", name = "play-services-tflite-java", version.ref = "tfliteJava" }
+tflite-gpu = { group = "com.google.android.gms", name = "play-services-tflite-gpu", version.ref = "tfliteGpu" }
+tflite-support = { group = "com.google.android.gms", name = "play-services-tflite-support", version.ref = "tfliteJava" }
+camerax-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraX"}
+camerax-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraX"}
+camerax-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX"}
+camerax-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraX"}
+androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
+openid-appauth = { group = "net.openid", name = "appauth", version.ref = "netOpenidAppauth" }
+androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serializationPlugin" }
 

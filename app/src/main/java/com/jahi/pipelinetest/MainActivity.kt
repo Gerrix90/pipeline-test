@@ -12,7 +12,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
@@ -40,6 +39,7 @@ import com.jahi.pipelinetest.domain.*
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.viewmodel.TaskViewModelFactory
 import com.jahi.pipelinetest.TaskOverviewScreen
+import com.jahi.pipelinetest.GalleryScreen
 import com.jahi.pipelinetest.scheduleTaskAlarms
 import com.jahi.pipelinetest.cancelTaskAlarms
 import androidx.lifecycle.lifecycleScope
@@ -79,14 +79,14 @@ class MainActivity : ComponentActivity() {
         
         // Check if launched from notification and navigate to Tasks screen
         intent?.let { launchIntent ->
-            if (launchIntent.getBooleanExtra("navigateToTasks", false)) {
+            if (launchIntent.getBooleanExtra(INTENT_EXTRA_NAVIGATE_TO_TASKS, false)) {
                 // Navigate to Tasks screen when launched from task notification
-                viewModel.selectScreen(2)
+                viewModel.selectScreen(SCREEN_TASKS)
             } else {
                 val eventId = launchIntent.getIntExtra(EventAlarmReceiver.EXTRA_EVENT_ID, -1)
                 if (eventId != -1) {
                     // Navigate to Tasks screen when launched from event notification
-                    viewModel.selectScreen(2)
+                    viewModel.selectScreen(SCREEN_TASKS)
                 }
             }
         }
@@ -110,23 +110,15 @@ class MainActivity : ComponentActivity() {
                 if (viewModel.showSettings) {
                     SettingsScreen(viewModel) { viewModel.closeSettings() }
                 } else {
-                    val gradient = remember {
-                        Brush.linearGradient(
-                            listOf(
-                                com.jahi.pipelinetest.ui.theme.Slate900,
-                                com.jahi.pipelinetest.ui.theme.Slate800
-                            )
-                        )
-                    }
                     Scaffold(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(gradient),
+                            .background(com.jahi.pipelinetest.ui.theme.Slate900),
                         containerColor = Color.Transparent,
                         topBar = {
                             TopAppBar(
                                 title = { Text(text = "Time Fomo") },
-                                colors = TopAppBarDefaults.smallTopAppBarColors(
+                                colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f),
                                     titleContentColor = com.jahi.pipelinetest.ui.theme.Slate100
                                 ),
@@ -140,9 +132,9 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
                             NavigationBar(containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f)) {
                                 NavigationBarItem(
-                                    selected = viewModel.screen == 0,
-                                    onClick = { viewModel.selectScreen(0) },
-                                    label = { Text("Countdowns") },
+                                    selected = viewModel.screen == SCREEN_COUNTDOWNS,
+                                    onClick = { viewModel.selectScreen(SCREEN_COUNTDOWNS) },
+                                    label = { Text(NAV_LABEL_COUNTDOWNS) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -153,9 +145,9 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                                 NavigationBarItem(
-                                    selected = viewModel.screen == 1,
-                                    onClick = { viewModel.selectScreen(1) },
-                                    label = { Text("Life") },
+                                    selected = viewModel.screen == SCREEN_LIFE,
+                                    onClick = { viewModel.selectScreen(SCREEN_LIFE) },
+                                    label = { Text(NAV_LABEL_LIFE) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -166,9 +158,22 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                                 NavigationBarItem(
-                                    selected = viewModel.screen == 2,
-                                    onClick = { viewModel.selectScreen(2) },
-                                    label = { Text("Tasks") },
+                                    selected = viewModel.screen == SCREEN_TASKS,
+                                    onClick = { viewModel.selectScreen(SCREEN_TASKS) },
+                                    label = { Text(NAV_LABEL_TASKS) },
+                                    icon = { },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
+                                    )
+                                )
+                                NavigationBarItem(
+                                    selected = viewModel.screen == SCREEN_GALLERY,
+                                    onClick = { viewModel.selectScreen(SCREEN_GALLERY) },
+                                    label = { Text(NAV_LABEL_GALLERY) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -182,9 +187,11 @@ class MainActivity : ComponentActivity() {
                         }
                     ) { innerPadding ->
                         when (viewModel.screen) {
-                            0 -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
-                            1 -> LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
-                            else -> TaskOverviewScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
+                            SCREEN_COUNTDOWNS -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
+                            SCREEN_LIFE -> LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
+                            SCREEN_TASKS -> TaskOverviewScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
+                            SCREEN_GALLERY -> GalleryScreen(Modifier.padding(innerPadding))
+                            else -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
                         }
                     }
                 }
@@ -198,20 +205,35 @@ class MainActivity : ComponentActivity() {
         val prefs = Prefs(this)
         val viewModel = ViewModelProvider(this, MainViewModelFactory(prefs))[MainViewModel::class.java]
         
-        if (intent.getBooleanExtra("navigateToTasks", false)) {
+        if (intent.getBooleanExtra(INTENT_EXTRA_NAVIGATE_TO_TASKS, false)) {
             // Navigate to Tasks screen when launched from task notification
-            viewModel.selectScreen(2)
+            viewModel.selectScreen(SCREEN_TASKS)
         } else {
             val eventId = intent.getIntExtra(EventAlarmReceiver.EXTRA_EVENT_ID, -1)
             if (eventId != -1) {
                 // Navigate to Tasks screen when launched from event notification
-                viewModel.selectScreen(2)
+                viewModel.selectScreen(SCREEN_TASKS)
             }
         }
     }
     
     companion object {
         private const val REQUEST_NOTIFICATION_PERMISSION = 100
+        
+        // Screen indices
+        private const val SCREEN_COUNTDOWNS = 0
+        private const val SCREEN_LIFE = 1
+        private const val SCREEN_TASKS = 2
+        private const val SCREEN_GALLERY = 3
+        
+        // Navigation labels
+        private const val NAV_LABEL_COUNTDOWNS = "Countdowns"
+        private const val NAV_LABEL_LIFE = "Life"
+        private const val NAV_LABEL_TASKS = "Tasks"
+        private const val NAV_LABEL_GALLERY = "AI Gallery"
+        
+        // Intent extras
+        private const val INTENT_EXTRA_NAVIGATE_TO_TASKS = "navigateToTasks"
     }
 }
 
