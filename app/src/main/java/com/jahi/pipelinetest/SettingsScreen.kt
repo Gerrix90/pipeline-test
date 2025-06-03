@@ -26,8 +26,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.platform.LocalContext
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import com.jahi.pipelinetest.util.openDateTimePicker
 import com.jahi.pipelinetest.scheduleEventAlarms
 import com.jahi.pipelinetest.cancelEventAlarms
 import com.jahi.pipelinetest.parseEventDateTimeOrNull
@@ -297,45 +296,3 @@ private fun DarkTextField(
     )
 }
 
-private fun openDateTimePicker(
-    context: android.content.Context,
-    value: String,
-    showTime: Boolean,
-    onSelected: (String) -> Unit
-) {
-    var dateTime = run {
-        try {
-            LocalDateTime.parse(value)
-        } catch (_: Exception) {
-            try {
-                LocalDate.parse(value).atStartOfDay()
-            } catch (_: Exception) {
-                LocalDateTime.now()
-            }
-        }
-    }
-
-    DatePickerDialog(
-        context,
-        { _, year, month, day ->
-            dateTime = dateTime.withYear(year).withMonth(month + 1).withDayOfMonth(day)
-            if (showTime) {
-                TimePickerDialog(
-                    context,
-                    { _, hour, minute ->
-                        dateTime = dateTime.withHour(hour).withMinute(minute)
-                        onSelected(dateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-                    },
-                    dateTime.hour,
-                    dateTime.minute,
-                    true
-                ).show()
-            } else {
-                onSelected(dateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE))
-            }
-        },
-        dateTime.year,
-        dateTime.monthValue - 1,
-        dateTime.dayOfMonth
-    ).show()
-}
