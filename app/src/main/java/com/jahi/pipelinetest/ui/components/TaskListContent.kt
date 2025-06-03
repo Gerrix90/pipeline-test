@@ -12,6 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import kotlinx.coroutines.flow.collect
 import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.util.openDateTimePicker
@@ -110,6 +113,16 @@ fun TaskListContent(
                         }
                     } ?: ""
                     
+                    val interactionSource = remember { MutableInteractionSource() }
+                    
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect {
+                            if (it is PressInteraction.Release) {
+                                showDatePicker = true
+                            }
+                        }
+                    }
+                    
                     OutlinedTextField(
                         value = displayDate,
                         onValueChange = { },
@@ -119,6 +132,7 @@ fun TaskListContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp),
+                        interactionSource = interactionSource,
                         trailingIcon = {
                             Row {
                                 if (selectedDate != null) {
