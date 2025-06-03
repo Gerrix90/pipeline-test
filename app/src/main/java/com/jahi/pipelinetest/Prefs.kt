@@ -98,4 +98,8 @@ class Prefs(context: Context) {
             }
             prefs.edit().putString("tasks", arr.toString()).apply()
         }
+
+    var nextTaskId: Int
+        get() = prefs.getInt("nextTaskId", 1)
+        set(value) { prefs.edit().putInt("nextTaskId", value).apply() }
 }

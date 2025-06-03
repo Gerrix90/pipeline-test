@@ -39,6 +39,7 @@ import com.jahi.pipelinetest.domain.*
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.viewmodel.TaskViewModelFactory
 import com.jahi.pipelinetest.TaskOverviewScreen
+import com.jahi.pipelinetest.scheduleTaskAlarms
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
             taskRepository
         )
         val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
+        scheduleTaskAlarms(this, prefs.tasks)
         
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(

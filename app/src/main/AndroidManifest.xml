@@ -74,6 +74,9 @@
         <receiver
             android:name=".EventAlarmReceiver"
             android:exported="false" />
+        <receiver
+            android:name=".TaskAlarmReceiver"
+            android:exported="false" />
     </application>
 
 </manifest>

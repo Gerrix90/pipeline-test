@@ -4,11 +4,13 @@ import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.repository.TaskRepository
 
 class AddTaskToEventUseCase(private val taskRepository: TaskRepository) {
-    
-    operator fun invoke(eventId: Int, description: String) {
+
+    operator fun invoke(eventId: Int, description: String, dueDate: String? = null) {
         val task = Task(
+            id = taskRepository.generateTaskId(),
             eventId = eventId,
-            description = description
+            description = description,
+            dueDate = dueDate
         )
         taskRepository.addTask(task)
     }
