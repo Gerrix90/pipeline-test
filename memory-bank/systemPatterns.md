@@ -93,6 +93,46 @@ com.jahi.pipelinetest/
 5. **NO** business logic in ViewModels - only in Use Cases
 6. **NO** data access logic in Use Cases - only in Repositories
 
+## Logging Standards (MANDATORY)
+
+### Timber Logging Requirements
+**ALL logging MUST use Timber with specific patterns:**
+
+```kotlin
+// Required import
+import timber.log.Timber
+
+// Required setup (Application class or initialization)
+if (BuildConfig.DEBUG) {
+    Timber.plant(Timber.DebugTree())
+}
+
+// MANDATORY: Use DEBUG_FLOW tag with class prefix
+companion object {
+    private const val TAG = "DEBUG_FLOW"
+    private const val CLASS_PREFIX = "MyClassName"
+}
+
+// Required logging format
+Timber.tag("$TAG:$CLASS_PREFIX").d("Method started: methodName()")
+Timber.tag("$TAG:$CLASS_PREFIX").i("Important state change: %s", stateInfo)
+Timber.tag("$TAG:$CLASS_PREFIX").e(exception, "Error occurred in: methodName")
+```
+
+### Logging Rules
+1. **ALWAYS** use Timber.tag() with DEBUG_FLOW prefix
+2. **ALWAYS** include class name in tag for identification
+3. **NEVER** use Android Log.d/Log.i directly - Timber ONLY
+4. **ALWAYS** log method entry/exit for debugging flows
+5. **ALWAYS** log important state changes and decisions
+6. **ALWAYS** log errors with exception details
+
+### Log Message Standards
+- Start with action: "Starting...", "Processing...", "Completed..."
+- Include parameter values when relevant
+- Use string formatting for better performance: `"Value: %s"` not string concatenation
+- Keep messages concise but descriptive
+
 ## Code Quality Standards
 
 ### CLEAN Code Principles (MANDATORY)
