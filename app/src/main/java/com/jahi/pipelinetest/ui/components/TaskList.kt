@@ -21,8 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.util.openDateTimePicker
-import com.jahi.pipelinetest.isValidDateTimeFormat
-import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,15 +93,8 @@ fun TaskList(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                if (isValidDateTimeFormat(newDueDate)) {
-                                    openDateTimePicker(context, newDueDate, true) { selected ->
-                                        newDueDate = selected
-                                    }
-                                } else {
-                                    Log.e("TaskList", "Invalid date format: $newDueDate")
-                                    openDateTimePicker(context, "", true) { selected ->
-                                        newDueDate = selected
-                                    }
+                                openDateTimePicker(context, newDueDate, true) { selected ->
+                                    newDueDate = selected
                                 }
                             }
                     ) {
@@ -131,14 +122,7 @@ fun TaskList(
                         TextButton(
                             onClick = {
                                 if (newDescription.isNotBlank()) {
-                                    val due = if (newDueDate.isNotBlank()) {
-                                        if (isValidDateTimeFormat(newDueDate)) {
-                                            newDueDate
-                                        } else {
-                                            Log.e("TaskList", "Invalid date format: $newDueDate")
-                                            null
-                                        }
-                                    } else null
+                                    val due = newDueDate.takeIf { it.isNotBlank() }
                                     taskViewModel.addTask(
                                         context,
                                         eventId,
@@ -238,15 +222,8 @@ fun TaskItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                if (isValidDateTimeFormat(editDueDate)) {
-                                    openDateTimePicker(context, editDueDate, true) { selected ->
-                                        editDueDate = selected
-                                    }
-                                } else {
-                                    Log.e("TaskList", "Invalid date format: $editDueDate")
-                                    openDateTimePicker(context, "", true) { selected ->
-                                        editDueDate = selected
-                                    }
+                                openDateTimePicker(context, editDueDate, true) { selected ->
+                                    editDueDate = selected
                                 }
                             }
                     ) {
@@ -261,14 +238,7 @@ fun TaskItem(
                 }
                 IconButton(
                     onClick = {
-                        val due = if (editDueDate.isNotBlank()) {
-                            if (isValidDateTimeFormat(editDueDate)) {
-                                editDueDate
-                            } else {
-                                Log.e("TaskList", "Invalid date format: $editDueDate")
-                                null
-                            }
-                        } else null
+                        val due = editDueDate.takeIf { it.isNotBlank() }
                         onUpdate(
                             task.copy(
                                 description = editText,

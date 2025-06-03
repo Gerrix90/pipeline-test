@@ -15,7 +15,7 @@ class TaskAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val desc = intent.getStringExtra(EXTRA_TASK_DESC) ?: return
         val taskId = intent.getIntExtra(EXTRA_TASK_ID, DEFAULT_TASK_ID)
-        val notificationId = if (taskId == DEFAULT_TASK_ID) desc.hashCode() else taskId
+        val notificationId = getNotificationId(taskId, desc)
         if (intent.action == ACTION_DISMISS) {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.cancel(notificationId)
@@ -93,4 +93,8 @@ class TaskAlarmReceiver : BroadcastReceiver() {
         const val ACTION_DISMISS = "com.jahi.pipelinetest.ACTION_DISMISS_TASK"
         const val CHANNEL_ID = "task_alarm"
     }
+}
+
+private fun getNotificationId(taskId: Int, desc: String): Int {
+    return if (taskId == TaskAlarmReceiver.DEFAULT_TASK_ID) desc.hashCode() else taskId
 }

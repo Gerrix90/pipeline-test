@@ -30,30 +30,8 @@ internal fun scheduleTaskAlarms(context: Context, tasks: List<Task>): Int {
     }
 
     schedulable.take(MAX_TASK_ALARMS).forEach { (task, triggerAt) ->
-        val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
-            putExtra(TaskAlarmReceiver.EXTRA_TASK_DESC, task.description)
-            putExtra(TaskAlarmReceiver.EXTRA_TASK_ID, task.id)
-        }
-        val pending = PendingIntent.getBroadcast(
-            context,
-            task.id,
-            intent,
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setAlarmClock(
-                    AlarmManager.AlarmClockInfo(triggerAt, pending),
-                    pending
-                )
-            } else {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
-        } else {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pending)
-        }
+        val pending = createPendingIntentForTask(context, task)!!
+        scheduleExact(alarmManager, triggerAt, pending)
         count++
     }
     return count
@@ -62,13 +40,34 @@ internal fun scheduleTaskAlarms(context: Context, tasks: List<Task>): Int {
 internal fun cancelTaskAlarms(context: Context, tasks: List<Task>) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     tasks.forEach { task ->
-        val intent = Intent(context, TaskAlarmReceiver::class.java)
-        val pending = PendingIntent.getBroadcast(
-            context,
-            task.id,
-            intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pending = createPendingIntentForTask(context, task, PendingIntent.FLAG_NO_CREATE)
         pending?.let { alarmManager.cancel(it) }
+    }
+}
+
+private fun createPendingIntentForTask(
+    context: Context,
+    task: Task,
+    extraFlag: Int = PendingIntent.FLAG_CANCEL_CURRENT
+): PendingIntent? {
+    val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
+        putExtra(TaskAlarmReceiver.EXTRA_TASK_DESC, task.description)
+        putExtra(TaskAlarmReceiver.EXTRA_TASK_ID, task.id)
+    }
+    val flags = extraFlag or PendingIntent.FLAG_IMMUTABLE
+    return PendingIntent.getBroadcast(context, task.id, intent, flags)
+}
+
+private fun scheduleExact(alarmManager: AlarmManager, triggerAt: Long, pending: PendingIntent) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (alarmManager.canScheduleExactAlarms()) {
+            alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(triggerAt, pending), pending)
+        } else {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
+        }
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pending)
+    } else {
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAt, pending)
     }
 }
