@@ -52,10 +52,10 @@ Key methods:
 
 ## Use Cases (Business Logic)
 
-### AddTaskToEventUseCase
+### CreateTaskUseCase
 Creates new task attached to specific event
 
-### GetTasksForEventUseCase
+### GetTasksUseCase
 Retrieves all tasks for a given event
 
 ### UpdateTaskUseCase
@@ -144,8 +144,8 @@ app/src/main/java/com/jahi/pipelinetest/
 ├── repository/
 │   └── TaskRepository.kt                # Data access layer
 ├── domain/
-│   ├── AddTaskToEventUseCase.kt         # Business logic
-│   ├── GetTasksForEventUseCase.kt
+│   ├── CreateTaskUseCase.kt             # Business logic
+│   ├── GetTasksUseCase.kt
 │   ├── UpdateTaskUseCase.kt
 │   ├── DeleteTaskUseCase.kt
 │   └── ToggleTaskCompletionUseCase.kt

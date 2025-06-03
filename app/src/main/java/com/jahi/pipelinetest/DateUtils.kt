@@ -20,3 +20,7 @@ internal fun parseEventDateTimeOrNull(dateString: String): LocalDateTime? {
         }
     }
 }
+
+internal fun isValidDateTimeFormat(dateString: String): Boolean {
+    return parseEventDateTimeOrNull(dateString) != null
+}

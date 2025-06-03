@@ -17,8 +17,8 @@ class TaskFunctionalityTest {
 
     private lateinit var prefs: Prefs
     private lateinit var taskRepository: TaskRepository
-    private lateinit var addTaskUseCase: AddTaskToEventUseCase
-    private lateinit var getTasksUseCase: GetTasksForEventUseCase
+    private lateinit var createTaskUseCase: CreateTaskUseCase
+    private lateinit var getTasksUseCase: GetTasksUseCase
     private lateinit var updateTaskUseCase: UpdateTaskUseCase
     private lateinit var deleteTaskUseCase: DeleteTaskUseCase
     private lateinit var toggleTaskUseCase: ToggleTaskCompletionUseCase
@@ -61,10 +61,10 @@ class TaskFunctionalityTest {
         // This demonstrates the architecture is correctly implemented
         
         // Use cases should have single responsibility
-        // AddTaskToEventUseCase: Add task to specific event
-        // GetTasksForEventUseCase: Retrieve tasks for an event
+        // CreateTaskUseCase: Add task to specific event
+        // GetTasksUseCase: Retrieve tasks for an event
         // UpdateTaskUseCase: Update existing task
-        // DeleteTaskUseCase: Delete task by ID  
+        // DeleteTaskUseCase: Delete task by ID
         // ToggleTaskCompletionUseCase: Toggle task completion status
         
         assertTrue("Use cases follow single responsibility principle", true)

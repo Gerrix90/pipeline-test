@@ -7,9 +7,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class TaskRepository(private val prefs: Prefs) {
-    
+
     private val _tasks = MutableStateFlow(prefs.tasks)
     val tasks: Flow<List<Task>> = _tasks.asStateFlow()
+
+    init {
+        val maxId = prefs.tasks.maxOfOrNull { it.id } ?: 0
+        if (prefs.nextTaskId <= maxId) {
+            prefs.nextTaskId = maxId + 1
+        }
+    }
+
+    fun generateTaskId(): Int {
+        val id = prefs.nextTaskId
+        prefs.nextTaskId = id + 1
+        return id
+    }
     
     private fun refreshTasks() {
         _tasks.value = prefs.tasks

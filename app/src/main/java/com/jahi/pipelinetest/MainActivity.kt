@@ -2,6 +2,7 @@ package com.jahi.pipelinetest
 
 import android.os.Bundle
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -39,6 +40,10 @@ import com.jahi.pipelinetest.domain.*
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.viewmodel.TaskViewModelFactory
 import com.jahi.pipelinetest.TaskOverviewScreen
+import com.jahi.pipelinetest.scheduleTaskAlarms
+import com.jahi.pipelinetest.cancelTaskAlarms
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -49,21 +54,42 @@ class MainActivity : ComponentActivity() {
         
         // Initialize task dependencies
         val taskRepository = TaskRepository(prefs)
-        val addTaskToEventUseCase = AddTaskToEventUseCase(taskRepository)
-        val getTasksForEventUseCase = GetTasksForEventUseCase(taskRepository)
+        val createTaskUseCase = CreateTaskUseCase(taskRepository)
+        val getTasksUseCase = GetTasksUseCase(taskRepository)
         val updateTaskUseCase = UpdateTaskUseCase(taskRepository)
         val deleteTaskUseCase = DeleteTaskUseCase(taskRepository)
         val toggleTaskCompletionUseCase = ToggleTaskCompletionUseCase(taskRepository)
         
         val taskViewModelFactory = TaskViewModelFactory(
-            addTaskToEventUseCase,
-            getTasksForEventUseCase,
+            createTaskUseCase,
+            getTasksUseCase,
             updateTaskUseCase,
             deleteTaskUseCase,
             toggleTaskCompletionUseCase,
             taskRepository
         )
         val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
+
+        lifecycleScope.launch {
+            taskViewModel.allTasks.collect { tasks ->
+                cancelTaskAlarms(this@MainActivity, tasks)
+                scheduleTaskAlarms(this@MainActivity, tasks)
+            }
+        }
+        
+        // Check if launched from notification and navigate to Tasks screen
+        intent?.let { launchIntent ->
+            if (launchIntent.getBooleanExtra("navigateToTasks", false)) {
+                // Navigate to Tasks screen when launched from task notification
+                viewModel.selectScreen(2)
+            } else {
+                val eventId = launchIntent.getIntExtra(EventAlarmReceiver.EXTRA_EVENT_ID, -1)
+                if (eventId != -1) {
+                    // Navigate to Tasks screen when launched from event notification
+                    viewModel.selectScreen(2)
+                }
+            }
+        }
         
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -166,6 +192,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // Handle intent when app is already running
+        val prefs = Prefs(this)
+        val viewModel = ViewModelProvider(this, MainViewModelFactory(prefs))[MainViewModel::class.java]
+        
+        if (intent.getBooleanExtra("navigateToTasks", false)) {
+            // Navigate to Tasks screen when launched from task notification
+            viewModel.selectScreen(2)
+        } else {
+            val eventId = intent.getIntExtra(EventAlarmReceiver.EXTRA_EVENT_ID, -1)
+            if (eventId != -1) {
+                // Navigate to Tasks screen when launched from event notification
+                viewModel.selectScreen(2)
+            }
+        }
+    }
+    
     companion object {
         private const val REQUEST_NOTIFICATION_PERMISSION = 100
     }
