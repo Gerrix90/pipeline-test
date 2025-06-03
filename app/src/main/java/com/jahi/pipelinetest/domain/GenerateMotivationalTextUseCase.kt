@@ -2,23 +2,21 @@ package com.jahi.pipelinetest.domain
 
 import android.content.Context
 import android.util.Log
-import com.jahi.pipelinetest.gallery.data.AppContainer
 import com.jahi.pipelinetest.gallery.data.Model
 import com.jahi.pipelinetest.gallery.ui.llmchat.LlmChatModelHelper
+import com.jahi.pipelinetest.domain.GetInitializedLlmModelUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import java.io.File
 import kotlin.coroutines.resume
 
 class GenerateMotivationalTextUseCase(
     private val context: Context,
-    @Suppress("unused") private val appContainer: AppContainer
+    private val getInitializedLlmModelUseCase: GetInitializedLlmModelUseCase
 ) {
     companion object {
         private const val TAG = "GenerateMotivationalText"
-        private const val INITIALIZATION_TIMEOUT_MS = 120_000L // 2 minutes for initialization
         private const val GENERATION_TIMEOUT_MS = 30_000L // 30 seconds for generation
     }
 
@@ -47,8 +45,8 @@ class GenerateMotivationalTextUseCase(
 
     suspend operator fun invoke(): String = withContext(Dispatchers.IO) {
         try {
-            // Try to find and use a downloaded LLM model
-            val llmModel = findDownloadedLlmModel()
+            // Obtain an initialized LLM model from the repository
+            val llmModel = getInitializedLlmModelUseCase()
             
             if (llmModel != null) {
                 Log.d(TAG, "Found LLM model: ${llmModel.name}")
@@ -71,125 +69,10 @@ class GenerateMotivationalTextUseCase(
         return@withContext fallbackSentences.random()
     }
 
-    private fun findDownloadedLlmModel(): Model? {
-        val externalDir = context.getExternalFilesDir(null)
-        if (externalDir != null) {
-            Log.d(TAG, "External files dir: ${externalDir.absolutePath}")
-            
-            // List all directories to see what's there
-            val directories = externalDir.listFiles { file -> file.isDirectory }
-            directories?.forEach { dir ->
-                Log.d(TAG, "Found directory: ${dir.name}")
-            }
-            
-            // Check __imports directory (note the double underscore)
-            val importsDir = File(externalDir, "__imports")
-            Log.d(TAG, "Checking __imports directory: ${importsDir.absolutePath}, exists: ${importsDir.exists()}")
-            
-            if (importsDir.exists()) {
-                val files = importsDir.listFiles()
-                Log.d(TAG, "Found ${files?.size ?: 0} files in __imports")
-                
-                files?.forEach { file ->
-                    Log.d(TAG, "Found file: ${file.name}, size: ${file.length() / 1024 / 1024}MB")
-                    
-                    // Check for .task or .bin files that look like LLM models
-                    if ((file.name.endsWith(".task") || file.name.endsWith(".bin")) && 
-                        file.length() > 10_000_000) { // At least 10MB
-                        
-                        // Create a model for this file
-                        val model = Model(
-                            name = file.nameWithoutExtension,
-                            downloadFileName = "__imports/${file.name}", // Include __imports in the path
-                            sizeInBytes = file.length(),
-                            version = "imported",
-                            url = "",
-                            imported = true
-                        )
-                        model.preProcess()
-                        
-                        Log.d(TAG, "Created imported model: ${model.name}")
-                        Log.d(TAG, "Model path will be: ${model.getPath(context)}")
-                        return model
-                    }
-                }
-            }
-            
-            // Also check for any downloaded models in versioned directories
-            val modelDirs = externalDir.listFiles { file -> 
-                file.isDirectory && !file.name.startsWith("__")
-            }
-            
-            modelDirs?.forEach { modelDir ->
-                Log.d(TAG, "Checking model directory: ${modelDir.name}")
-                
-                // Look for version directories inside
-                val versionDirs = modelDir.listFiles { file -> file.isDirectory }
-                versionDirs?.forEach { versionDir ->
-                    Log.d(TAG, "Checking version directory: ${versionDir.name}")
-                    
-                    // Look for model files
-                    val modelFiles = versionDir.listFiles { file ->
-                        file.name.endsWith(".task") || file.name.endsWith(".bin")
-                    }
-                    
-                    modelFiles?.forEach { modelFile ->
-                        Log.d(TAG, "Found model file: ${modelFile.name} in ${modelDir.name}/${versionDir.name}")
-                        
-                        if (modelFile.length() > 10_000_000) { // At least 10MB
-                            val model = Model(
-                                name = modelDir.name,
-                                downloadFileName = modelFile.name,
-                                sizeInBytes = modelFile.length(),
-                                version = versionDir.name,
-                                url = "",
-                                imported = false
-                            )
-                            model.preProcess()
-                            
-                            Log.d(TAG, "Created model from directory: ${model.name}")
-                            return model
-                        }
-                    }
-                }
-            }
-        }
-        
-        Log.d(TAG, "No LLM model found in any location")
-        return null
-    }
 
     private suspend fun generateWithAI(model: Model): String? {
         try {
-            // Initialize the model if needed
-            if (model.instance == null) {
-                Log.d(TAG, "Initializing model ${model.name}")
-                
-                val initResult = withTimeoutOrNull(INITIALIZATION_TIMEOUT_MS) {
-                    suspendCancellableCoroutine { continuation ->
-                        LlmChatModelHelper.initialize(
-                            context = context,
-                            model = model,
-                            onDone = { error ->
-                                if (error.isNotEmpty()) {
-                                    Log.e(TAG, "Failed to initialize model: $error")
-                                    continuation.resume(false)
-                                } else {
-                                    Log.d(TAG, "Model initialized successfully")
-                                    continuation.resume(true)
-                                }
-                            }
-                        )
-                    }
-                }
-                
-                if (initResult != true) {
-                    Log.e(TAG, "Model initialization failed or timed out")
-                    return null
-                }
-            }
-            
-            // Now generate text with timeout
+            // Generate text with timeout using the already initialized model
             return withTimeoutOrNull(GENERATION_TIMEOUT_MS) {
                 suspendCancellableCoroutine { continuation ->
                     generateTextWithInitializedModel(model, continuation)

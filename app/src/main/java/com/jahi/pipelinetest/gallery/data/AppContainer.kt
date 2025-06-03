@@ -21,6 +21,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.jahi.pipelinetest.gallery.GalleryLifecycleProvider
 import com.jahi.pipelinetest.gallery.AppLifecycleProvider
+import com.jahi.pipelinetest.repository.LlmModelRepository
 
 /**
  * App container for Dependency injection.
@@ -32,6 +33,7 @@ interface AppContainer {
   val lifecycleProvider: AppLifecycleProvider
   val dataStoreRepository: DataStoreRepository
   val downloadRepository: DownloadRepository
+  val llmModelRepository: LlmModelRepository
 }
 
 /**
@@ -44,4 +46,5 @@ class DefaultAppContainer(ctx: Context, dataStore: DataStore<Preferences>) : App
   override val lifecycleProvider = GalleryLifecycleProvider()
   override val dataStoreRepository = DefaultDataStoreRepository(dataStore)
   override val downloadRepository = DefaultDownloadRepository(ctx, lifecycleProvider)
+  override val llmModelRepository = LlmModelRepository()
 }

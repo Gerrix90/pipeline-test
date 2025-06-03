@@ -25,6 +25,10 @@ import com.jahi.pipelinetest.gallery.data.AppContainer
 import com.jahi.pipelinetest.gallery.data.DefaultAppContainer
 import com.jahi.pipelinetest.gallery.ui.common.writeLaunchInfo
 import com.jahi.pipelinetest.gallery.ui.theme.ThemeSettings
+import com.jahi.pipelinetest.domain.GetInitializedLlmModelUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_gallery_preferences")
 
@@ -41,5 +45,10 @@ class GalleryApplication : Application() {
 
     // Load theme.
     ThemeSettings.themeOverride.value = container.dataStoreRepository.readThemeOverride()
+
+    // Warm up LLM model cache
+    CoroutineScope(Dispatchers.IO).launch {
+      GetInitializedLlmModelUseCase(this@GalleryApplication, container.llmModelRepository)()
+    }
   }
 }
