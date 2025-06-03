@@ -61,6 +61,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
     var showYear by remember { mutableStateOf(viewModel.showYearCountdown) }
     var currentAge by remember { mutableStateOf(viewModel.currentAge.toString()) }
     var targetAge by remember { mutableStateOf(viewModel.targetAge.toString()) }
+    var elevenLabsApiKey by remember { mutableStateOf(viewModel.elevenLabsApiKey) }
 
     val events = remember {
         mutableStateListOf<CustomEvent>().also { it.addAll(viewModel.events) }
@@ -84,6 +85,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         viewModel.showYearCountdown = showYear
                         viewModel.currentAge = currentAge.toIntOrNull() ?: viewModel.currentAge
                         viewModel.targetAge = targetAge.toIntOrNull() ?: viewModel.targetAge
+                        viewModel.elevenLabsApiKey = elevenLabsApiKey
                         val oldEvents = viewModel.events.toList()
                         viewModel.setEvents(events)
 
@@ -137,6 +139,12 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         onValueChange = { targetAge = it },
                         label = { Text("Target Age") },
                         modifier = Modifier.fillMaxWidth()
+                    )
+                    DarkTextField(
+                        value = elevenLabsApiKey,
+                        onValueChange = { elevenLabsApiKey = it },
+                        label = { Text("ElevenLabs API Key (for audio generation)") },
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                     )
                 }
             } else if (tabIndex == 1) {

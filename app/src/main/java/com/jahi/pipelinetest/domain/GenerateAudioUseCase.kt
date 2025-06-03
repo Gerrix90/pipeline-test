@@ -2,7 +2,7 @@ package com.jahi.pipelinetest.domain
 
 import android.content.Context
 import android.media.MediaPlayer
-import com.jahi.pipelinetest.BuildConfig
+import com.jahi.pipelinetest.Prefs
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
@@ -11,6 +11,8 @@ import kotlin.random.Random
 
 class GenerateAudioUseCase(private val context: Context) {
 
+    private val prefs = Prefs(context)
+    
     private val motivationalSentences = listOf(
         "You can achieve anything you set your mind to.",
         "Believe in yourself and all that you are.",
@@ -19,18 +21,22 @@ class GenerateAudioUseCase(private val context: Context) {
 
     operator fun invoke() {
         thread {
+            val apiKey = prefs.elevenLabsApiKey
+            if (apiKey.isBlank()) {
+                return@thread
+            }
             val text = motivationalSentences.random()
-            val file = fetchAudio(text)
+            val file = fetchAudio(text, apiKey)
             file?.let { playAudio(it) }
         }
     }
 
-    private fun fetchAudio(text: String): File? {
+    private fun fetchAudio(text: String, apiKey: String): File? {
         return try {
             val url = URL("https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL/stream")
             val conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
-            conn.setRequestProperty("xi-api-key", BuildConfig.ELEVEN_LAB_KEY)
+            conn.setRequestProperty("xi-api-key", apiKey)
             conn.setRequestProperty("Content-Type", "application/json")
             conn.doOutput = true
             val body = "{\"text\": \"$text\"}"

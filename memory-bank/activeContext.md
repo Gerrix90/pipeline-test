@@ -19,8 +19,17 @@
    - Existing tasks can now edit due dates
    - Improved interaction handling
    - Better visual indicators
+5. **Fixed widget generate button functionality**:
+   - Added ElevenLabs API key setting in Settings screen General tab
+   - Updated Prefs class to store API key securely using EncryptedSharedPreferences
+   - Modified GenerateAudioUseCase to use stored API key instead of build config
+   - Generate button now works when API key is provided
+   - Updated MainViewModel to expose API key setting
+   - Added androidx.security:security-crypto dependency for encrypted storage
+   - API key is now stored encrypted for security compliance
 
 ## Current Focus
+- Widget functionality improvements (generate button working)
 - Task management functionality enhancements
 - Ensuring alarm persistence and reliability
 - UI/UX improvements for date selection
@@ -55,3 +64,8 @@
 - **CRITICAL**: Magic numbers (50, 30000, etc.) - must be constants
 - **CRITICAL**: Hardcoded SharedPreferences keys - must be constants
 - **CRITICAL**: Hardcoded Intent/Bundle keys - must be constants
+
+## Security Improvements Completed
+- ✅ **API keys now encrypted**: ElevenLabs API key stored using EncryptedSharedPreferences
+- ✅ **Fallback mechanism**: Graceful fallback to regular SharedPreferences if encryption fails
+- ✅ **Security dependency added**: androidx.security:security-crypto:1.0.0

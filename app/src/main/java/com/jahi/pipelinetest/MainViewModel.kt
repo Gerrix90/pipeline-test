@@ -60,6 +60,10 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
         get() = prefs.targetAge
         set(value) { prefs.targetAge = value }
 
+    var elevenLabsApiKey: String
+        get() = prefs.elevenLabsApiKey
+        set(value) { prefs.elevenLabsApiKey = value }
+
     fun addEvent(event: CustomEvent) {
         events.add(event)
         prefs.customEvents = events
