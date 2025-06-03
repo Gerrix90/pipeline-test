@@ -9,10 +9,14 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.util.openDateTimePicker
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -217,23 +223,58 @@ fun TaskItem(
                         singleLine = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
+                    val displayEditDate = editDueDate.takeIf { it.isNotBlank() }?.let {
+                        try {
+                            val dateTime = LocalDateTime.parse(it)
+                            dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
+                        } catch (e: Exception) {
+                            it
+                        }
+                    } ?: ""
+                    
+                    val dateInteractionSource = remember { MutableInteractionSource() }
+                    
+                    LaunchedEffect(dateInteractionSource) {
+                        dateInteractionSource.interactions.collect {
+                            if (it is PressInteraction.Release) {
                                 openDateTimePicker(context, editDueDate, true) { selected ->
                                     editDueDate = selected
                                 }
                             }
-                    ) {
-                        OutlinedTextField(
-                            value = editDueDate,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Due Date") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        }
                     }
+                    
+                    OutlinedTextField(
+                        value = displayEditDate,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Due Date (optional)") },
+                        placeholder = { Text("Select date and time") },
+                        modifier = Modifier.fillMaxWidth(),
+                        interactionSource = dateInteractionSource,
+                        trailingIcon = {
+                            Row {
+                                if (editDueDate.isNotBlank()) {
+                                    IconButton(onClick = { editDueDate = "" }) {
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            contentDescription = "Clear date"
+                                        )
+                                    }
+                                }
+                                IconButton(onClick = { 
+                                    openDateTimePicker(context, editDueDate, true) { selected ->
+                                        editDueDate = selected
+                                    }
+                                }) {
+                                    Icon(
+                                        Icons.Default.DateRange,
+                                        contentDescription = "Select date"
+                                    )
+                                }
+                            }
+                        }
+                    )
                 }
                 IconButton(
                     onClick = {
@@ -271,8 +312,14 @@ fun TaskItem(
                         MaterialTheme.colorScheme.onSurface
                 )
                 task.dueDate?.let { due ->
+                    val displayDate = try {
+                        val dateTime = LocalDateTime.parse(due)
+                        dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
+                    } catch (e: Exception) {
+                        due
+                    }
                     Text(
-                        text = due,
+                        text = displayDate,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(end = 8.dp)
