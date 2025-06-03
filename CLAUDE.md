@@ -1,5 +1,22 @@
 # CLAUDE.md
 
+## 🚨 MANDATORY: Memory Bank Management
+
+**BEFORE ANY TASK**: 
+1. **MUST** read ALL memory bank files in `/memory-bank/` directory
+2. **MUST** understand current project state from memory bank
+3. **NEVER** start coding without consulting memory bank first
+
+**AFTER ANY TASK**:
+1. **MUST** update relevant memory bank files
+2. **MUST** document changes in `activeContext.md`
+3. **MUST** update `progress.md` with completed/pending items
+4. Memory Bank is LIVING documentation - keep it current!
+
+See `/memory-bank/memory-bank.md` for complete structure and workflow.
+
+---
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview

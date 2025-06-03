@@ -1,5 +1,30 @@
 # Android Development Instructions
 
+## 🚨 MANDATORY: Memory Bank Management
+
+**BEFORE STARTING ANY DEVELOPMENT**:
+1. **MUST** read ALL files in `/memory-bank/` directory
+2. **MUST** understand architecture patterns from `systemPatterns.md`
+3. **MUST** check current status in `activeContext.md` and `progress.md`
+4. **NEVER** write code without consulting Memory Bank
+
+**AFTER COMPLETING ANY TASK**:
+1. **MUST** update `activeContext.md` with changes made
+2. **MUST** update `progress.md` with completed/pending items
+3. **MUST** document any new patterns or decisions
+4. Memory Bank is LIVING documentation - maintain it!
+
+**Memory Bank Structure**:
+- `/memory-bank/memory-bank.md` - Overview and workflow
+- `/memory-bank/projectbrief.md` - Core requirements
+- `/memory-bank/systemPatterns.md` - MANDATORY architecture rules
+- `/memory-bank/activeContext.md` - Current work status
+- `/memory-bank/progress.md` - What's done and what's left
+- `/memory-bank/architecture-example.md` - Implementation examples
+- `/memory-bank/clean-code-examples.md` - Code quality examples
+
+---
+
 This project supports Android development in both online and offline environments.
 
 ## Prerequisites
