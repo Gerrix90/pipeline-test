@@ -4,8 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.jahi.pipelinetest.domain.*
+import android.content.Context
 import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.repository.TaskRepository
+import com.jahi.pipelinetest.scheduleTaskAlarms
+import com.jahi.pipelinetest.cancelTaskAlarms
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,37 +33,47 @@ class TaskViewModel(
         taskRepository.tasks
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    private suspend fun rescheduleAlarms(context: Context) {
+        val tasks = taskRepository.tasks.first()
+        cancelTaskAlarms(context, tasks)
+        scheduleTaskAlarms(context, tasks)
+    }
+
     fun loadTasksForEvent(eventId: Int) {
         viewModelScope.launch {
             _tasks.value = getTasksForEventUseCase(eventId)
         }
     }
 
-    fun addTask(eventId: Int, description: String) {
+    fun addTask(context: Context, eventId: Int, description: String, dueDate: String?) {
         viewModelScope.launch {
-            addTaskToEventUseCase(eventId, description)
+            addTaskToEventUseCase(eventId, description, dueDate)
             loadTasksForEvent(eventId)
+            rescheduleAlarms(context)
         }
     }
 
-    fun updateTask(task: Task) {
+    fun updateTask(context: Context, task: Task) {
         viewModelScope.launch {
             updateTaskUseCase(task)
             loadTasksForEvent(task.eventId)
+            rescheduleAlarms(context)
         }
     }
 
-    fun deleteTask(task: Task) {
+    fun deleteTask(context: Context, task: Task) {
         viewModelScope.launch {
             deleteTaskUseCase(task.id)
             loadTasksForEvent(task.eventId)
+            rescheduleAlarms(context)
         }
     }
 
-    fun toggleTaskCompletion(task: Task) {
+    fun toggleTaskCompletion(context: Context, task: Task) {
         viewModelScope.launch {
             toggleTaskCompletionUseCase(task.id)
             loadTasksForEvent(task.eventId)
+            rescheduleAlarms(context)
         }
     }
 
