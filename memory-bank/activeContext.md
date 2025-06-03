@@ -65,7 +65,11 @@
    - **COMPLETE**: Used few-shot prompting with examples to guide AI toward concise responses
    - **COMPLETE**: Support for both imported models and downloaded models from Gallery allowlist
    - **COMMITTED**: Feature committed to feature/ai-gallery-integration branch (commit 495e34e)
-   - **TESTED**: AI model initialization, text generation, and TTS working with downloaded models
+    - **TESTED**: AI model initialization, text generation, and TTS working with downloaded models
+9. **Added LLM model repository with caching**:
+   - Created `LlmModelRepository` for shared model initialization
+   - Added `GetInitializedLlmModelUseCase` and integrated into widgets
+   - Preloaded model in `GalleryApplication` to avoid delay
 
 ## Current Focus
 - **LOGGING STANDARDIZATION**: Implement Timber logging with DEBUG_FLOW tag and class prefixes across all components

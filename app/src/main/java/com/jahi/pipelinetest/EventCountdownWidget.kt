@@ -17,6 +17,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.jahi.pipelinetest.domain.GenerateAudioUseCase
 import com.jahi.pipelinetest.domain.GenerateMotivationalTextUseCase
+import com.jahi.pipelinetest.domain.GetInitializedLlmModelUseCase
 import com.jahi.pipelinetest.viewmodel.WidgetViewModel
 import com.jahi.pipelinetest.model.CustomEvent
 import java.time.Duration
@@ -62,19 +63,14 @@ class EventCountdownWidget : AppWidgetProvider() {
                 onUpdate(context, appWidgetManager, appWidgetIds)
             }
             ACTION_GENERATE_AUDIO -> {
-                // Get the app container to access AI models
                 val application = context.applicationContext as? com.jahi.pipelinetest.gallery.GalleryApplication
-                val appContainer = application?.container
-                
-                // Create the use cases
-                val generateMotivationalTextUseCase = if (appContainer != null) {
-                    GenerateMotivationalTextUseCase(context, appContainer)
-                } else {
-                    // Create a stub AppContainer for fallback
+                val container = application?.container ?: run {
                     val dataStore = context.dataStore
-                    val stubContainer = com.jahi.pipelinetest.gallery.data.DefaultAppContainer(context, dataStore)
-                    GenerateMotivationalTextUseCase(context, stubContainer)
+                    com.jahi.pipelinetest.gallery.data.DefaultAppContainer(context, dataStore)
                 }
+
+                val getModelUseCase = GetInitializedLlmModelUseCase(context, container.llmModelRepository)
+                val generateMotivationalTextUseCase = GenerateMotivationalTextUseCase(context, getModelUseCase)
                 
                 val generateAudioUseCase = GenerateAudioUseCase(context, generateMotivationalTextUseCase)
                 val vm = WidgetViewModel(generateAudioUseCase)
