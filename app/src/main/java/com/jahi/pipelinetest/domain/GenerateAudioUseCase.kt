@@ -7,17 +7,14 @@ import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
-import kotlin.random.Random
+import kotlinx.coroutines.runBlocking
 
-class GenerateAudioUseCase(private val context: Context) {
+class GenerateAudioUseCase(
+    private val context: Context,
+    private val generateMotivationalTextUseCase: GenerateMotivationalTextUseCase
+) {
 
     private val prefs = Prefs(context)
-    
-    private val motivationalSentences = listOf(
-        "You can achieve anything you set your mind to.",
-        "Believe in yourself and all that you are.",
-        "Every day is a chance to get better."
-    )
 
     operator fun invoke() {
         thread {
@@ -25,7 +22,12 @@ class GenerateAudioUseCase(private val context: Context) {
             if (apiKey.isBlank()) {
                 return@thread
             }
-            val text = motivationalSentences.random()
+            
+            // Generate text using AI or fallback
+            val text = runBlocking {
+                generateMotivationalTextUseCase()
+            }
+            
             val file = fetchAudio(text, apiKey)
             file?.let { playAudio(it) }
         }

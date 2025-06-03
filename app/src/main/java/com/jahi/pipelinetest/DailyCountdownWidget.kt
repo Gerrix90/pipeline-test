@@ -8,12 +8,18 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.jahi.pipelinetest.domain.GenerateAudioUseCase
+import com.jahi.pipelinetest.domain.GenerateMotivationalTextUseCase
 import com.jahi.pipelinetest.viewmodel.WidgetViewModel
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "widget_preferences")
 
 class DailyCountdownWidget : AppWidgetProvider() {
 
@@ -50,7 +56,23 @@ class DailyCountdownWidget : AppWidgetProvider() {
             }
             scheduleUpdates(context)
         } else if (intent.action == ACTION_GENERATE_AUDIO) {
-            val vm = WidgetViewModel(GenerateAudioUseCase(context))
+            // Get the app container to access AI models
+            val application = context.applicationContext as? com.jahi.pipelinetest.gallery.GalleryApplication
+            val appContainer = application?.container
+            
+            // Create the use cases
+            val generateMotivationalTextUseCase = if (appContainer != null) {
+                GenerateMotivationalTextUseCase(context, appContainer)
+            } else {
+                // Create a stub AppContainer for fallback
+                // We'll use a minimal container that won't have any downloaded models
+                val dataStore = context.dataStore
+                val stubContainer = com.jahi.pipelinetest.gallery.data.DefaultAppContainer(context, dataStore)
+                GenerateMotivationalTextUseCase(context, stubContainer)
+            }
+            
+            val generateAudioUseCase = GenerateAudioUseCase(context, generateMotivationalTextUseCase)
+            val vm = WidgetViewModel(generateAudioUseCase)
             vm.playMotivationalAudio()
         }
     }

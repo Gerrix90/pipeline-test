@@ -12,7 +12,11 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import android.widget.RemoteViews
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.jahi.pipelinetest.domain.GenerateAudioUseCase
+import com.jahi.pipelinetest.domain.GenerateMotivationalTextUseCase
 import com.jahi.pipelinetest.viewmodel.WidgetViewModel
 import com.jahi.pipelinetest.model.CustomEvent
 import java.time.Duration
@@ -20,6 +24,8 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import com.jahi.pipelinetest.Prefs
 import com.jahi.pipelinetest.parseEventDateTimeOrNull
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "widget_preferences")
 
 class EventCountdownWidget : AppWidgetProvider() {
 
@@ -56,7 +62,22 @@ class EventCountdownWidget : AppWidgetProvider() {
                 onUpdate(context, appWidgetManager, appWidgetIds)
             }
             ACTION_GENERATE_AUDIO -> {
-                val vm = WidgetViewModel(GenerateAudioUseCase(context))
+                // Get the app container to access AI models
+                val application = context.applicationContext as? com.jahi.pipelinetest.gallery.GalleryApplication
+                val appContainer = application?.container
+                
+                // Create the use cases
+                val generateMotivationalTextUseCase = if (appContainer != null) {
+                    GenerateMotivationalTextUseCase(context, appContainer)
+                } else {
+                    // Create a stub AppContainer for fallback
+                    val dataStore = context.dataStore
+                    val stubContainer = com.jahi.pipelinetest.gallery.data.DefaultAppContainer(context, dataStore)
+                    GenerateMotivationalTextUseCase(context, stubContainer)
+                }
+                
+                val generateAudioUseCase = GenerateAudioUseCase(context, generateMotivationalTextUseCase)
+                val vm = WidgetViewModel(generateAudioUseCase)
                 vm.playMotivationalAudio()
             }
         }
