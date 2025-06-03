@@ -2,7 +2,6 @@ package com.jahi.pipelinetest
 
 import android.os.Bundle
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -79,15 +78,6 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-        // Check if launched from notification and navigate to Tasks screen
-        intent?.let { launchIntent ->
-            val eventId = launchIntent.getIntExtra(EventAlarmReceiver.EXTRA_EVENT_ID, -1)
-            if (eventId != -1) {
-                // Navigate to Tasks screen when launched from notification
-                viewModel.selectScreen(2)
-            }
-        }
-        
         enableEdgeToEdge()
         setContent {
             PipelineTestTheme {
@@ -176,19 +166,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        // Handle intent when app is already running
-        val eventId = intent.getIntExtra(EventAlarmReceiver.EXTRA_EVENT_ID, -1)
-        if (eventId != -1) {
-            // Get the viewModel instance
-            val prefs = Prefs(this)
-            val viewModel = ViewModelProvider(this, MainViewModelFactory(prefs))[MainViewModel::class.java]
-            // Navigate to Tasks screen when launched from notification
-            viewModel.selectScreen(2)
-        }
-    }
-    
     companion object {
         private const val REQUEST_NOTIFICATION_PERMISSION = 100
     }
