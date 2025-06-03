@@ -7,6 +7,9 @@
     <string name="event_alarm_channel_name">Event Alarms</string>
     <string name="event_alarm_channel_description">Notifications for scheduled events</string>
     <string name="event_alarm_triggered">Event time reached</string>
+    <string name="task_alarm_channel_name">Task Reminders</string>
+    <string name="task_alarm_channel_description">Notifications for task deadlines</string>
+    <string name="task_alarm_triggered">Task deadline reached</string>
     <string name="dismiss">Dismiss</string>
     <string name="events_scheduled">Event alarms scheduled</string>
 </resources>
