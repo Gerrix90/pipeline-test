@@ -38,7 +38,7 @@ internal fun scheduleTaskAlarms(context: Context, tasks: List<Task>): Int {
             context,
             task.id,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (alarmManager.canScheduleExactAlarms()) {
