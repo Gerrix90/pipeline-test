@@ -91,7 +91,7 @@ fun TaskListContent(
                         TextButton(
                             onClick = {
                                 if (newDescription.isNotBlank()) {
-                                    taskViewModel.addTask(eventId, newDescription)
+                                    taskViewModel.addTask(eventId, newDescription, null)
                                     isAdding = false
                                     newDescription = ""
                                 }
