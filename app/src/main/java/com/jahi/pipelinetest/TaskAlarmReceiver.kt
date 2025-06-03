@@ -40,7 +40,13 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 dismissIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            val openAppIntent = Intent(context, MainActivity::class.java)
+            val openAppIntent = Intent(context, MainActivity::class.java).apply {
+                // Pass task ID to navigate directly to the Tasks screen
+                putExtra(EXTRA_TASK_ID, taskId)
+                putExtra(EXTRA_TASK_DESC, desc)
+                putExtra("navigateToTasks", true)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
             val openAppPending = PendingIntent.getActivity(
                 context,
                 notificationId + 1000,

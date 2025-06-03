@@ -41,8 +41,13 @@ class EventAlarmReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
-        // Create intent to open MainActivity when notification is clicked
-        val openAppIntent = Intent(context, MainActivity::class.java)
+        // Create intent to open MainActivity with event ID to navigate to specific task
+        val openAppIntent = Intent(context, MainActivity::class.java).apply {
+            // Pass event ID to navigate directly to the task list for this event
+            putExtra(EXTRA_EVENT_ID, eventId)
+            putExtra(EXTRA_EVENT_NAME, eventName)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
         val openAppPending = PendingIntent.getActivity(
             context,
             notificationId + 1000, // Use different request code to avoid conflicts
