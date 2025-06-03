@@ -37,6 +37,12 @@ This project supports Android development in both online and offline environment
   classes.
 - When possible, encapsulate business logic in **use case** classes and access
   data through dedicated **repository** classes.
+  This applies to all features, including task deadlines and alarms. Keep
+  ViewModels free of Android framework dependencies and trigger alarm scheduling
+  from the Activity or a dedicated service instead.
+  - For task management, implement distinct use case classes for Create, Read,
+    Update, and Delete operations so that ViewModels interact with a clean API
+    and repositories handle persistence.
 
 ## ⚠️ MANDATORY Code Validation
 

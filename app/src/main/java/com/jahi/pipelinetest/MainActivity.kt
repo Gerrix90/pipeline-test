@@ -39,6 +39,10 @@ import com.jahi.pipelinetest.domain.*
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.viewmodel.TaskViewModelFactory
 import com.jahi.pipelinetest.TaskOverviewScreen
+import com.jahi.pipelinetest.scheduleTaskAlarms
+import com.jahi.pipelinetest.cancelTaskAlarms
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -49,21 +53,28 @@ class MainActivity : ComponentActivity() {
         
         // Initialize task dependencies
         val taskRepository = TaskRepository(prefs)
-        val addTaskToEventUseCase = AddTaskToEventUseCase(taskRepository)
-        val getTasksForEventUseCase = GetTasksForEventUseCase(taskRepository)
+        val createTaskUseCase = CreateTaskUseCase(taskRepository)
+        val getTasksUseCase = GetTasksUseCase(taskRepository)
         val updateTaskUseCase = UpdateTaskUseCase(taskRepository)
         val deleteTaskUseCase = DeleteTaskUseCase(taskRepository)
         val toggleTaskCompletionUseCase = ToggleTaskCompletionUseCase(taskRepository)
         
         val taskViewModelFactory = TaskViewModelFactory(
-            addTaskToEventUseCase,
-            getTasksForEventUseCase,
+            createTaskUseCase,
+            getTasksUseCase,
             updateTaskUseCase,
             deleteTaskUseCase,
             toggleTaskCompletionUseCase,
             taskRepository
         )
         val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
+
+        lifecycleScope.launch {
+            taskViewModel.allTasks.collect { tasks ->
+                cancelTaskAlarms(this@MainActivity, tasks)
+                scheduleTaskAlarms(this@MainActivity, tasks)
+            }
+        }
         
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(

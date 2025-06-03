@@ -63,15 +63,27 @@ class Prefs(context: Context) {
             val json = prefs.getString("tasks", "[]") ?: "[]"
             val arr = JSONArray(json)
             val list = mutableListOf<Task>()
+            val usedIds = mutableSetOf<Int>()
+            var nextId = nextTaskId
+
             for (i in 0 until arr.length()) {
                 val obj = arr.getJSONObject(i)
+                var id = obj.optInt("id", -1)
+                if (id == -1 || usedIds.contains(id)) {
+                    id = nextId
+                    nextId++
+                }
+                usedIds.add(id)
                 list.add(
                     Task(
-                        id = obj.optInt("id", kotlin.random.Random.nextInt()),
+                        id = id,
                         eventId = obj.getInt("eventId"),
                         description = obj.optString("description"),
                         isCompleted = obj.optBoolean("isCompleted"),
-                        createdAt = obj.optString("createdAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)),
+                        createdAt = obj.optString(
+                            "createdAt",
+                            LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                        ),
                         dueDate = if (obj.has("dueDate") && !obj.isNull("dueDate")) {
                             obj.optString("dueDate")
                         } else {
@@ -80,6 +92,11 @@ class Prefs(context: Context) {
                     )
                 )
             }
+
+            if (nextId != nextTaskId) {
+                nextTaskId = nextId
+            }
+
             return list
         }
         set(value) {
@@ -98,4 +115,8 @@ class Prefs(context: Context) {
             }
             prefs.edit().putString("tasks", arr.toString()).apply()
         }
+
+    var nextTaskId: Int
+        get() = prefs.getInt("nextTaskId", 1)
+        set(value) { prefs.edit().putInt("nextTaskId", value).apply() }
 }

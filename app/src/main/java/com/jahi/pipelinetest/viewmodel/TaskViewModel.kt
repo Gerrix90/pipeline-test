@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
 
 class TaskViewModel(
-    private val addTaskToEventUseCase: AddTaskToEventUseCase,
-    private val getTasksForEventUseCase: GetTasksForEventUseCase,
+    private val createTaskUseCase: CreateTaskUseCase,
+    private val getTasksUseCase: GetTasksUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase,
@@ -29,15 +29,16 @@ class TaskViewModel(
         taskRepository.tasks
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+
     fun loadTasksForEvent(eventId: Int) {
         viewModelScope.launch {
-            _tasks.value = getTasksForEventUseCase(eventId)
+            _tasks.value = getTasksUseCase(eventId)
         }
     }
 
-    fun addTask(eventId: Int, description: String) {
+    fun addTask(eventId: Int, description: String, dueDate: String?) {
         viewModelScope.launch {
-            addTaskToEventUseCase(eventId, description)
+            createTaskUseCase(eventId, description, dueDate)
             loadTasksForEvent(eventId)
         }
     }
@@ -66,8 +67,8 @@ class TaskViewModel(
 }
 
 class TaskViewModelFactory(
-    private val addTaskToEventUseCase: AddTaskToEventUseCase,
-    private val getTasksForEventUseCase: GetTasksForEventUseCase,
+    private val createTaskUseCase: CreateTaskUseCase,
+    private val getTasksUseCase: GetTasksUseCase,
     private val updateTaskUseCase: UpdateTaskUseCase,
     private val deleteTaskUseCase: DeleteTaskUseCase,
     private val toggleTaskCompletionUseCase: ToggleTaskCompletionUseCase,
@@ -78,8 +79,8 @@ class TaskViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TaskViewModel::class.java)) {
             return TaskViewModel(
-                addTaskToEventUseCase,
-                getTasksForEventUseCase,
+                createTaskUseCase,
+                getTasksUseCase,
                 updateTaskUseCase,
                 deleteTaskUseCase,
                 toggleTaskCompletionUseCase,
