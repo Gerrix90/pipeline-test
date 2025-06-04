@@ -40,5 +40,22 @@
         android:layout_height="wrap_content"
         android:text="Generate"
         android:layout_marginTop="8dp"/>
+        
+    <ProgressBar
+        android:id="@+id/progress_indicator"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyle" />
+        
+    <ImageView
+        android:id="@+id/speaker_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        android:src="@android:drawable/ic_lock_silent_mode_off"
+        android:contentDescription="Playing audio" />
 
 </LinearLayout>

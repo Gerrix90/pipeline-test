@@ -12,4 +12,30 @@
     <string name="task_alarm_triggered">Task deadline reached</string>
     <string name="dismiss">Dismiss</string>
     <string name="events_scheduled">Event alarms scheduled</string>
+    
+    <!-- Gallery app strings -->
+    <string name="model_manager">Model Manager</string>
+    <string name="downloaded_size">%1$s downloaded</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="confirm_delete_model_dialog_title">Delete download</string>
+    <string name="confirm_delete_model_dialog_content">Are you sure you want to delete the downloaded model \"%s\"?</string>
+    <string name="notification_title_success">Model download succeeded</string>
+    <string name="notification_content_success">Model \"%s\" has been downloaded</string>
+    <string name="notification_title_fail">Model download failed</string>
+    <string name="notification_content_fail">Failed to download model \"%s\"</string>
+    <string name="chat_textinput_placeholder">Type message…</string>
+    <string name="chat_you">You</string>
+    <string name="chat_llm_agent_name">LLM</string>
+    <string name="chat_generic_agent_name">Model</string>
+    <string name="chat_generic_result_name">Result</string>
+    <string name="model_not_downloaded_msg">Model not downloaded yet</string>
+    <string name="model_is_initializing_msg">Initializing model…</string>
+    <string name="text_input_placeholder_text_classification">Type movie review to classify…</string>
+    <string name="text_image_generation_text_field_placeholder">Type prompt…</string>
+    <string name="text_input_placeholder_llm_chat">Type prompt…</string>
+    <string name="run_again">Run again</string>
+    <string name="benchmark">Run benchmark</string>
+    <string name="warming_up">warming up…</string>
+    <string name="running">running</string>
 </resources>

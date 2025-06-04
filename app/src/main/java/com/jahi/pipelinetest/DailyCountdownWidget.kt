@@ -8,12 +8,20 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.jahi.pipelinetest.domain.GenerateAudioUseCase
+import com.jahi.pipelinetest.domain.GenerateMotivationalTextUseCase
+import com.jahi.pipelinetest.domain.GetInitializedLlmModelUseCase
 import com.jahi.pipelinetest.viewmodel.WidgetViewModel
+import timber.log.Timber
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "widget_preferences")
 
 class DailyCountdownWidget : AppWidgetProvider() {
 
@@ -50,7 +58,26 @@ class DailyCountdownWidget : AppWidgetProvider() {
             }
             scheduleUpdates(context)
         } else if (intent.action == ACTION_GENERATE_AUDIO) {
-            val vm = WidgetViewModel(GenerateAudioUseCase(context))
+            Timber.tag("DEBUG_FLOW|DailyCountdownWidget").d("onReceive() - Generate audio action received")
+            
+            val application = context.applicationContext as? com.jahi.pipelinetest.gallery.GalleryApplication
+            Timber.tag("DEBUG_FLOW|DailyCountdownWidget").d("onReceive() - Application cast result: ${application?.javaClass?.simpleName ?: "null"}")
+            
+            val container = application?.container ?: run {
+                Timber.tag("DEBUG_FLOW|DailyCountdownWidget").d("onReceive() - Application container is null, creating DefaultAppContainer")
+                val dataStore = context.dataStore
+                com.jahi.pipelinetest.gallery.data.DefaultAppContainer(context, dataStore)
+            }
+            
+            Timber.tag("DEBUG_FLOW|DailyCountdownWidget").d("onReceive() - Container: ${container.javaClass.simpleName}")
+
+            val getModelUseCase = GetInitializedLlmModelUseCase(context, container.llmModelRepository)
+            val generateMotivationalTextUseCase = GenerateMotivationalTextUseCase(context, getModelUseCase)
+            
+            Timber.tag("DEBUG_FLOW|DailyCountdownWidget").d("onReceive() - Created use cases, starting audio generation")
+            
+            val generateAudioUseCase = GenerateAudioUseCase(context, generateMotivationalTextUseCase)
+            val vm = WidgetViewModel(generateAudioUseCase)
             vm.playMotivationalAudio()
         }
     }

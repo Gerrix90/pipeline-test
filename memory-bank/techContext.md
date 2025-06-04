@@ -17,6 +17,10 @@
 - Material3 Components
 - Firebase for distribution
 - Kotlin Coroutines
+- **MediaPipe Tasks**: AI/ML inference framework
+- **Timber**: Structured logging with DEBUG_FLOW tags
+- **EncryptedSharedPreferences**: Secure API key storage
+- **Kotlin Serialization**: JSON handling for AI Gallery
 
 ### Development Setup
 
@@ -54,11 +58,20 @@
 3. No external network dependencies during build
 4. All dependencies must be in vendor cache
 
+### AI/ML Integration
+- **MediaPipe Framework**: Google's on-device ML inference
+- **Model Support**: .task format models for LLM inference
+- **Storage**: External files directory for model files
+- **Backends**: GPU and CPU inference support
+- **Privacy**: All AI processing happens on-device
+
 ### Testing
 - Unit tests with JUnit
 - Instrumented tests for Android
 - Compose UI testing support
 - Test naming convention: `*Test.kt`
+- **AI Testing**: Model initialization and inference testing
+- **Widget Testing**: Generate button and TTS functionality
 
 ### CI/CD
 - GitHub Actions support
