@@ -194,7 +194,7 @@ fun ChatView(
       },
     )
   }) { innerPadding ->
-    Box {
+    Box(modifier = Modifier.padding(innerPadding)) {
       // A horizontal scrollable pager to switch between models.
       HorizontalPager(state = pagerState) { pageIndex ->
         val curSelectedModel = task.models[pageIndex]
@@ -207,7 +207,6 @@ fun ChatView(
 
         Column(
           modifier = Modifier
-            .padding(innerPadding)
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
         ) {
@@ -262,7 +261,6 @@ fun ChatView(
           ZoomableBox(
             modifier = Modifier
               .fillMaxSize()
-              .padding(top = innerPadding.calculateTopPadding())
               .background(Color.Black.copy(alpha = 0.95f)),
           ) {
             Image(

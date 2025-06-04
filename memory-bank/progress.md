@@ -55,6 +55,7 @@
 - ✅ **Resource integration** (fonts, drawables, strings)
 - ✅ **Navigation integration** (4th tab in bottom nav)
 - ✅ **Feature status display** (available vs coming soon)
+- ✅ **Chat list padding fixed** in LLM chat screens
 
 ## What's Left to Build 🚧
 

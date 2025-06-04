@@ -26,8 +26,12 @@
    - **RANDOMNESS INJECTION**: Added random prompt modifiers (70% chance) with creativity instructions
    - **SESSION MANAGEMENT**: Implemented periodic session reset every 5 generations to prevent repetition
    - **GENERATION TRACKING**: Added counter to track generations and optimize session management
-   - **CONTENT DIVERSITY**: Significantly improved variety in AI-generated motivational quotes
-   - **ANTI-REPETITION**: Systematic approach to prevent model from falling into repetitive patterns
+  - **CONTENT DIVERSITY**: Significantly improved variety in AI-generated motivational quotes
+  - **ANTI-REPETITION**: Systematic approach to prevent model from falling into repetitive patterns
+
+4. **Fixed AI Gallery chat overlay**:
+   - Chat list now properly padded below the model page app bar
+   - Ensures messages no longer appear under the top bar
 
 ### Completed June 3, 2024
 1. **Fixed floating action button removal** - Removed FAB from task screen per user request
