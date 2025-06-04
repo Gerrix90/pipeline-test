@@ -29,6 +29,14 @@
    - **CONTENT DIVERSITY**: Significantly improved variety in AI-generated motivational quotes
    - **ANTI-REPETITION**: Systematic approach to prevent model from falling into repetitive patterns
 
+4. **Fixed Chat List Padding Under Top App Bar**:
+   - **TOP PADDING**: Applied `calculateTopPadding()` from Scaffold inner padding
+     to ChatView content columns
+   - **BOTTOM PADDING**: Added bottom padding using `calculateBottomPadding()` to
+     ChatPanel modifier
+   - **SAME APPROACH**: Mirrors bottom bar fix from `LlmSingleTurnScreen`
+   - **BUILD VERIFIED**: `./gradlew assembleDebug --offline` successful
+
 ### Completed June 3, 2024
 1. **Fixed floating action button removal** - Removed FAB from task screen per user request
 2. **Fixed PR #83 issues**:

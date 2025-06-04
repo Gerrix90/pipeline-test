@@ -28,9 +28,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -55,6 +57,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.gallery.data.Model
@@ -207,7 +210,11 @@ fun ChatView(
 
         Column(
           modifier = Modifier
-            .padding(innerPadding)
+            .padding(
+              top = innerPadding.calculateTopPadding(),
+              start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+              end = innerPadding.calculateEndPadding(LocalLayoutDirection.current)
+            )
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
         ) {
@@ -242,7 +249,8 @@ fun ChatView(
               },
               modifier = Modifier
                 .weight(1f)
-                .graphicsLayer { alpha = curAlpha },
+                .graphicsLayer { alpha = curAlpha }
+                .padding(bottom = innerPadding.calculateBottomPadding()),
               chatInputType = chatInputType,
               showStopButtonInInputWhenInProgress = showStopButtonInInputWhenInProgress,
             )

@@ -48,6 +48,7 @@
 - ✅ **Comprehensive logging** with DEBUG_FLOW tags
 - ✅ **Error handling** with timeouts and recovery
 - ✅ **Model caching** with shared repository
+- ✅ **Chat list padding fixed under top bar** in Gallery chat models
 
 ### Gallery Integration
 - ✅ **Google AI Edge Gallery components** (8 core UI components)
