@@ -27,8 +27,10 @@ import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.tasks.genai.llminference.GraphOptions
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
 import com.google.mediapipe.tasks.genai.llminference.LlmInferenceSession
+import timber.log.Timber
 
-private const val TAG = "AGLlmChatModelHelper"
+private const val TAG = "DEBUG_FLOW"
+private const val CLASS_PREFIX = "LlmChatModelHelper"
 
 typealias ResultListener = (partialResult: String, done: Boolean) -> Unit
 typealias CleanUpListener = () -> Unit
@@ -51,7 +53,9 @@ object LlmChatModelHelper {
       model.getFloatConfigValue(key = ConfigKey.TEMPERATURE, defaultValue = DEFAULT_TEMPERATURE)
     val accelerator =
       model.getStringConfigValue(key = ConfigKey.ACCELERATOR, defaultValue = Accelerator.GPU.label)
-    Log.d(TAG, "Initializing...")
+    Timber.tag("$TAG:$CLASS_PREFIX").d("initialize() - Starting model initialization for: ${model.name}")
+    Timber.tag("$TAG:$CLASS_PREFIX").d("initialize() - Model path: ${model.getPath(context)}")
+    Timber.tag("$TAG:$CLASS_PREFIX").d("initialize() - Model config: maxTokens=$maxTokens, topK=$topK, topP=$topP, temperature=$temperature, accelerator=$accelerator")
     val preferredBackend = when (accelerator) {
       Accelerator.CPU.label -> LlmInference.Backend.CPU
       Accelerator.GPU.label -> LlmInference.Backend.GPU
@@ -76,7 +80,9 @@ object LlmChatModelHelper {
           ).build()
       )
       model.instance = LlmModelInstance(engine = llmInference, session = session)
+      Timber.tag("$TAG:$CLASS_PREFIX").d("initialize() - Model initialized successfully: ${model.name}")
     } catch (e: Exception) {
+      Timber.tag("$TAG:$CLASS_PREFIX").e(e, "initialize() - Failed to initialize model: ${model.name}")
       onDone(cleanUpMediapipeTaskErrorMessage(e.message ?: "Unknown error"))
       return
     }
@@ -85,7 +91,7 @@ object LlmChatModelHelper {
 
   fun resetSession(model: Model) {
     try {
-      Log.d(TAG, "Resetting session for model '${model.name}'")
+      Timber.tag("$TAG:$CLASS_PREFIX").d("resetSession() - Resetting session for model: ${model.name}")
 
       val instance = model.instance as LlmModelInstance? ?: return
       val session = instance.session
@@ -107,7 +113,7 @@ object LlmChatModelHelper {
       instance.session = newSession
       Log.d(TAG, "Resetting done")
     } catch (e: Exception) {
-      Log.d(TAG, "Failed to reset session", e)
+      Timber.tag("$TAG:$CLASS_PREFIX").e(e, "resetSession() - Failed to reset session")
     }
   }
 
@@ -128,7 +134,7 @@ object LlmChatModelHelper {
       onCleanUp()
     }
     model.instance = null
-    Log.d(TAG, "Clean up done.")
+    Timber.tag("$TAG:$CLASS_PREFIX").d("cleanUp() - Clean up done for model: ${model.name}")
   }
 
   fun runInference(
@@ -138,6 +144,16 @@ object LlmChatModelHelper {
     cleanUpListener: CleanUpListener,
     image: Bitmap? = null,
   ) {
+    Timber.tag("$TAG:$CLASS_PREFIX").d("runInference() - Starting inference for model: ${model.name}")
+    Timber.tag("$TAG:$CLASS_PREFIX").d("runInference() - Input: '$input'")
+    Timber.tag("$TAG:$CLASS_PREFIX").d("runInference() - Has image: ${image != null}")
+    
+    if (model.instance == null) {
+      Timber.tag("$TAG:$CLASS_PREFIX").e("runInference() - Model instance is null for: ${model.name}")
+      resultListener("", true)
+      return
+    }
+    
     val instance = model.instance as LlmModelInstance
 
     // Set listener.
@@ -154,6 +170,10 @@ object LlmChatModelHelper {
     if (image != null) {
       session.addImage(BitmapImageBuilder(image).build())
     }
-    session.generateResponseAsync(resultListener)
+    Timber.tag("$TAG:$CLASS_PREFIX").d("runInference() - Calling generateResponseAsync")
+    session.generateResponseAsync { partialResult, done ->
+      Timber.tag("$TAG:$CLASS_PREFIX").d("runInference() - Received response: partial='$partialResult', done=$done")
+      resultListener(partialResult, done)
+    }
   }
 }

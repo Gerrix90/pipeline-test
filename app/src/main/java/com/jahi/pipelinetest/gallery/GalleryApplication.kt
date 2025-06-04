@@ -29,6 +29,7 @@ import com.jahi.pipelinetest.domain.GetInitializedLlmModelUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "app_gallery_preferences")
 
@@ -39,16 +40,30 @@ class GalleryApplication : Application() {
   override fun onCreate() {
     super.onCreate()
 
+    // Initialize Timber logging
+    if (com.jahi.pipelinetest.BuildConfig.DEBUG) {
+      Timber.plant(Timber.DebugTree())
+    }
+    
+    Timber.tag("DEBUG_FLOW|GalleryApplication").d("onCreate() - Application starting")
 
     writeLaunchInfo(context = this)
     container = DefaultAppContainer(this, dataStore)
+    
+    Timber.tag("DEBUG_FLOW|GalleryApplication").d("onCreate() - Container created: ${container::class.simpleName}")
 
     // Load theme.
     ThemeSettings.themeOverride.value = container.dataStoreRepository.readThemeOverride()
 
     // Warm up LLM model cache
+    Timber.tag("DEBUG_FLOW|GalleryApplication").d("onCreate() - Starting LLM model cache warm-up")
     CoroutineScope(Dispatchers.IO).launch {
-      GetInitializedLlmModelUseCase(this@GalleryApplication, container.llmModelRepository)()
+      try {
+        val model = GetInitializedLlmModelUseCase(this@GalleryApplication, container.llmModelRepository)()
+        Timber.tag("DEBUG_FLOW|GalleryApplication").d("onCreate() - Model warm-up result: ${model?.name ?: "null"}")
+      } catch (e: Exception) {
+        Timber.tag("DEBUG_FLOW|GalleryApplication").w(e, "onCreate() - Failed to warm up LLM model cache")
+      }
     }
   }
 }

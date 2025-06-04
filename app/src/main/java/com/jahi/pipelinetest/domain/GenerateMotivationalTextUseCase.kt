@@ -3,6 +3,7 @@ package com.jahi.pipelinetest.domain
 import android.content.Context
 import android.util.Log
 import com.jahi.pipelinetest.gallery.data.Model
+import timber.log.Timber
 import com.jahi.pipelinetest.gallery.ui.llmchat.LlmChatModelHelper
 import com.jahi.pipelinetest.domain.GetInitializedLlmModelUseCase
 import kotlinx.coroutines.Dispatchers
@@ -44,42 +45,59 @@ class GenerateMotivationalTextUseCase(
     )
 
     suspend operator fun invoke(): String = withContext(Dispatchers.IO) {
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("invoke() - Starting motivational text generation")
+        
         try {
             // Obtain an initialized LLM model from the repository
+            Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("invoke() - Requesting initialized LLM model from use case")
             val llmModel = getInitializedLlmModelUseCase()
             
             if (llmModel != null) {
-                Log.d(TAG, "Found LLM model: ${llmModel.name}")
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("invoke() - Found LLM model: ${llmModel.name}, path: ${llmModel.downloadFileName}")
                 
                 // Try to generate with AI
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("invoke() - Attempting AI text generation")
                 val generatedText = generateWithAI(llmModel)
                 if (!generatedText.isNullOrBlank()) {
-                    Log.d(TAG, "Generated text: $generatedText")
+                    Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("invoke() - AI generated text: '$generatedText'")
                     return@withContext generatedText
+                } else {
+                    Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("invoke() - AI generation returned null/blank")
                 }
             } else {
-                Log.d(TAG, "No LLM model found")
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("invoke() - No LLM model found - will use fallback")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error generating text", e)
+            Timber.tag("DEBUG_FLOW|GenerateMotivationalText").e(e, "invoke() - Error generating text")
         }
         
         // Fallback to hardcoded sentences
-        Log.d(TAG, "Using fallback sentence")
-        return@withContext fallbackSentences.random()
+        val fallbackText = fallbackSentences.random()
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("invoke() - Using fallback sentence: '$fallbackText'")
+        return@withContext fallbackText
     }
 
 
     private suspend fun generateWithAI(model: Model): String? {
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateWithAI() - Starting AI generation with model: ${model.name}")
+        
         try {
             // Generate text with timeout using the already initialized model
-            return withTimeoutOrNull(GENERATION_TIMEOUT_MS) {
+            val result = withTimeoutOrNull(GENERATION_TIMEOUT_MS) {
                 suspendCancellableCoroutine { continuation ->
                     generateTextWithInitializedModel(model, continuation)
                 }
             }
+            
+            if (result != null) {
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateWithAI() - AI generation completed successfully")
+            } else {
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("generateWithAI() - AI generation timed out after ${GENERATION_TIMEOUT_MS}ms")
+            }
+            
+            return result
         } catch (e: Exception) {
-            Log.e(TAG, "Error in AI generation", e)
+            Timber.tag("DEBUG_FLOW|GenerateMotivationalText").e(e, "generateWithAI() - Error in AI generation")
             return null
         }
     }
@@ -91,33 +109,34 @@ class GenerateMotivationalTextUseCase(
         val prompt = motivationalPrompts.random()
         val fullResponse = StringBuilder()
         
-        Log.d(TAG, "Running inference with prompt: $prompt")
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Running inference with prompt: '$prompt'")
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Model instance available: ${model.instance != null}")
         
         LlmChatModelHelper.runInference(
             model = model,
             input = prompt,
             resultListener = { partialResult, done ->
-                Log.d(TAG, "Received partial result: '$partialResult', done: $done")
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Received partial result: '$partialResult', done: $done")
                 fullResponse.append(partialResult)
                 
                 if (done) {
                     val generatedText = fullResponse.toString().trim()
-                    Log.d(TAG, "Inference complete. Full response: '$generatedText'")
+                    Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Inference complete. Full response: '$generatedText'")
                     
                     // If response is empty, return null to use fallback
                     if (generatedText.isBlank()) {
-                        Log.w(TAG, "Generated text is empty, will use fallback")
+                        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("generateTextWithInitializedModel() - Generated text is empty, will use fallback")
                         continuation.resume(null)
                     } else {
                         // Clean up the response
                         val cleanedText = cleanUpResponse(generatedText)
-                        Log.d(TAG, "Cleaned response: '$cleanedText'")
+                        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Cleaned response: '$cleanedText'")
                         continuation.resume(cleanedText)
                     }
                 }
             },
             cleanUpListener = {
-                Log.d(TAG, "Cleanup called")
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Cleanup called")
             }
         )
     }

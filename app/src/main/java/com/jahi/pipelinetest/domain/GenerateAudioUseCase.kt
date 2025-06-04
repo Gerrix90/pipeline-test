@@ -6,6 +6,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.util.Log
 import android.widget.RemoteViews
+import timber.log.Timber
 import com.jahi.pipelinetest.Prefs
 import java.io.File
 import java.net.HttpURLConnection
@@ -24,31 +25,39 @@ class GenerateAudioUseCase(
     private val prefs = Prefs(context)
 
     operator fun invoke() {
+        Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").d("invoke() - Starting audio generation process")
+        
         thread {
             val apiKey = prefs.elevenLabsApiKey
             if (apiKey.isBlank()) {
+                Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").w("invoke() - ElevenLabs API key is blank, cannot generate audio")
                 return@thread
             }
+            
+            Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").d("invoke() - API key available, proceeding with generation")
             
             // Show progress indicator
             updateWidgetState(isGenerating = true)
             
             try {
                 // Generate text using AI or fallback
+                Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").d("invoke() - Calling GenerateMotivationalTextUseCase")
                 val text = runBlocking {
                     generateMotivationalTextUseCase()
                 }
                 
-                Log.d(TAG, "Generated text for TTS: '$text'")
+                Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").d("invoke() - Generated text for TTS: '$text'")
                 val file = fetchAudio(text, apiKey)
                 if (file != null) {
+                    Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").d("invoke() - Audio file generated successfully, playing audio")
                     playAudio(file)
                 } else {
+                    Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").w("invoke() - Audio generation failed, restoring widget state")
                     // No audio to play, restore button immediately
                     updateWidgetState(isGenerating = false)
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error in audio generation", e)
+                Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").e(e, "invoke() - Error in audio generation")
                 // Restore button state on error
                 updateWidgetState(isGenerating = false)
             }
