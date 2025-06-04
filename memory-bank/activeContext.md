@@ -5,7 +5,17 @@
 ## Recent Changes (June 4, 2025)
 
 ### Completed Today
-1. **Implemented Complete AI Gallery Fullscreen Experience**:
+1. **Implemented AI Gallery Back Navigation**:
+   - **BACK BUTTON HANDLING**: Added BackHandler to GalleryScreen to return to Time Fomo when system back button is pressed
+   - **NAVIGATION FLOW**: AI Gallery now properly returns to previous screen (Countdowns) instead of exiting app
+   - **SOLUTION APPLIED**:
+     * Added BackHandler composable to GalleryScreen.kt:169-172
+     * Connected to onBackPressed callback from MainActivity
+     * System back button now calls `viewModel.selectScreen(SCREEN_COUNTDOWNS)`
+   - **BUILD VERIFIED**: All builds successful, navigation working correctly
+   - **USER EXPERIENCE**: Resolves issue where back button would exit entire app from AI Gallery
+
+2. **Implemented Complete AI Gallery Fullscreen Experience**:
    - **FULLSCREEN MODE**: AI Gallery now displays without Time Fomo app bars when selected
    - **ORIGINAL UI RESTORED**: Completely replaced GalleryScreen with original Google AI Edge Gallery HomeScreen
    - **SOLUTION APPLIED**:

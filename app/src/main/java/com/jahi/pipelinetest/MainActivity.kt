@@ -1,19 +1,15 @@
 package com.jahi.pipelinetest
 
-import android.os.Bundle
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
-import androidx.compose.runtime.remember
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,22 +23,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.ViewModelProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.jahi.pipelinetest.ui.theme.PipelineTestTheme
-import com.jahi.pipelinetest.SettingsScreen
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.jahi.pipelinetest.domain.CreateTaskUseCase
+import com.jahi.pipelinetest.domain.DeleteTaskUseCase
+import com.jahi.pipelinetest.domain.GetTasksUseCase
+import com.jahi.pipelinetest.domain.ToggleTaskCompletionUseCase
+import com.jahi.pipelinetest.domain.UpdateTaskUseCase
 import com.jahi.pipelinetest.repository.TaskRepository
-import com.jahi.pipelinetest.domain.*
+import com.jahi.pipelinetest.ui.theme.PipelineTestTheme
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.viewmodel.TaskViewModelFactory
-import com.jahi.pipelinetest.TaskOverviewScreen
-import com.jahi.pipelinetest.GalleryScreen
-import com.jahi.pipelinetest.scheduleTaskAlarms
-import com.jahi.pipelinetest.cancelTaskAlarms
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,7 +109,13 @@ class MainActivity : ComponentActivity() {
                     SettingsScreen(viewModel) { viewModel.closeSettings() }
                 } else if (viewModel.screen == SCREEN_GALLERY) {
                     // AI Gallery fullscreen without Time Fomo app bars
-                    GalleryScreen(Modifier.fillMaxSize())
+                    GalleryScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        onBackPressed = {
+                            // Return to the previous screen (default to Countdowns)
+                            viewModel.selectScreen(SCREEN_COUNTDOWNS)
+                        }
+                    )
                 } else {
                     Scaffold(
                         modifier = Modifier

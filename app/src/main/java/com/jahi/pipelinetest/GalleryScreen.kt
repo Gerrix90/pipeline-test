@@ -21,10 +21,10 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.StringRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -98,24 +98,20 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jahi.pipelinetest.gallery.ui.common.GalleryTopAppBar
-import com.jahi.pipelinetest.R
 import com.jahi.pipelinetest.gallery.data.AppBarAction
 import com.jahi.pipelinetest.gallery.data.AppBarActionType
 import com.jahi.pipelinetest.gallery.data.ImportedModelInfo
 import com.jahi.pipelinetest.gallery.data.Task
+import com.jahi.pipelinetest.gallery.ui.ViewModelProvider
+import com.jahi.pipelinetest.gallery.ui.common.GalleryTopAppBar
 import com.jahi.pipelinetest.gallery.ui.common.TaskIcon
 import com.jahi.pipelinetest.gallery.ui.common.getTaskBgColor
-import com.jahi.pipelinetest.gallery.ui.modelmanager.ModelManagerViewModel
-import com.jahi.pipelinetest.gallery.ui.preview.PreviewModelManagerViewModel
-import com.jahi.pipelinetest.gallery.ui.theme.GalleryTheme
-import com.jahi.pipelinetest.gallery.ui.theme.customColors
-import com.jahi.pipelinetest.gallery.ui.theme.titleMediumNarrow
 import com.jahi.pipelinetest.gallery.ui.home.ModelImportDialog
 import com.jahi.pipelinetest.gallery.ui.home.ModelImportingDialog
 import com.jahi.pipelinetest.gallery.ui.home.NewReleaseNotification
 import com.jahi.pipelinetest.gallery.ui.home.SettingsDialog
-import com.jahi.pipelinetest.gallery.ui.ViewModelProvider
+import com.jahi.pipelinetest.gallery.ui.theme.GalleryTheme
+import com.jahi.pipelinetest.gallery.ui.theme.titleMediumNarrow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -128,15 +124,12 @@ private const val MIN_TASK_CARD_RADIUS = 30
 private const val MAX_TASK_CARD_ICON_SIZE = 56
 private const val MIN_TASK_CARD_ICON_SIZE = 50
 
-/** Navigation destination data */
-object HomeScreenDestination {
-  @StringRes
-  val titleRes = R.string.app_name
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GalleryScreen(modifier: Modifier = Modifier) {
+fun GalleryScreen(
+  modifier: Modifier = Modifier,
+  onBackPressed: () -> Unit = {}
+) {
   val modelManagerViewModel: com.jahi.pipelinetest.gallery.ui.modelmanager.ModelManagerViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = ViewModelProvider.Factory)
   val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
   val uiState by modelManagerViewModel.uiState.collectAsState()
@@ -161,6 +154,11 @@ fun GalleryScreen(modifier: Modifier = Modifier) {
   var showTaskScreen by remember { mutableStateOf(false) }
   var selectedModel by remember { mutableStateOf<com.jahi.pipelinetest.gallery.data.Model?>(null) }
   var selectedTaskType by remember { mutableStateOf<com.jahi.pipelinetest.gallery.data.TaskType?>(null) }
+
+  // Handle system back button
+  BackHandler {
+    onBackPressed()
+  }
 
   val filePickerLauncher: ActivityResultLauncher<Intent> = rememberLauncherForActivityResult(
     contract = ActivityResultContracts.StartActivityForResult()
