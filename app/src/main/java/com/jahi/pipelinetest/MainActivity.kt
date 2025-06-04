@@ -109,6 +109,9 @@ class MainActivity : ComponentActivity() {
             PipelineTestTheme {
                 if (viewModel.showSettings) {
                     SettingsScreen(viewModel) { viewModel.closeSettings() }
+                } else if (viewModel.screen == SCREEN_GALLERY) {
+                    // AI Gallery fullscreen without Time Fomo app bars
+                    GalleryScreen(Modifier.fillMaxSize())
                 } else {
                     Scaffold(
                         modifier = Modifier
@@ -190,7 +193,6 @@ class MainActivity : ComponentActivity() {
                             SCREEN_COUNTDOWNS -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
                             SCREEN_LIFE -> LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
                             SCREEN_TASKS -> TaskOverviewScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
-                            SCREEN_GALLERY -> GalleryScreen(Modifier.padding(innerPadding))
                             else -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
                         }
                     }
