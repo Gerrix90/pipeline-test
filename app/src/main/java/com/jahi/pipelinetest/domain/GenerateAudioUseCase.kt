@@ -23,6 +23,12 @@ class GenerateAudioUseCase(
     }
 
     private val prefs = Prefs(context)
+    
+    private enum class WidgetState {
+        NORMAL,     // Show generate button
+        GENERATING, // Show progress bar
+        PLAYING     // Show speaker icon
+    }
 
     operator fun invoke() {
         Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").d("invoke() - Starting audio generation process")
@@ -37,7 +43,7 @@ class GenerateAudioUseCase(
             Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").d("invoke() - API key available, proceeding with generation")
             
             // Show progress indicator
-            updateWidgetState(isGenerating = true)
+            updateWidgetState(WidgetState.GENERATING)
             
             try {
                 // Generate text using AI or fallback
@@ -50,90 +56,120 @@ class GenerateAudioUseCase(
                 val file = fetchAudio(text, apiKey)
                 if (file != null) {
                     Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").d("invoke() - Audio file generated successfully, playing audio")
+                    // Switch to playing state before starting playback
+                    updateWidgetState(WidgetState.PLAYING)
                     playAudio(file)
                 } else {
                     Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").w("invoke() - Audio generation failed, restoring widget state")
                     // No audio to play, restore button immediately
-                    updateWidgetState(isGenerating = false)
+                    updateWidgetState(WidgetState.NORMAL)
                 }
             } catch (e: Exception) {
                 Timber.tag("DEBUG_FLOW|GenerateAudioUseCase").e(e, "invoke() - Error in audio generation")
                 // Restore button state on error
-                updateWidgetState(isGenerating = false)
+                updateWidgetState(WidgetState.NORMAL)
             }
         }
     }
     
-    private fun updateWidgetState(isGenerating: Boolean) {
+    private fun updateWidgetState(state: WidgetState) {
         try {
             val appWidgetManager = AppWidgetManager.getInstance(context)
             
             // Update Daily Countdown Widget
-            updateDailyCountdownWidgets(appWidgetManager, isGenerating)
+            updateDailyCountdownWidgets(appWidgetManager, state)
             
             // Update Circular Progress Widget  
-            updateCircularProgressWidgets(appWidgetManager, isGenerating)
+            updateCircularProgressWidgets(appWidgetManager, state)
             
             // Update Event Countdown Widget
-            updateEventCountdownWidgets(appWidgetManager, isGenerating)
+            updateEventCountdownWidgets(appWidgetManager, state)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to update widget state", e)
         }
     }
     
-    private fun updateDailyCountdownWidgets(appWidgetManager: AppWidgetManager, isGenerating: Boolean) {
+    private fun updateDailyCountdownWidgets(appWidgetManager: AppWidgetManager, state: WidgetState) {
         val componentName = ComponentName(context, com.jahi.pipelinetest.DailyCountdownWidget::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, com.jahi.pipelinetest.R.layout.daily_countdown_widget)
             
-            if (isGenerating) {
-                // Hide button, show progress
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.VISIBLE)
-            } else {
-                // Show button, hide progress
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.VISIBLE)
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+            when (state) {
+                WidgetState.NORMAL -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.VISIBLE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.GONE)
+                }
+                WidgetState.GENERATING -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.VISIBLE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.GONE)
+                }
+                WidgetState.PLAYING -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.VISIBLE)
+                }
             }
             
             appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
         }
     }
     
-    private fun updateCircularProgressWidgets(appWidgetManager: AppWidgetManager, isGenerating: Boolean) {
+    private fun updateCircularProgressWidgets(appWidgetManager: AppWidgetManager, state: WidgetState) {
         val componentName = ComponentName(context, com.jahi.pipelinetest.CircularProgressWidget::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, com.jahi.pipelinetest.R.layout.circular_progress_widget)
             
-            if (isGenerating) {
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.VISIBLE)
-            } else {
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.VISIBLE)
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+            when (state) {
+                WidgetState.NORMAL -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.VISIBLE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.GONE)
+                }
+                WidgetState.GENERATING -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.VISIBLE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.GONE)
+                }
+                WidgetState.PLAYING -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.VISIBLE)
+                }
             }
             
             appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
         }
     }
     
-    private fun updateEventCountdownWidgets(appWidgetManager: AppWidgetManager, isGenerating: Boolean) {
+    private fun updateEventCountdownWidgets(appWidgetManager: AppWidgetManager, state: WidgetState) {
         val componentName = ComponentName(context, com.jahi.pipelinetest.EventCountdownWidget::class.java)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
         
         for (appWidgetId in appWidgetIds) {
             val views = RemoteViews(context.packageName, com.jahi.pipelinetest.R.layout.event_countdown_widget)
             
-            if (isGenerating) {
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.VISIBLE)
-            } else {
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.VISIBLE)
-                views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+            when (state) {
+                WidgetState.NORMAL -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.VISIBLE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.GONE)
+                }
+                WidgetState.GENERATING -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.VISIBLE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.GONE)
+                }
+                WidgetState.PLAYING -> {
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.generate_button, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.progress_indicator, android.view.View.GONE)
+                    views.setViewVisibility(com.jahi.pipelinetest.R.id.speaker_icon, android.view.View.VISIBLE)
+                }
             }
             
             appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
@@ -178,14 +214,14 @@ class GenerateAudioUseCase(
                 it.release()
                 file.delete()
                 // Restore button state when audio finishes
-                updateWidgetState(isGenerating = false)
+                updateWidgetState(WidgetState.NORMAL)
             }
             mp.prepare()
             mp.start()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to play audio", e)
             // Restore button state on error
-            updateWidgetState(isGenerating = false)
+            updateWidgetState(WidgetState.NORMAL)
         }
     }
 }

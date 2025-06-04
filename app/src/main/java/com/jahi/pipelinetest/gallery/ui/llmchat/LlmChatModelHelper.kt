@@ -47,6 +47,7 @@ object LlmChatModelHelper {
     // Prepare options.
     val maxTokens =
       model.getIntConfigValue(key = ConfigKey.MAX_TOKENS, defaultValue = DEFAULT_MAX_TOKEN)
+    Timber.tag("$TAG:$CLASS_PREFIX").d("initialize() - maxTokens configuration: $maxTokens")
     val topK = model.getIntConfigValue(key = ConfigKey.TOPK, defaultValue = DEFAULT_TOPK)
     val topP = model.getFloatConfigValue(key = ConfigKey.TOPP, defaultValue = DEFAULT_TOPP)
     val temperature =
@@ -111,7 +112,7 @@ object LlmChatModelHelper {
           ).build()
       )
       instance.session = newSession
-      Log.d(TAG, "Resetting done")
+      Timber.tag("$TAG:$CLASS_PREFIX").d("resetSession() - Session reset complete")
     } catch (e: Exception) {
       Timber.tag("$TAG:$CLASS_PREFIX").e(e, "resetSession() - Failed to reset session")
     }

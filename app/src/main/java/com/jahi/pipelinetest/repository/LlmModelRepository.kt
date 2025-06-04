@@ -5,6 +5,7 @@ import android.util.Log
 import com.jahi.pipelinetest.gallery.data.Model
 import timber.log.Timber
 import com.jahi.pipelinetest.gallery.ui.llmchat.LlmChatModelHelper
+import com.jahi.pipelinetest.gallery.ui.llmchat.createLlmChatConfigs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -104,7 +105,8 @@ class LlmModelRepository {
                         sizeInBytes = file.length(),
                         version = "imported",
                         url = "",
-                        imported = true
+                        imported = true,
+                        configs = createLlmChatConfigs() // Add proper LLM configs
                     )
                     model.preProcess()
                     
@@ -138,7 +140,8 @@ class LlmModelRepository {
                             sizeInBytes = modelFile.length(),
                             version = versionDir.name,
                             url = "",
-                            imported = false
+                            imported = false,
+                            configs = createLlmChatConfigs() // Add proper LLM configs
                         )
                         model.preProcess()
                         

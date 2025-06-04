@@ -18,8 +18,9 @@ class GenerateMotivationalTextUseCase(
 ) {
     companion object {
         private const val TAG = "GenerateMotivationalText"
-        private const val GENERATION_TIMEOUT_MS = 30_000L // 30 seconds for generation
     }
+    
+    private var generationCount = 0
 
     // Fallback sentences when AI is not available
     private val fallbackSentences = listOf(
@@ -35,13 +36,28 @@ class GenerateMotivationalTextUseCase(
         "Great things never come from comfort zones."
     )
 
-    // Prompts for generating motivational sentences with examples
+    // Diverse motivational prompts with randomness
     private val motivationalPrompts = listOf(
-        "Write one motivational sentence about success. Example: Success comes to those who never give up. Your response:",
-        "Create an inspiring quote about perseverance. Example: Every setback is a setup for a comeback. Your response:",
-        "Generate a positive message about believing in yourself. Example: You are stronger than you think. Your response:",
-        "Write an encouraging sentence about overcoming challenges. Example: Challenges are opportunities in disguise. Your response:",
-        "Create a motivational quote about personal growth. Example: Growth begins at the end of your comfort zone. Your response:"
+        "Write a unique motivational quote about success.",
+        "Give me an inspiring message about perseverance.",
+        "Write a positive quote about believing in yourself.",
+        "Create a motivational message about overcoming challenges.",
+        "Share an inspiring quote about personal growth.",
+        "Generate an original quote about achieving dreams.",
+        "Write something motivational about taking action.",
+        "Create an inspiring message about resilience.",
+        "Give me a powerful quote about never giving up.",
+        "Write a motivational quote about self-confidence.",
+        "Share an uplifting message about inner strength.",
+        "Create an inspiring quote about facing fears.",
+        "Write a motivational message about learning from failure.",
+        "Generate a unique quote about pursuing excellence.",
+        "Give me an inspiring message about staying focused.",
+        "Write a powerful quote about making a difference.",
+        "Create a motivational message about embracing change.",
+        "Share an inspiring quote about unlimited potential.",
+        "Write something uplifting about finding your purpose.",
+        "Generate an original motivational quote about courage."
     )
 
     suspend operator fun invoke(): String = withContext(Dispatchers.IO) {
@@ -82,8 +98,14 @@ class GenerateMotivationalTextUseCase(
         Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateWithAI() - Starting AI generation with model: ${model.name}")
         
         try {
-            // Generate text with timeout using the already initialized model
-            val result = withTimeoutOrNull(GENERATION_TIMEOUT_MS) {
+            // Wait for instance to be initialized (following LlmChatViewModel pattern)
+            while (model.instance == null) {
+                kotlinx.coroutines.delay(100)
+            }
+            kotlinx.coroutines.delay(500)
+            
+            // Generate text with shorter timeout to prevent infinite loops
+            val result = withTimeoutOrNull(30_000L) { // 30 seconds max
                 suspendCancellableCoroutine { continuation ->
                     generateTextWithInitializedModel(model, continuation)
                 }
@@ -92,7 +114,7 @@ class GenerateMotivationalTextUseCase(
             if (result != null) {
                 Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateWithAI() - AI generation completed successfully")
             } else {
-                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("generateWithAI() - AI generation timed out after ${GENERATION_TIMEOUT_MS}ms")
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("generateWithAI() - AI generation timed out after 10 seconds")
             }
             
             return result
@@ -106,32 +128,83 @@ class GenerateMotivationalTextUseCase(
         model: Model, 
         continuation: kotlinx.coroutines.CancellableContinuation<String?>
     ) {
-        val prompt = motivationalPrompts.random()
+        // Add extra randomness to prevent repetition
+        val basePrompt = motivationalPrompts.random()
+        val randomEndings = listOf(
+            " Make it unique and original.",
+            " Be creative and inspiring.",
+            " Use fresh language and perspective.",
+            " Make it stand out from typical quotes.",
+            " Be innovative in your approach."
+        )
+        val prompt = if (kotlin.random.Random.nextFloat() < 0.7f) {
+            basePrompt + randomEndings.random()
+        } else {
+            basePrompt
+        }
         val fullResponse = StringBuilder()
+        var tokenCount = 0
+        val maxTokens = 150 // Increased limit for complete motivational quotes
+        var isCompleted = false // Flag to prevent multiple resume calls
         
         Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Running inference with prompt: '$prompt'")
         Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Model instance available: ${model.instance != null}")
+        
+        // Reset session every 5 generations to prevent repetitive responses while maintaining some context
+        generationCount++
+        if (generationCount % 5 == 0) {
+            try {
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Resetting session after $generationCount generations to prevent repetition")
+                LlmChatModelHelper.resetSession(model)
+                Thread.sleep(100) // Small delay to ensure reset is complete
+            } catch (e: Exception) {
+                Timber.tag("DEBUG_FLOW|GenerateMotivationalText").e(e, "generateTextWithInitializedModel() - Failed to reset session")
+            }
+        }
         
         LlmChatModelHelper.runInference(
             model = model,
             input = prompt,
             resultListener = { partialResult, done ->
+                // Ignore callbacks if we've already completed
+                if (isCompleted) {
+                    Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Ignoring callback, already completed")
+                    return@runInference
+                }
+                
                 Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Received partial result: '$partialResult', done: $done")
                 fullResponse.append(partialResult)
+                tokenCount++
+                
+                // Check for problematic patterns that indicate infinite loops
+                val currentText = fullResponse.toString()
+                if (tokenCount > maxTokens || currentText.length > 1000 || 
+                    (currentText.contains("**") || currentText.contains("*\n*") || currentText.count { it == '*' } > 10)) {
+                    Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("generateTextWithInitializedModel() - Detected problematic generation (tokens: $tokenCount, length: ${currentText.length}), stopping")
+                    if (!isCompleted) {
+                        isCompleted = true
+                        continuation.resume(null)
+                    }
+                    return@runInference
+                }
                 
                 if (done) {
                     val generatedText = fullResponse.toString().trim()
                     Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Inference complete. Full response: '$generatedText'")
                     
-                    // If response is empty, return null to use fallback
-                    if (generatedText.isBlank()) {
-                        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("generateTextWithInitializedModel() - Generated text is empty, will use fallback")
-                        continuation.resume(null)
-                    } else {
-                        // Clean up the response
-                        val cleanedText = cleanUpResponse(generatedText)
-                        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Cleaned response: '$cleanedText'")
-                        continuation.resume(cleanedText)
+                    if (!isCompleted) {
+                        isCompleted = true
+                        
+                        // If response is empty, return null to use fallback
+                        if (generatedText.isBlank()) {
+                            Timber.tag("DEBUG_FLOW|GenerateMotivationalText").w("generateTextWithInitializedModel() - Generated text is empty, will use fallback")
+                            continuation.resume(null)
+                        } else {
+                            // Clean up the response
+                            val cleanedText = cleanUpResponse(generatedText)
+                            Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("generateTextWithInitializedModel() - Cleaned response: '$cleanedText'")
+                            continuation.resume(cleanedText)
+                        }
                     }
                 }
             },
@@ -142,90 +215,51 @@ class GenerateMotivationalTextUseCase(
     }
 
     private fun cleanUpResponse(text: String): String {
-        // Remove any extra quotes or formatting
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("cleanUpResponse() - Original text: '$text'")
+        
+        // Clean up for TTS processing but keep full content
         var cleaned = text.trim()
+            .replace(Regex("\\*+"), "") // Remove asterisks
+            .replace(Regex("#+"), "") // Remove hashtags
+            .replace("\n", " ") // Replace newlines with spaces
+            .replace(Regex("\\s+"), " ") // Normalize whitespace
+            .trim()
+        
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("cleanUpResponse() - After basic cleanup: '$cleaned'")
+        
+        // Remove attribution/author info BEFORE removing quotes
+        cleaned = cleaned.replace(Regex("\\s*-\\s*This quote.*"), "")
+            .replace(Regex("\\s*-\\s*[A-Z][a-zA-Z\\s]*$"), "") // Remove "- Author Name" at end
+            .trim()
+        
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("cleanUpResponse() - After attribution removal: '$cleaned'")
         
         // Remove surrounding quotes if present
         if (cleaned.startsWith("\"") && cleaned.endsWith("\"")) {
             cleaned = cleaned.substring(1, cleaned.length - 1).trim()
         }
         
-        // Remove common prefixes that models might add
-        val prefixesToRemove = listOf(
-            "Here's a motivational sentence:",
-            "Here is an inspiring quote:",
-            "Here's an inspiring quote:",
-            "Motivational quote:",
-            "Inspiring message:",
-            "Here's one:",
-            "Quote:",
-            "Here's an inspiring quote about perseverance:",
-            "Here's an inspiring quote about",
-            "Your response:",
-            "My response:",
-            "Response:"
-        )
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("cleanUpResponse() - After quote removal: '$cleaned'")
         
-        for (prefix in prefixesToRemove) {
-            if (cleaned.startsWith(prefix, ignoreCase = true)) {
-                cleaned = cleaned.substring(prefix.length).trim()
-                break
-            }
-        }
-        
-        // Also remove anything before the first quote if it starts with "Here"
-        if (cleaned.startsWith("Here", ignoreCase = true)) {
-            val quoteStart = cleaned.indexOf('"')
-            if (quoteStart > 0) {
-                cleaned = cleaned.substring(quoteStart).trim()
-            }
-        }
-        
-        // Remove newlines and extra whitespace
-        cleaned = cleaned.replace("\n", " ").replace(Regex("\\s+"), " ").trim()
-        
-        // Remove common suffixes that models might add
-        val suffixesToRemove = listOf(
-            "Would you like me provide some other options?",
-            "Would you like me to provide some other options?",
-            "Would you like another one?",
-            "Do you want more quotes?",
-            "Let me know if you need more!"
-        )
-        
-        for (suffix in suffixesToRemove) {
-            if (cleaned.endsWith(suffix, ignoreCase = true)) {
-                cleaned = cleaned.substring(0, cleaned.length - suffix.length).trim()
-                break
-            }
-        }
-        
-        // If still empty after cleaning, return null for fallback
+        // If empty after cleaning, return fallback
         if (cleaned.isBlank()) {
             return fallbackSentences.random()
         }
         
-        // Take only the first sentence if multiple are generated
-        val sentences = cleaned.split(Regex("[.!?]"))
-        val firstSentence = sentences.firstOrNull()?.trim() ?: cleaned
-        
-        // Ensure it ends with proper punctuation and isn't too long
-        val finalSentence = when {
-            firstSentence.endsWith(".") || firstSentence.endsWith("!") || firstSentence.endsWith("?") -> firstSentence
-            firstSentence.isNotBlank() -> "$firstSentence."
+        // Ensure proper ending punctuation
+        val finalCleaned = when {
+            cleaned.endsWith(".") || cleaned.endsWith("!") || cleaned.endsWith("?") -> cleaned
+            cleaned.isNotBlank() -> "$cleaned."
             else -> fallbackSentences.random()
         }
         
-        // If sentence is too long, truncate it reasonably
-        return if (finalSentence.length > 150) {
-            val truncated = finalSentence.substring(0, 147).trim()
-            if (truncated.endsWith(".") || truncated.endsWith("!") || truncated.endsWith("?")) {
-                truncated
-            } else {
-                "$truncated..."
-            }
+        Timber.tag("DEBUG_FLOW|GenerateMotivationalText").d("cleanUpResponse() - Final result: '$finalCleaned'")
+        
+        // Return full cleaned text, no truncation
+        return if (finalCleaned.isBlank() || finalCleaned.length < 10) {
+            fallbackSentences.random()
         } else {
-            finalSentence
+            finalCleaned
         }
     }
 }
