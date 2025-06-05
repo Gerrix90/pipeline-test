@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.util.openDateTimePicker
+import androidx.compose.ui.res.stringResource
+import com.jahi.pipelinetest.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -91,7 +93,7 @@ fun TaskList(
                     OutlinedTextField(
                         value = newDescription,
                         onValueChange = { newDescription = it },
-                        label = { Text("Task description") },
+                        label = { Text(stringResource(R.string.task_description_label)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -108,7 +110,7 @@ fun TaskList(
                             value = newDueDate,
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Due Date") },
+                            label = { Text(stringResource(R.string.task_due_date_label)) },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -123,7 +125,7 @@ fun TaskList(
                             newDescription = ""
                             newDueDate = ""
                         }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                         TextButton(
                             onClick = {
@@ -141,7 +143,7 @@ fun TaskList(
                             },
                             enabled = newDescription.isNotBlank()
                         ) {
-                            Text("Add")
+                            Text(stringResource(R.string.action_add))
                         }
                     }
                 }
@@ -153,9 +155,9 @@ fun TaskList(
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add task")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.task_add))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Task")
+                Text(stringResource(R.string.task_add))
             }
         }
         
@@ -248,8 +250,8 @@ fun TaskItem(
                         value = displayEditDate,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Due Date (optional)") },
-                        placeholder = { Text("Select date and time") },
+                        label = { Text(stringResource(R.string.task_due_date_optional_label)) },
+                        placeholder = { Text(stringResource(R.string.task_select_date_time)) },
                         modifier = Modifier.fillMaxWidth(),
                         interactionSource = dateInteractionSource,
                         trailingIcon = {
@@ -258,7 +260,7 @@ fun TaskItem(
                                     IconButton(onClick = { editDueDate = "" }) {
                                         Icon(
                                             Icons.Default.Clear,
-                                            contentDescription = "Clear date"
+                                            contentDescription = stringResource(R.string.clear_date)
                                         )
                                     }
                                 }
@@ -269,7 +271,7 @@ fun TaskItem(
                                 }) {
                                     Icon(
                                         Icons.Default.DateRange,
-                                        contentDescription = "Select date"
+                                        contentDescription = stringResource(R.string.select_date)
                                     )
                                 }
                             }
@@ -288,7 +290,7 @@ fun TaskItem(
                         isEditing = false
                     }
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = "Save task")
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save_task))
                 }
                 IconButton(
                     onClick = {
@@ -297,7 +299,7 @@ fun TaskItem(
                         editDueDate = task.dueDate ?: ""
                     }
                 ) {
-                    Icon(Icons.Default.Close, contentDescription = "Cancel edit")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel_edit))
                 }
             } else {
                 Text(
@@ -332,12 +334,12 @@ fun TaskItem(
                         isEditing = true
                     }
                 ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit task")
+                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_task))
                 }
                 IconButton(onClick = onDelete) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Delete task",
+                        contentDescription = stringResource(R.string.delete_task),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
