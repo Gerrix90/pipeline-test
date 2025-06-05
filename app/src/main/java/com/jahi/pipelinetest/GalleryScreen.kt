@@ -87,6 +87,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import com.jahi.pipelinetest.R
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -261,7 +262,7 @@ fun GalleryScreen(
             .padding(16.dp)
         ) {
           Icon(Icons.AutoMirrored.Outlined.NoteAdd, contentDescription = "")
-          Text("From local model file")
+          Text(stringResource(R.string.from_local_model_file))
         }
       }
     }
@@ -293,7 +294,7 @@ fun GalleryScreen(
 
             // Show a snack bar for successful import.
             scope.launch {
-              snackbarHostState.showSnackbar("Model imported successfully")
+              snackbarHostState.showSnackbar(context.getString(R.string.model_import_success))
             }
           })
       }
@@ -304,9 +305,9 @@ fun GalleryScreen(
   if (showUnsupportedFileTypeDialog) {
     AlertDialog(
       onDismissRequest = { showUnsupportedFileTypeDialog = false },
-      title = { Text("Unsupported file type") },
+      title = { Text(stringResource(R.string.unsupported_file_type)) },
       text = {
-        Text("Only \".task\" file type is supported.")
+        Text(stringResource(R.string.only_task_file_supported))
       },
       confirmButton = {
         Button(onClick = { showUnsupportedFileTypeDialog = false }) {
@@ -325,7 +326,7 @@ fun GalleryScreen(
         Text(uiState.loadingModelAllowlistError)
       },
       text = {
-        Text("Please check your internet connection and try again later.")
+        Text(stringResource(R.string.check_internet_retry))
       },
       onDismissRequest = {
         modelManagerViewModel.loadModelAllowlist()
@@ -334,7 +335,7 @@ fun GalleryScreen(
         TextButton(onClick = {
           modelManagerViewModel.loadModelAllowlist()
         }) {
-          Text("Retry")
+          Text(stringResource(R.string.action_retry))
         }
       },
     )
@@ -492,14 +493,14 @@ private fun TaskList(
                 .padding(end = 8.dp)
                 .size(20.dp)
             )
-            Text("Loading model list...", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.loading_model_list), style = MaterialTheme.typography.bodyMedium)
           }
         }
       } else {
         // LLM Cards.
         item(key = "llmCardsHeader", span = { GridItemSpan(2) }) {
           Text(
-            "Example LLM Use Cases",
+            stringResource(R.string.example_llm_use_cases),
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 4.dp)

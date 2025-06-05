@@ -22,6 +22,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.res.stringResource
+import com.jahi.pipelinetest.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -124,7 +126,7 @@ class MainActivity : ComponentActivity() {
                         containerColor = Color.Transparent,
                         topBar = {
                             TopAppBar(
-                                title = { Text(text = "Time Fomo") },
+                                title = { Text(stringResource(R.string.app_name)) },
                                 colors = TopAppBarDefaults.topAppBarColors(
                                     containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f),
                                     titleContentColor = com.jahi.pipelinetest.ui.theme.Slate100
@@ -141,7 +143,7 @@ class MainActivity : ComponentActivity() {
                                 NavigationBarItem(
                                     selected = viewModel.screen == SCREEN_COUNTDOWNS,
                                     onClick = { viewModel.selectScreen(SCREEN_COUNTDOWNS) },
-                                    label = { Text(NAV_LABEL_COUNTDOWNS) },
+                                    label = { Text(stringResource(R.string.nav_countdowns)) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -154,7 +156,7 @@ class MainActivity : ComponentActivity() {
                                 NavigationBarItem(
                                     selected = viewModel.screen == SCREEN_TASKS,
                                     onClick = { viewModel.selectScreen(SCREEN_TASKS) },
-                                    label = { Text(NAV_LABEL_TASKS) },
+                                    label = { Text(stringResource(R.string.nav_tasks)) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -167,7 +169,7 @@ class MainActivity : ComponentActivity() {
                                 NavigationBarItem(
                                     selected = viewModel.screen == SCREEN_GALLERY,
                                     onClick = { viewModel.selectScreen(SCREEN_GALLERY) },
-                                    label = { Text(NAV_LABEL_GALLERY) },
+                                    label = { Text(stringResource(R.string.nav_gallery)) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -180,7 +182,7 @@ class MainActivity : ComponentActivity() {
                                 NavigationBarItem(
                                     selected = viewModel.screen == SCREEN_LIFE,
                                     onClick = { viewModel.selectScreen(SCREEN_LIFE) },
-                                    label = { Text(NAV_LABEL_LIFE) },
+                                    label = { Text(stringResource(R.string.nav_life)) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -231,12 +233,6 @@ class MainActivity : ComponentActivity() {
         private const val SCREEN_TASKS = 1
         private const val SCREEN_GALLERY = 2
         private const val SCREEN_LIFE = 3
-        
-        // Navigation labels
-        private const val NAV_LABEL_COUNTDOWNS = "Countdowns"
-        private const val NAV_LABEL_LIFE = "Life"
-        private const val NAV_LABEL_TASKS = "Tasks"
-        private const val NAV_LABEL_GALLERY = "AI Gallery"
         
         // Intent extras
         private const val INTENT_EXTRA_NAVIGATE_TO_TASKS = "navigateToTasks"

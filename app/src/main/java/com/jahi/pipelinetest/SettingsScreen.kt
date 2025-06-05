@@ -28,6 +28,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.jahi.pipelinetest.R
 import com.jahi.pipelinetest.util.openDateTimePicker
 import com.jahi.pipelinetest.scheduleEventAlarms
 import com.jahi.pipelinetest.cancelEventAlarms
@@ -74,7 +76,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.title_settings)) },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
@@ -114,7 +116,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         containerColor = Green500,
                         contentColor = androidx.compose.ui.graphics.Color.White
                     )
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.action_save)) }
             }
         }
     ) { innerPadding ->
@@ -124,30 +126,30 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 .fillMaxSize()
         ) {
             TabRow(selectedTabIndex = tabIndex) {
-                Tab(selected = tabIndex == 0, onClick = { tabIndex = 0 }) { Text("General") }
-                Tab(selected = tabIndex == 1, onClick = { tabIndex = 1 }) { Text("Events") }
-                Tab(selected = tabIndex == 2, onClick = { tabIndex = 2 }) { Text("History") }
+                Tab(selected = tabIndex == 0, onClick = { tabIndex = 0 }) { Text(stringResource(R.string.tab_general)) }
+                Tab(selected = tabIndex == 1, onClick = { tabIndex = 1 }) { Text(stringResource(R.string.tab_events)) }
+                Tab(selected = tabIndex == 2, onClick = { tabIndex = 2 }) { Text(stringResource(R.string.tab_history)) }
             }
 
             if (tabIndex == 0) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    RowCheckbox("Show Year Countdown", showYear) { showYear = it }
+                    RowCheckbox(stringResource(R.string.show_year_countdown), showYear) { showYear = it }
                     DarkTextField(
                         value = currentAge,
                         onValueChange = { currentAge = it },
-                        label = { Text("Current Age") },
+                        label = { Text(stringResource(R.string.label_current_age)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     DarkTextField(
                         value = targetAge,
                         onValueChange = { targetAge = it },
-                        label = { Text("Target Age") },
+                        label = { Text(stringResource(R.string.label_target_age)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     DarkTextField(
                         value = elevenLabsApiKey,
                         onValueChange = { elevenLabsApiKey = it },
-                        label = { Text("ElevenLabs API Key (for audio generation)") },
+                        label = { Text(stringResource(R.string.label_api_key)) },
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                     )
                 }
@@ -169,7 +171,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         DarkTextField(
                             value = event.name,
                             onValueChange = { events[index] = event.copy(name = it) },
-                            label = { Text("Event Name") },
+                            label = { Text(stringResource(R.string.label_event_name)) },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = !editable,
                             enabled = editable
@@ -197,23 +199,23 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                                 onValueChange = {},
                                 readOnly = true,
                                 enabled = false,
-                                label = { Text("Event Date") },
+                                label = { Text(stringResource(R.string.label_event_date)) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
 
-                        RowCheckbox("Show Time", event.showTime, enabled = editable) {
+                        RowCheckbox(stringResource(R.string.show_time), event.showTime, enabled = editable) {
                             events[index] = event.copy(showTime = it)
                         }
-                        RowCheckbox("Show in Widget", event.showInWidget, enabled = editable) {
+                        RowCheckbox(stringResource(R.string.show_in_widget), event.showInWidget, enabled = editable) {
                             events[index] = event.copy(showInWidget = it)
                         }
                         Button(onClick = { events.removeAt(index) }) {
-                            Text("Remove")
+                            Text(stringResource(R.string.action_remove))
                         }
                     }
                     Button(onClick = { events.add(CustomEvent()) }, modifier = Modifier.padding(top = 8.dp)) {
-                        Text("Add Event")
+                        Text(stringResource(R.string.action_add_event))
                     }
                 }
             } else {
@@ -238,7 +240,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         .verticalScroll(rememberScrollState())
                 ) {
                     if (pastEvents.isEmpty()) {
-                        Text("No past events", color = Slate400)
+                        Text(stringResource(R.string.no_past_events), color = Slate400)
                     } else {
                         val zone = ZoneId.systemDefault()
                         pastEvents.forEach { (event, time) ->

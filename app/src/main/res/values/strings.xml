@@ -12,6 +12,65 @@
     <string name="task_alarm_triggered">Task deadline reached</string>
     <string name="dismiss">Dismiss</string>
     <string name="events_scheduled">Event alarms scheduled</string>
+
+    <!-- Navigation -->
+    <string name="nav_countdowns">Countdowns</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_gallery">AI Gallery</string>
+    <string name="nav_life">Life</string>
+
+    <!-- Screens & Actions -->
+    <string name="title_settings">Settings</string>
+    <string name="action_save">Save</string>
+
+    <!-- Settings Tabs -->
+    <string name="tab_general">General</string>
+    <string name="tab_events">Events</string>
+    <string name="tab_history">History</string>
+
+    <!-- Settings Inputs -->
+    <string name="label_current_age">Current Age</string>
+    <string name="label_target_age">Target Age</string>
+    <string name="label_api_key">ElevenLabs API Key (for audio generation)</string>
+    <string name="label_event_name">Event Name</string>
+    <string name="label_event_date">Event Date</string>
+    <string name="show_year_countdown">Show Year Countdown</string>
+    <string name="show_time">Show Time</string>
+    <string name="show_in_widget">Show in Widget</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_add_event">Add Event</string>
+    <string name="no_past_events">No past events</string>
+
+    <!-- Task Inputs -->
+    <string name="task_description_label">Task description</string>
+    <string name="task_due_date_label">Due Date</string>
+    <string name="task_due_date_optional_label">Due date (optional)</string>
+    <string name="task_select_date_time">Select date and time</string>
+    <string name="task_add">Add Task</string>
+    <string name="action_add">Add</string>
+    <string name="clear_date">Clear date</string>
+    <string name="select_date">Select date</string>
+    <string name="save_task">Save task</string>
+    <string name="cancel_edit">Cancel edit</string>
+    <string name="edit_task">Edit task</string>
+    <string name="delete_task">Delete task</string>
+
+    <!-- Chat Screen -->
+    <string name="title_llm_chat">LLM Chat</string>
+
+    <!-- Gallery Screen -->
+    <string name="from_local_model_file">From local model file</string>
+    <string name="model_import_success">Model imported successfully</string>
+    <string name="unsupported_file_type">Unsupported file type</string>
+    <string name="only_task_file_supported">Only &quot;.task&quot; file type is supported.</string>
+    <string name="check_internet_retry">Please check your internet connection and try again later.</string>
+    <string name="action_retry">Retry</string>
+    <string name="loading_model_list">Loading model list...</string>
+    <string name="example_llm_use_cases">Example LLM Use Cases</string>
+
+    <!-- History Dialog -->
+    <string name="clear_history_question">Clear history?</string>
+    <string name="clear_history_confirmation">Are you sure you want to clear the history? This action cannot be undone.</string>
     
     <!-- Gallery app strings -->
     <string name="model_manager">Model Manager</string>

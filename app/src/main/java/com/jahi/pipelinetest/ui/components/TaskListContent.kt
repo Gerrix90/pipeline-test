@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.collect
 import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import com.jahi.pipelinetest.util.openDateTimePicker
+import androidx.compose.ui.res.stringResource
+import com.jahi.pipelinetest.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -99,7 +101,7 @@ fun TaskListContent(
                     OutlinedTextField(
                         value = newDescription,
                         onValueChange = { newDescription = it },
-                        label = { Text("Task description") },
+                        label = { Text(stringResource(R.string.task_description_label)) },
                         modifier = Modifier.fillMaxWidth()
                     )
                     
@@ -126,8 +128,8 @@ fun TaskListContent(
                     OutlinedTextField(
                         value = displayDate,
                         onValueChange = { },
-                        label = { Text("Due date (optional)") },
-                        placeholder = { Text("Select date and time") },
+                        label = { Text(stringResource(R.string.task_due_date_optional_label)) },
+                        placeholder = { Text(stringResource(R.string.task_select_date_time)) },
                         readOnly = true,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -139,14 +141,14 @@ fun TaskListContent(
                                     IconButton(onClick = { selectedDate = null }) {
                                         Icon(
                                             Icons.Default.Clear,
-                                            contentDescription = "Clear date"
+                                            contentDescription = stringResource(R.string.clear_date)
                                         )
                                     }
                                 }
                                 IconButton(onClick = { showDatePicker = true }) {
                                     Icon(
                                         Icons.Default.DateRange,
-                                        contentDescription = "Select date"
+                                        contentDescription = stringResource(R.string.select_date)
                                     )
                                 }
                             }
@@ -164,7 +166,7 @@ fun TaskListContent(
                             newDescription = ""
                             selectedDate = null
                         }) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.cancel))
                         }
                         TextButton(
                             onClick = {
@@ -177,7 +179,7 @@ fun TaskListContent(
                             },
                             enabled = newDescription.isNotBlank()
                         ) {
-                            Text("Add")
+                            Text(stringResource(R.string.action_add))
                         }
                     }
                 }
@@ -189,9 +191,9 @@ fun TaskListContent(
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add task")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.task_add))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Task")
+                Text(stringResource(R.string.task_add))
             }
         }
         
