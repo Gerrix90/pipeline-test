@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.activity.compose.BackHandler
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -67,6 +68,8 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
     val events = remember {
         mutableStateListOf<CustomEvent>().also { it.addAll(viewModel.events) }
     }
+
+    BackHandler { onDismiss() }
 
     Scaffold(
         topBar = {
