@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.jahi.pipelinetest.ui.components.TaskListContent
+import com.jahi.pipelinetest.ui.components.TaskList
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 
 @Composable
@@ -36,11 +36,12 @@ fun TaskOverviewScreen(
             
             item {
                 val eventTasks = tasks.filter { it.eventId == event.id }
-                TaskListContent(
+                TaskList(
                     eventId = event.id,
                     tasks = eventTasks,
                     taskViewModel = taskViewModel,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    useLazyList = false
                 )
             }
         }

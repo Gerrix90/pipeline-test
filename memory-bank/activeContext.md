@@ -175,7 +175,7 @@
 - Date formatting logic duplicated in multiple places - needs DateFormatter utility
 - Long functions in some ViewModels - need refactoring
 - Magic numbers for alarm timeouts - need constants
-- Similar task UI logic in TaskList and TaskListContent - needs common component
+- Task list UI consolidated into single TaskList component
 - **CRITICAL**: Hardcoded strings throughout UI - must move to strings.xml
 - **CRITICAL**: Hardcoded dimensions (16.dp, 8.dp, etc.) - must move to dimens.xml
 - **CRITICAL**: Direct color values in Compose - must use theme colors only
