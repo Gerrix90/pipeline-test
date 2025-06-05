@@ -57,8 +57,9 @@
 - ✅ **Google AI Edge Gallery components** (8 core UI components)
 - ✅ **Package namespace updates** (com.jahi.pipelinetest.gallery)
 - ✅ **Resource integration** (fonts, drawables, strings)
-- ✅ **Navigation integration** (4th tab in bottom nav)
+- ✅ **Navigation integration** (3rd tab in bottom nav)
 - ✅ **Feature status display** (available vs coming soon)
+- ✅ **Life tab moved to last position** (updated order)
 
 ## What's Left to Build 🚧
 

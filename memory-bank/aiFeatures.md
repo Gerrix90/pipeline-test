@@ -9,7 +9,7 @@ Time Fomo integrates Google AI Edge Gallery capabilities to provide on-device AI
 - **Source**: Google AI Edge Gallery (https://github.com/google-ai-edge/gallery)
 - **Integration**: Selective component copying with package name updates
 - **Location**: `app/src/main/java/com/jahi/pipelinetest/gallery/`
-- **Navigation**: Added as 4th tab in bottom navigation (index 3)
+- **Navigation**: Added as 3rd tab in bottom navigation (index 2)
 
 ### UI Components
 - **GalleryScreen.kt**: Main showcase interface with feature cards

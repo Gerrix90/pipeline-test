@@ -46,7 +46,7 @@ This is NOT optional - this is the REQUIRED architecture for ALL features.
 - SharedPreferences for persistence
 
 ### Navigation
-- Bottom navigation with 3 tabs (Countdowns, Life, Tasks)
+- Bottom navigation with 4 tabs (Countdowns, Tasks, AI Gallery, Life)
 - Single Activity architecture
 - Screen state managed by MainViewModel
 
