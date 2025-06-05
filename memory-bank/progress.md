@@ -115,3 +115,4 @@
 - ⏳ Comprehensive widget testing needed
 - ⏳ Real device testing needed
 - ⏳ **AI model variety testing** (different .task files)
+- ✅ Codebase decoupling analysis documented in CodeDecouplingAnalysis.md
