@@ -1,0 +1,84 @@
+name: Refactoring Branch CI with Firebase Distribution
+
+on:
+  push:
+    branches:
+      - refactoring
+  pull_request:
+    branches:
+      - refactoring
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  build-and-distribute:
+    runs-on: ubuntu-latest
+    # Only run if it's a direct push or a merged PR
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      - name: Create google-services.json
+        run: |
+          cat > app/google-services.json << 'EOF'
+          ${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}
+          EOF
+          
+      - name: Verify google-services.json
+        run: |
+          if [ ! -f app/google-services.json ]; then
+            echo "Error: google-services.json was not created"
+            exit 1
+          fi
+          
+          # Check if the file contains valid JSON
+          if ! python3 -m json.tool app/google-services.json > /dev/null 2>&1; then
+            echo "Error: google-services.json contains invalid JSON"
+            exit 1
+          fi
+          
+          echo "google-services.json created successfully"
+          
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug -PbuildNumber=${{ github.run_number }} -PelevenLabKey=${{ secrets.ELEVENLAB_KEY }}
+        env:
+          GRADLE_OPTS: -Xmx4g -XX:+UseParallelGC
+          
+      - name: Upload build artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            app/build/reports/
+            app/build/outputs/logs/
+            
+      - name: Distribute Debug APK to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY_JSON_CONTENT }}
+          file: app/build/outputs/apk/debug/app-debug.apk
+          groups: "android-testers"
+          releaseNotes: |
+            Refactoring branch build #${{ github.run_number }}
+            
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message || github.event.pull_request.title }}
+            
+            Branch: refactoring
+            ${{ github.event_name == 'pull_request' && format('Merged PR: #{0}', github.event.pull_request.number) || '' }}
