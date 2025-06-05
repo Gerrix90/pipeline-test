@@ -8,6 +8,7 @@
 - ✅ Custom event management (CRUD)
 - ✅ Life hourglass visualization
 - ✅ Settings screen with birthdate picker
+- ✅ System back gesture from Settings returns to home
 - ✅ Dark theme throughout
 
 ### Task Management
