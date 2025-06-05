@@ -116,3 +116,4 @@
 - ⏳ Real device testing needed
 - ⏳ **AI model variety testing** (different .task files)
 - ✅ Codebase decoupling analysis documented in CodeDecouplingAnalysis.md
+- ✅ Task UI consolidated into single TaskList component

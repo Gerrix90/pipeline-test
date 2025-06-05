@@ -1,32 +1,31 @@
 package com.jahi.pipelinetest.ui.components
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import com.jahi.pipelinetest.model.Task
-import com.jahi.pipelinetest.viewmodel.TaskViewModel
-import com.jahi.pipelinetest.util.openDateTimePicker
-import androidx.compose.ui.res.stringResource
 import com.jahi.pipelinetest.R
+import com.jahi.pipelinetest.model.Task
+import com.jahi.pipelinetest.util.openDateTimePicker
+import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -36,18 +35,31 @@ fun TaskList(
     eventId: Int,
     tasks: List<Task>,
     taskViewModel: TaskViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    useLazyList: Boolean = true
 ) {
     val completedTasks = tasks.count { it.isCompleted }
     val totalTasks = tasks.size
-    val context = LocalContext.current
 
     var isAdding by remember { mutableStateOf(false) }
     var newDescription by remember { mutableStateOf("") }
-    var newDueDate by remember { mutableStateOf("") }
-    
+    var selectedDate by remember { mutableStateOf<String?>(null) }
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+
+    if (showDatePicker) {
+        openDateTimePicker(
+            context = context,
+            value = selectedDate ?: LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            showTime = true
+        ) { dateTime ->
+            selectedDate = dateTime
+            showDatePicker = false
+        }
+    }
+
     Column(modifier = modifier) {
-        // Task progress header
         if (totalTasks > 0) {
             Row(
                 modifier = Modifier
@@ -76,8 +88,7 @@ fun TaskList(
                 modifier = Modifier.padding(bottom = 8.dp)
             )
         }
-        
-        // Add task button
+
         if (isAdding) {
             Card(
                 modifier = Modifier
@@ -96,24 +107,56 @@ fun TaskList(
                         label = { Text(stringResource(R.string.task_description_label)) },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Box(
+
+                    val displayDate = selectedDate?.let {
+                        try {
+                            val dateTime = LocalDateTime.parse(it)
+                            dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
+                        } catch (e: Exception) {
+                            it
+                        }
+                    } ?: ""
+
+                    val interactionSource = remember { MutableInteractionSource() }
+
+                    LaunchedEffect(interactionSource) {
+                        interactionSource.interactions.collect {
+                            if (it is PressInteraction.Release) {
+                                showDatePicker = true
+                            }
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = displayDate,
+                        onValueChange = { },
+                        label = { Text(stringResource(R.string.task_due_date_optional_label)) },
+                        placeholder = { Text(stringResource(R.string.task_select_date_time)) },
+                        readOnly = true,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
-                                openDateTimePicker(context, newDueDate, true) { selected ->
-                                    newDueDate = selected
+                            .padding(top = 8.dp),
+                        interactionSource = interactionSource,
+                        trailingIcon = {
+                            Row {
+                                if (selectedDate != null) {
+                                    IconButton(onClick = { selectedDate = null }) {
+                                        Icon(
+                                            Icons.Default.Clear,
+                                            contentDescription = stringResource(R.string.clear_date)
+                                        )
+                                    }
+                                }
+                                IconButton(onClick = { showDatePicker = true }) {
+                                    Icon(
+                                        Icons.Default.DateRange,
+                                        contentDescription = stringResource(R.string.select_date)
+                                    )
                                 }
                             }
-                    ) {
-                        OutlinedTextField(
-                            value = newDueDate,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.task_due_date_label)) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                        }
+                    )
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -123,22 +166,17 @@ fun TaskList(
                         TextButton(onClick = {
                             isAdding = false
                             newDescription = ""
-                            newDueDate = ""
+                            selectedDate = null
                         }) {
                             Text(stringResource(R.string.cancel))
                         }
                         TextButton(
                             onClick = {
                                 if (newDescription.isNotBlank()) {
-                                    val due = newDueDate.takeIf { it.isNotBlank() }
-                                    taskViewModel.addTask(
-                                        eventId,
-                                        newDescription,
-                                        due
-                                    )
+                                    taskViewModel.addTask(eventId, newDescription, selectedDate)
                                     isAdding = false
                                     newDescription = ""
-                                    newDueDate = ""
+                                    selectedDate = null
                                 }
                             },
                             enabled = newDescription.isNotBlank()
@@ -160,18 +198,29 @@ fun TaskList(
                 Text(stringResource(R.string.task_add))
             }
         }
-        
-        // Task list
-        if (tasks.isNotEmpty()) {
-            LazyColumn {
-                items(tasks) { task ->
-                    TaskItem(
-                        task = task,
-                        onToggleCompletion = { taskViewModel.toggleTaskCompletion(task) },
-                        onDelete = { taskViewModel.deleteTask(task) },
-                        onUpdate = { updated -> taskViewModel.updateTask(updated) }
-                    )
+
+        if (useLazyList) {
+            if (tasks.isNotEmpty()) {
+                LazyColumn {
+                    items(tasks) { task ->
+                        TaskItem(
+                            task = task,
+                            onToggleCompletion = { taskViewModel.toggleTaskCompletion(task) },
+                            onDelete = { taskViewModel.deleteTask(task) },
+                            onUpdate = { updated -> taskViewModel.updateTask(updated) }
+                        )
+                    }
                 }
+            }
+        } else {
+            tasks.forEach { task ->
+                TaskItem(
+                    task = task,
+                    onToggleCompletion = { taskViewModel.toggleTaskCompletion(task) },
+                    onDelete = { taskViewModel.deleteTask(task) },
+                    onUpdate = { updated -> taskViewModel.updateTask(updated) },
+                    modifier = Modifier.padding(vertical = 2.dp)
+                )
             }
         }
     }
@@ -233,9 +282,9 @@ fun TaskItem(
                             it
                         }
                     } ?: ""
-                    
+
                     val dateInteractionSource = remember { MutableInteractionSource() }
-                    
+
                     LaunchedEffect(dateInteractionSource) {
                         dateInteractionSource.interactions.collect {
                             if (it is PressInteraction.Release) {
@@ -245,7 +294,7 @@ fun TaskItem(
                             }
                         }
                     }
-                    
+
                     OutlinedTextField(
                         value = displayEditDate,
                         onValueChange = {},
@@ -264,7 +313,7 @@ fun TaskItem(
                                         )
                                     }
                                 }
-                                IconButton(onClick = { 
+                                IconButton(onClick = {
                                     openDateTimePicker(context, editDueDate, true) { selected ->
                                         editDueDate = selected
                                     }
