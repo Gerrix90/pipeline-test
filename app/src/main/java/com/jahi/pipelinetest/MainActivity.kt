@@ -137,24 +137,11 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         bottomBar = {
-                            NavigationBar(containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f)) {
+                                NavigationBar(containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f)) {
                                 NavigationBarItem(
                                     selected = viewModel.screen == SCREEN_COUNTDOWNS,
                                     onClick = { viewModel.selectScreen(SCREEN_COUNTDOWNS) },
                                     label = { Text(NAV_LABEL_COUNTDOWNS) },
-                                    icon = { },
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
-                                        selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
-                                        unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
-                                        unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
-                                        indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
-                                    )
-                                )
-                                NavigationBarItem(
-                                    selected = viewModel.screen == SCREEN_LIFE,
-                                    onClick = { viewModel.selectScreen(SCREEN_LIFE) },
-                                    label = { Text(NAV_LABEL_LIFE) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -190,13 +177,26 @@ class MainActivity : ComponentActivity() {
                                         indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
                                     )
                                 )
+                                NavigationBarItem(
+                                    selected = viewModel.screen == SCREEN_LIFE,
+                                    onClick = { viewModel.selectScreen(SCREEN_LIFE) },
+                                    label = { Text(NAV_LABEL_LIFE) },
+                                    icon = { },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
+                                        unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
+                                    )
+                                )
                             }
                         }
                     ) { innerPadding ->
                         when (viewModel.screen) {
                             SCREEN_COUNTDOWNS -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
-                            SCREEN_LIFE -> LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
                             SCREEN_TASKS -> TaskOverviewScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
+                            SCREEN_LIFE -> LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
                             else -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
                         }
                     }
@@ -228,9 +228,9 @@ class MainActivity : ComponentActivity() {
         
         // Screen indices
         private const val SCREEN_COUNTDOWNS = 0
-        private const val SCREEN_LIFE = 1
-        private const val SCREEN_TASKS = 2
-        private const val SCREEN_GALLERY = 3
+        private const val SCREEN_TASKS = 1
+        private const val SCREEN_GALLERY = 2
+        private const val SCREEN_LIFE = 3
         
         // Navigation labels
         private const val NAV_LABEL_COUNTDOWNS = "Countdowns"
