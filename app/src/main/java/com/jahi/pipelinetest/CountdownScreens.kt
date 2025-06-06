@@ -45,7 +45,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.ui.geometry.Offset
-import com.jahi.pipelinetest.ui.theme.AppDimens
 import com.jahi.pipelinetest.ui.theme.Slate100
 import com.jahi.pipelinetest.ui.theme.Slate400
 import com.jahi.pipelinetest.ui.theme.SurfaceDark
@@ -55,6 +54,8 @@ import com.jahi.pipelinetest.ui.theme.Yellow300
 import com.jahi.pipelinetest.ui.components.TaskList
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 
 @Composable
 private fun CountdownCard(
@@ -72,7 +73,7 @@ private fun CountdownCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(AppDimens.StandardPadding)
+            .padding(dimensionResource(id = R.dimen.padding_default))
             .clickable { 
                 if (eventId != null) {
                     showTasks = !showTasks
@@ -85,7 +86,7 @@ private fun CountdownCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(dimensionResource(id = R.dimen.padding_large)),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (showTitle || eventId != null) {
@@ -109,30 +110,30 @@ private fun CountdownCard(
             if (eventId != null && eventTasks.isNotEmpty()) {
                 val completedTasks = eventTasks.count { it.isCompleted }
                 val totalTasks = eventTasks.size
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Tasks: $completedTasks/$totalTasks",
+                        text = stringResource(R.string.tasks_progress, completedTasks, totalTasks),
                         color = Slate400,
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
                     LinearProgressIndicator(
                         progress = if (totalTasks > 0) completedTasks.toFloat() / totalTasks else 0f,
                         modifier = Modifier
-                            .width(80.dp)
-                            .height(6.dp)
+                            .width(dimensionResource(id = R.dimen.progress_bar_width))
+                            .height(dimensionResource(id = R.dimen.progress_bar_height))
                     )
                 }
             }
             
             // Show tasks when expanded
             if (showTasks && eventId != null && taskViewModel != null) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_default)))
                 TaskList(
                     eventId = eventId,
                     tasks = eventTasks,
@@ -140,9 +141,9 @@ private fun CountdownCard(
                     modifier = Modifier.fillMaxWidth()
                 )
             } else if (eventId != null) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 Text(
-                    text = "Tap to manage tasks",
+                    text = stringResource(R.string.tap_to_manage_tasks),
                     color = Slate400,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -161,14 +162,14 @@ fun CountdownsScreen(
 
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         CountdownCard(
-            title = "Daily Countdown",
+            title = stringResource(R.string.daily_countdown),
             value = viewModel.formatTime(viewModel.durationToEndOfDay(now)),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
 
         if (viewModel.showYearCountdown) {
             CountdownCard(
-                title = "Year Countdown",
+                title = stringResource(R.string.year_countdown),
                 value = viewModel.daysUntilEndOfYear(now).toString() + " days",
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -201,28 +202,28 @@ fun LifeHourglassScreen(viewModel: MainViewModel, modifier: Modifier = Modifier)
         val current = viewModel.currentAge
         val target = viewModel.targetAge
 
-        Text(text = "Life Hourglass", fontWeight = FontWeight.Bold)
+        Text(text = stringResource(R.string.life_hourglass), fontWeight = FontWeight.Bold)
         Text(
-            text = "Every grain of sand is a moment, every year tells its own story.",
+            text = stringResource(R.string.life_hourglass_quote),
             color = Slate400,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.padding_small))
         )
 
         val valid = current >= 0 && target > 0
         if (!valid) {
             Text(
-                text = "Set your age in the settings menu.",
+                text = stringResource(R.string.set_age_in_settings),
                 color = Slate400,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_default))
             )
         }
 
         val gridState = rememberLazyGridState()
         LazyVerticalGrid(
-            columns = GridCells.Adaptive(80.dp),
+            columns = GridCells.Adaptive(dimensionResource(id = R.dimen.hourglass_grid_cell)),
             state = gridState,
             modifier = Modifier
-                .padding(8.dp)
+                .padding(dimensionResource(id = R.dimen.padding_small))
                 .fillMaxWidth()
                 .weight(1f)
         ) {
@@ -241,12 +242,12 @@ fun LifeHourglassScreen(viewModel: MainViewModel, modifier: Modifier = Modifier)
             val remaining = target - current
             Text(
                 text = if (remaining >= 0) {
-                    "$remaining years remaining until $target"
+                    stringResource(R.string.years_remaining_until, remaining, target)
                 } else {
-                    "Congrats on surpassing $target!"
+                    stringResource(R.string.congrats_surpassed, target)
                 },
                 color = Slate400,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
             )
         }
     }
@@ -280,8 +281,8 @@ private fun HourglassItem(year: Int, state: HourglassState) {
 
     Column(
         modifier = Modifier
-            .padding(4.dp)
-            .size(60.dp)
+            .padding(dimensionResource(id = R.dimen.hourglass_item_padding))
+            .size(dimensionResource(id = R.dimen.hourglass_item_size))
             .alpha(disabledAlpha)
             .pointerInput(Unit) {
                 detectTapGestures(

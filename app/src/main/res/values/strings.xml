@@ -41,6 +41,19 @@
     <string name="action_add_event">Add Event</string>
     <string name="no_past_events">No past events</string>
 
+    <!-- Countdown Screen -->
+    <string name="daily_countdown">Daily Countdown</string>
+    <string name="year_countdown">Year Countdown</string>
+    <string name="tap_to_manage_tasks">Tap to manage tasks</string>
+    <string name="tasks_progress">Tasks: %1$d/%2$d</string>
+
+    <!-- Life Screen -->
+    <string name="life_hourglass">Life Hourglass</string>
+    <string name="life_hourglass_quote">Every grain of sand is a moment, every year tells its own story.</string>
+    <string name="set_age_in_settings">Set your age in the settings menu.</string>
+    <string name="years_remaining_until">%1$d years remaining until %2$d</string>
+    <string name="congrats_surpassed">Congrats on surpassing %1$d!</string>
+
     <!-- Task Inputs -->
     <string name="task_description_label">Task description</string>
     <string name="task_due_date_label">Due Date</string>
@@ -57,6 +70,9 @@
 
     <!-- Chat Screen -->
     <string name="title_llm_chat">LLM Chat</string>
+    <string name="typing">Typing…</string>
+    <string name="action_send">Send</string>
+    <string name="action_back">Back</string>
 
     <!-- Gallery Screen -->
     <string name="from_local_model_file">From local model file</string>

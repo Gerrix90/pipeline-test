@@ -19,4 +19,22 @@
 <resources>
     <dimen name="model_selector_height">54dp</dimen>
     <dimen name="chat_bubble_corner_radius">24dp</dimen>
+    <!-- Common paddings -->
+    <dimen name="padding_default">16dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+
+    <!-- Chat screen dimensions -->
+    <dimen name="chat_message_max_width">280dp</dimen>
+    <dimen name="chat_message_corner_radius">12dp</dimen>
+    <dimen name="chat_loading_indicator_size">16dp</dimen>
+    <dimen name="chat_loading_stroke_width">2dp</dimen>
+    <dimen name="chat_loading_max_width">120dp</dimen>
+
+    <!-- Countdown screen dimensions -->
+    <dimen name="progress_bar_width">80dp</dimen>
+    <dimen name="progress_bar_height">6dp</dimen>
+    <dimen name="hourglass_item_size">60dp</dimen>
+    <dimen name="hourglass_item_padding">4dp</dimen>
+    <dimen name="hourglass_grid_cell">80dp</dimen>
 </resources>
