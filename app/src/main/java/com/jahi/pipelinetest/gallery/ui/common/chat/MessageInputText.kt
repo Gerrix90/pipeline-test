@@ -98,6 +98,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -246,10 +247,10 @@ fun MessageInputText(
             text = {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_tiny))
               ) {
                 Icon(Icons.Rounded.PhotoCamera, contentDescription = "")
-                Text("Take a picture")
+                Text(stringResource(com.jahi.pipelinetest.R.string.action_take_picture))
               }
             },
             enabled = pickedImages.isEmpty() && !hasImageMessage,
@@ -277,10 +278,10 @@ fun MessageInputText(
             text = {
               Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_tiny))
               ) {
                 Icon(Icons.Rounded.Photo, contentDescription = "")
-                Text("Pick from album")
+                Text(stringResource(com.jahi.pipelinetest.R.string.action_pick_from_album))
               }
             },
             enabled = pickedImages.isEmpty() && !hasImageMessage,
@@ -296,10 +297,10 @@ fun MessageInputText(
           DropdownMenuItem(text = {
             Row(
               verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(6.dp)
+              horizontalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_tiny))
             ) {
               Icon(Icons.Rounded.PostAdd, contentDescription = "")
-              Text("Prompt templates")
+              Text(stringResource(com.jahi.pipelinetest.R.string.action_prompt_templates))
             }
           }, onClick = {
             onOpenPromptTemplatesClicked()
@@ -310,10 +311,10 @@ fun MessageInputText(
         DropdownMenuItem(text = {
           Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_tiny))
           ) {
             Icon(Icons.Rounded.History, contentDescription = "")
-            Text("Input history")
+            Text(stringResource(com.jahi.pipelinetest.R.string.action_input_history))
           }
         }, onClick = {
           showAddContentMenu = false

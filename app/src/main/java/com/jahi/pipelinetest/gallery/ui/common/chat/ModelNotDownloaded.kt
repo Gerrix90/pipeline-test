@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,7 +41,7 @@ fun ModelNotDownloaded(modifier: Modifier = Modifier, onClicked: () -> Unit) {
     Button(
       onClick = onClicked,
     ) {
-      Text("Download & Try it", maxLines = 1)
+      Text(stringResource(com.jahi.pipelinetest.R.string.download_try_it), maxLines = 1)
     }
   }
 }

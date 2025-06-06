@@ -23,6 +23,16 @@
    - Updated Compose code to use `stringResource()` and `dimensionResource()`.
    - Build verified with `./gradlew assembleDebug --offline`.
 
+## Recent Changes (June 7, 2025)
+
+### Completed Today
+1. **Replaced Remaining Hardcoded Constants**:
+   - Moved strings and dp values from `TaskList` and gallery chat components into resources.
+   - Added new dimensions (`padding_xxsmall`, `padding_regular`, `task_progress_width`, `task_progress_height`, `icon_size_small`, `padding_chat_*`, `slider_height_small`, `text_field_width_small`, `border_width_*`).
+   - Added new strings (`title_tasks`, `text_copied`, `copy_text`, `action_take_picture`, `action_pick_from_album`, `action_prompt_templates`, `action_input_history`, `download_try_it`, `live_camera`).
+   - Updated Compose files to use resource references.
+   - Build verified with `./gradlew assembleDebug --offline`.
+
 ## Recent Changes (June 4, 2025)
 
 ### Completed Today

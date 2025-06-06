@@ -94,7 +94,7 @@
 - ⏳ **Migrate to Timber logging** (replace existing Log.d calls)
 - ⏳ Add analytics
 - ⏳ Performance optimizations
-- ⏳ Remove remaining hardcoded strings and dimensions
+- ✅ Removed remaining hardcoded strings and dimensions for TaskList and gallery chat components
 
 ## Known Issues 🐛
 

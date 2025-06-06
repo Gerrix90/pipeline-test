@@ -62,7 +62,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.Dialog
 import com.jahi.pipelinetest.gallery.data.BooleanSwitchConfig
 import com.jahi.pipelinetest.gallery.data.Config
@@ -108,17 +109,18 @@ fun ConfigDialog(
         ) {
           focusManager.clearFocus()
         },
-      shape = RoundedCornerShape(16.dp)
+      shape = RoundedCornerShape(dimensionResource(com.jahi.pipelinetest.R.dimen.dialog_corner_radius))
     ) {
       Column(
-        modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier.padding(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_default))
       ) {
         // Dialog title and subtitle.
         Column {
           Text(
             title,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier.padding(bottom = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small))
           )
           // Subtitle.
           if (subtitle.isNotEmpty()) {
@@ -126,7 +128,7 @@ fun ConfigDialog(
               subtitle,
               style = labelSmallNarrow,
               color = MaterialTheme.colorScheme.onSurfaceVariant,
-              modifier = Modifier.offset(y = (-6).dp)
+              modifier = Modifier.offset(y = (-dimensionResource(com.jahi.pipelinetest.R.dimen.padding_tiny)))
             )
           }
         }
@@ -136,7 +138,7 @@ fun ConfigDialog(
           modifier = Modifier
             .verticalScroll(rememberScrollState())
             .weight(1f, fill = false),
-          verticalArrangement = Arrangement.spacedBy(16.dp)
+          verticalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_default))
         ) {
           ConfigEditorsPanel(configs = configs, values = values)
         }
@@ -145,7 +147,7 @@ fun ConfigDialog(
         Row(
           modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
+            .padding(top = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small)),
           horizontalArrangement = Arrangement.End,
         ) {
           // Cancel button.
@@ -153,7 +155,7 @@ fun ConfigDialog(
             TextButton(
               onClick = { onDismissed() },
             ) {
-              Text("Cancel")
+              Text(stringResource(com.jahi.pipelinetest.R.string.cancel))
             }
           }
 
@@ -246,13 +248,13 @@ fun NumberSliderRow(config: NumberSliderConfig, values: SnapshotStateMap<String,
         0f
       }
       Slider(modifier = Modifier
-        .height(24.dp)
+        .height(dimensionResource(com.jahi.pipelinetest.R.dimen.slider_height_small))
         .weight(1f),
         value = sliderValue,
         valueRange = config.sliderMin..config.sliderMax,
         onValueChange = { values[config.key.label] = it })
 
-      Spacer(modifier = Modifier.width(8.dp))
+      Spacer(modifier = Modifier.width(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small)))
 
       // Text field.
       val textFieldValue = try {
@@ -276,7 +278,7 @@ fun NumberSliderRow(config: NumberSliderConfig, values: SnapshotStateMap<String,
       BasicTextField(
         value = textFieldValue,
         modifier = Modifier
-          .width(80.dp)
+          .width(dimensionResource(com.jahi.pipelinetest.R.dimen.text_field_width_small))
           .focusRequester(focusRequester)
           .onFocusChanged {
             isFocused = it.isFocused
@@ -294,12 +296,15 @@ fun NumberSliderRow(config: NumberSliderConfig, values: SnapshotStateMap<String,
       ) { innerTextField ->
         Box(
           modifier = Modifier.border(
-            width = if (isFocused) 2.dp else 1.dp,
+            width = if (isFocused)
+              dimensionResource(com.jahi.pipelinetest.R.dimen.border_width_focused)
+            else
+              dimensionResource(com.jahi.pipelinetest.R.dimen.border_width_default),
             color = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-            shape = RoundedCornerShape(4.dp)
+            shape = RoundedCornerShape(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_xsmall))
           )
         ) {
-          Box(modifier = Modifier.padding(8.dp)) {
+          Box(modifier = Modifier.padding(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small))) {
             innerTextField()
           }
         }
