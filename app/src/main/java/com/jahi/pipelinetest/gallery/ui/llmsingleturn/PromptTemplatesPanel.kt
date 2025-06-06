@@ -82,6 +82,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -242,7 +243,7 @@ fun PromptTemplatesPanel(
                 disabledContainerColor = Color.Transparent,
               ),
               textStyle = MaterialTheme.typography.bodyLarge,
-              placeholder = { Text("Enter content") },
+              placeholder = { Text(stringResource(R.string.placeholder_enter_content)) },
               modifier = Modifier
                 .padding(bottom = 40.dp)
                 .focusRequester(focusRequester)
@@ -289,7 +290,7 @@ fun PromptTemplatesPanel(
                     .alpha(0.3f),
                 )
               }
-              Text("Preview prompt", style = MaterialTheme.typography.labelMedium)
+              Text(stringResource(R.string.label_preview_prompt), style = MaterialTheme.typography.labelMedium)
             }
           }
 

@@ -28,7 +28,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import com.jahi.pipelinetest.R
 import androidx.compose.ui.window.Dialog
 
 @Composable
@@ -36,15 +38,16 @@ fun ErrorDialog(error: String, onDismiss: () -> Unit) {
   Dialog(
     onDismissRequest = onDismiss
   ) {
-    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(dimensionResource(R.dimen.dialog_corner_radius))) {
       Column(
-        modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_default))
       ) {
         // Title
         Text(
-          "Error",
+          stringResource(R.string.error_title),
           style = MaterialTheme.typography.titleLarge,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
         )
 
         // Error
@@ -58,7 +61,7 @@ fun ErrorDialog(error: String, onDismiss: () -> Unit) {
           Button(
             onClick = onDismiss
           ) {
-            Text("Close")
+            Text(stringResource(R.string.close))
           }
         }
       }

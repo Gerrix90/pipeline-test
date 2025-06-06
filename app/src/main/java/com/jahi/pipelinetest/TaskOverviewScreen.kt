@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import com.jahi.pipelinetest.ui.components.TaskList
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 
@@ -23,14 +23,14 @@ fun TaskOverviewScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(dimensionResource(R.dimen.padding_default))
     ) {
         mainViewModel.events.forEach { event ->
             item {
                 Text(
                     text = event.name,
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
                 )
             }
             
@@ -40,7 +40,7 @@ fun TaskOverviewScreen(
                     eventId = event.id,
                     tasks = eventTasks,
                     taskViewModel = taskViewModel,
-                    modifier = Modifier.padding(bottom = 16.dp),
+                    modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_default)),
                     useLazyList = false
                 )
             }

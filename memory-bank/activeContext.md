@@ -9,8 +9,18 @@
    - Generated `CodeDecouplingAnalysis.md` summarizing modularity and merge conflict risk.
    - Build verified with `./gradlew assembleDebug --offline`.
 2. **Removed Hardcoded UI Constants**:
-   - Moved strings and dp values from `ChatScreen` and `CountdownScreens` to `strings.xml` and `dimens.xml`.
-   - Replaced constants with `stringResource()` and `dimensionResource()` calls.
+- Moved strings and dp values from `ChatScreen` and `CountdownScreens` to `strings.xml` and `dimens.xml`.
+- Replaced constants with `stringResource()` and `dimensionResource()` calls.
+- Build verified with `./gradlew assembleDebug --offline`.
+
+## Recent Changes (June 6, 2025)
+
+### Completed Today
+1. **Removed More Hardcoded UI Values**:
+   - Moved remaining strings and dimensions from `SettingsScreen`, `TaskOverviewScreen`, and gallery dialogs into resources.
+   - Added new dimension constants (`padding_xsmall`, `padding_medium`, `padding_tiny`, `spacer_height_large`, `dialog_corner_radius`).
+   - Added new strings (`back_button_desc`, `placeholder_enter_content`, `label_preview_prompt`, `close`, `error_title`, `action_import`, `dialog_import_model`).
+   - Updated Compose code to use `stringResource()` and `dimensionResource()`.
    - Build verified with `./gradlew assembleDebug --offline`.
 
 ## Recent Changes (June 4, 2025)
