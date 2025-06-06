@@ -8,6 +8,7 @@
 - ✅ Custom event management (CRUD)
 - ✅ Life hourglass visualization
 - ✅ Hardcoded UI values moved to resources for Chat and Countdown screens
+- ✅ Hardcoded UI values moved to resources for Settings, Task Overview and gallery dialogs
 - ✅ Settings screen with birthdate picker
 - ✅ System back gesture from Settings returns to home
 - ✅ Dark theme throughout

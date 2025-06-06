@@ -73,6 +73,7 @@
     <string name="typing">Typing…</string>
     <string name="action_send">Send</string>
     <string name="action_back">Back</string>
+    <string name="back_button_desc">Back</string>
 
     <!-- Gallery Screen -->
     <string name="from_local_model_file">From local model file</string>
@@ -83,6 +84,12 @@
     <string name="action_retry">Retry</string>
     <string name="loading_model_list">Loading model list...</string>
     <string name="example_llm_use_cases">Example LLM Use Cases</string>
+    <string name="placeholder_enter_content">Enter content</string>
+    <string name="label_preview_prompt">Preview prompt</string>
+    <string name="close">Close</string>
+    <string name="error_title">Error</string>
+    <string name="action_import">Import</string>
+    <string name="dialog_import_model">Import Model</string>
 
     <!-- History Dialog -->
     <string name="clear_history_question">Clear history?</string>

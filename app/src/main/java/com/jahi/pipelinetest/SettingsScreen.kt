@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import com.jahi.pipelinetest.R
 import com.jahi.pipelinetest.util.openDateTimePicker
 import com.jahi.pipelinetest.scheduleEventAlarms
@@ -42,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.model.CustomEvent
 import com.jahi.pipelinetest.ui.theme.Green500
 import com.jahi.pipelinetest.ui.theme.Green600
@@ -79,13 +79,16 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 title = { Text(stringResource(R.string.title_settings)) },
                 navigationIcon = {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = stringResource(R.string.back_button_desc)
+                    )
                     }
                 }
             )
         },
         bottomBar = {
-            Row(modifier = Modifier.padding(16.dp)) {
+            Row(modifier = Modifier.padding(dimensionResource(R.dimen.padding_default))) {
                 Button(
                     onClick = {
                         viewModel.showYearCountdown = showYear
@@ -132,7 +135,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
             }
 
             if (tabIndex == 0) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(modifier = Modifier.padding(dimensionResource(R.dimen.padding_default))) {
                     RowCheckbox(stringResource(R.string.show_year_countdown), showYear) { showYear = it }
                     DarkTextField(
                         value = currentAge,
@@ -150,13 +153,15 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         value = elevenLabsApiKey,
                         onValueChange = { elevenLabsApiKey = it },
                         label = { Text(stringResource(R.string.label_api_key)) },
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = dimensionResource(R.dimen.padding_small))
                     )
                 }
             } else if (tabIndex == 1) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(dimensionResource(R.dimen.padding_default))
                         .verticalScroll(rememberScrollState())
                 ) {
                     val currentInstant by viewModel.now.collectAsState()
@@ -214,7 +219,10 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                             Text(stringResource(R.string.action_remove))
                         }
                     }
-                    Button(onClick = { events.add(CustomEvent()) }, modifier = Modifier.padding(top = 8.dp)) {
+                    Button(
+                        onClick = { events.add(CustomEvent()) },
+                        modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_small))
+                    ) {
                         Text(stringResource(R.string.action_add_event))
                     }
                 }
@@ -236,7 +244,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
 
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(dimensionResource(R.dimen.padding_default))
                         .verticalScroll(rememberScrollState())
                 ) {
                     if (pastEvents.isEmpty()) {
@@ -253,7 +261,7 @@ fun SettingsScreen(viewModel: MainViewModel, onDismiss: () -> Unit) {
                             Text(
                                 formattedDate,
                                 color = Slate400,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
                             )
                         }
                     }
@@ -272,7 +280,7 @@ private fun RowCheckbox(
 ) {
     Row(
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 4.dp)
+        modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_xsmall))
     ) {
         Checkbox(
             checked = checked,

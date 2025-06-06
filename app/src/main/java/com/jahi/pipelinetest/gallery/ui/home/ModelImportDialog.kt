@@ -56,9 +56,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.jahi.pipelinetest.R
 import com.jahi.pipelinetest.gallery.data.Accelerator
 import com.jahi.pipelinetest.gallery.data.BooleanSwitchConfig
 import com.jahi.pipelinetest.gallery.data.Config
@@ -159,23 +161,24 @@ fun ModelImportDialog(
           interactionSource = interactionSource, indication = null // Disable the ripple effect
         ) {
           focusManager.clearFocus()
-        }, shape = RoundedCornerShape(16.dp)
+        }, shape = RoundedCornerShape(dimensionResource(R.dimen.dialog_corner_radius))
     ) {
       Column(
-        modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_default))
       ) {
         // Title.
         Text(
           "Import Model",
           style = MaterialTheme.typography.titleLarge,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
         )
 
         Column(
           modifier = Modifier
             .verticalScroll(rememberScrollState())
             .weight(1f, fill = false),
-          verticalArrangement = Arrangement.spacedBy(16.dp)
+          verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_default))
         ) {
           // Default configs for users to set.
           ConfigEditorsPanel(
@@ -188,14 +191,14 @@ fun ModelImportDialog(
         Row(
           modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
+            .padding(top = dimensionResource(R.dimen.padding_small)),
           horizontalArrangement = Arrangement.End,
         ) {
           // Cancel button.
           TextButton(
             onClick = { onDismiss() },
           ) {
-            Text("Cancel")
+            Text(stringResource(R.string.cancel))
           }
 
           // Import button
@@ -210,7 +213,7 @@ fun ModelImportDialog(
               )
             },
           ) {
-            Text("Import")
+            Text(stringResource(R.string.action_import))
           }
         }
 
@@ -250,21 +253,22 @@ fun ModelImportingDialog(
     properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
     onDismissRequest = onDismiss,
   ) {
-    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(dimensionResource(R.dimen.dialog_corner_radius))) {
       Column(
-        modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_default))
       ) {
         // Title.
         Text(
-          "Import Model",
+          stringResource(R.string.dialog_import_model),
           style = MaterialTheme.typography.titleLarge,
-          modifier = Modifier.padding(bottom = 8.dp)
+          modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
         )
 
         // No error.
         if (error.isEmpty()) {
           // Progress bar.
-          Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+          Column(verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_xsmall))) {
             Text(
               "${info.fileName} (${info.fileSize.humanReadableSize()})",
               style = MaterialTheme.typography.labelSmall,
@@ -274,7 +278,7 @@ fun ModelImportingDialog(
               progress = { animatedProgress.value },
               modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
+                .padding(bottom = dimensionResource(R.dimen.padding_small)),
             )
             LaunchedEffect(progress) {
               animatedProgress.animateTo(progress, animationSpec = tween(150))
@@ -284,7 +288,8 @@ fun ModelImportingDialog(
         // Has error.
         else {
           Row(
-            verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(6.dp)
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_tiny))
           ) {
             Icon(
               Icons.Rounded.Error, contentDescription = "", tint = MaterialTheme.colorScheme.error
@@ -293,7 +298,7 @@ fun ModelImportingDialog(
               error,
               style = MaterialTheme.typography.labelSmall,
               color = MaterialTheme.colorScheme.error,
-              modifier = Modifier.padding(top = 4.dp)
+              modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_xsmall))
             )
           }
           Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
