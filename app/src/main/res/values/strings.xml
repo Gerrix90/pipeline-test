@@ -46,6 +46,15 @@
     <string name="year_countdown">Year Countdown</string>
     <string name="tap_to_manage_tasks">Tap to manage tasks</string>
     <string name="tasks_progress">Tasks: %1$d/%2$d</string>
+    <string name="title_tasks">Tasks</string>
+    <string name="text_copied">Text copied to clipboard</string>
+    <string name="copy_text">Copy text</string>
+    <string name="action_take_picture">Take a picture</string>
+    <string name="action_pick_from_album">Pick from album</string>
+    <string name="action_prompt_templates">Prompt templates</string>
+    <string name="action_input_history">Input history</string>
+    <string name="download_try_it">Download &amp; Try it</string>
+    <string name="live_camera">Live camera</string>
 
     <!-- Life Screen -->
     <string name="life_hourglass">Life Hourglass</string>

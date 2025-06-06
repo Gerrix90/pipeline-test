@@ -147,6 +147,7 @@ fun ChatPanel(
   val density = LocalDensity.current
   var showBenchmarkConfigsDialog by remember { mutableStateOf(false) }
   val benchmarkMessage: MutableState<ChatMessage?> = remember { mutableStateOf(null) }
+  val context = LocalContext.current
 
   var showMessageLongPressedSheet by remember { mutableStateOf(false) }
   val longPressedMessage: MutableState<ChatMessage?> = remember { mutableStateOf(null) }
@@ -232,20 +233,20 @@ fun ChatPanel(
           var hAlign: Alignment.Horizontal = Alignment.End
           var backgroundColor: Color = MaterialTheme.customColors.userBubbleBgColor
           var hardCornerAtLeftOrRight = false
-          var extraPaddingStart = 48.dp
+          var extraPaddingStart = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_chat_extra_large)
           var extraPaddingEnd = 0.dp
           if (message.side == ChatSide.AGENT) {
             hAlign = Alignment.Start
             backgroundColor = MaterialTheme.customColors.agentBubbleBgColor
             hardCornerAtLeftOrRight = true
             extraPaddingStart = 0.dp
-            extraPaddingEnd = 48.dp
+            extraPaddingEnd = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_chat_extra_large)
           } else if (message.side == ChatSide.SYSTEM) {
-            extraPaddingStart = 24.dp
-            extraPaddingEnd = 24.dp
+            extraPaddingStart = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_chat_large)
+            extraPaddingEnd = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_chat_large)
             if (message.type == ChatMessageType.PROMPT_TEMPLATES) {
-              extraPaddingStart = 12.dp
-              extraPaddingEnd = 12.dp
+              extraPaddingStart = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_chat_medium)
+              extraPaddingEnd = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_chat_medium)
             }
           }
           if (message.type == ChatMessageType.IMAGE) {
@@ -257,10 +258,10 @@ fun ChatPanel(
             modifier = Modifier
               .fillMaxWidth()
               .padding(
-                start = 12.dp + extraPaddingStart,
-                end = 12.dp + extraPaddingEnd,
-                top = 6.dp,
-                bottom = 6.dp,
+                start = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_regular) + extraPaddingStart,
+                end = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_regular) + extraPaddingEnd,
+                top = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_tiny),
+                bottom = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_tiny),
               ),
             horizontalAlignment = hAlign,
           ) messageColumn@{
@@ -365,7 +366,7 @@ fun ChatPanel(
                 if (message.side == ChatSide.AGENT) {
                   Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small)),
                   ) {
                     LatencyText(message = message)
                     // A button to show stats for the LLM message.
@@ -414,7 +415,7 @@ fun ChatPanel(
                 } else if (message.side == ChatSide.USER) {
                   Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_xsmall))
                   ) {
                     // Run again button.
                     if (selectedModel.showRunAgainButton) {
@@ -448,13 +449,16 @@ fun ChatPanel(
         }
       }
 
-      SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(vertical = 4.dp))
+      SnackbarHost(
+        hostState = snackbarHostState,
+        modifier = Modifier.padding(vertical = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_xsmall))
+      )
 
       // Show an info message for ask image task to get users started.
       if (task.type == TaskType.LLM_ASK_IMAGE && messages.isEmpty()) {
         Column(
           modifier = Modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_default))
             .fillMaxSize(),
           horizontalAlignment = Alignment.CenterHorizontally,
           verticalArrangement = Arrangement.Center
@@ -567,18 +571,23 @@ fun ChatPanel(
 
               // Show a snack bar.
               scope.launch {
-                snackbarHostState.showSnackbar("Text copied to clipboard")
+                snackbarHostState.showSnackbar(context.getString(com.jahi.pipelinetest.R.string.text_copied))
               }
             }) {
             Row(
               verticalAlignment = Alignment.CenterVertically,
-              horizontalArrangement = Arrangement.spacedBy(6.dp),
-              modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+              horizontalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_tiny)),
+              modifier = Modifier.padding(
+                vertical = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small),
+                horizontal = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_default)
+              )
             ) {
               Icon(
-                Icons.Rounded.ContentCopy, contentDescription = "", modifier = Modifier.size(18.dp)
+                Icons.Rounded.ContentCopy,
+                contentDescription = "",
+                modifier = Modifier.size(dimensionResource(com.jahi.pipelinetest.R.dimen.icon_size_small))
               )
-              Text("Copy text")
+              Text(stringResource(com.jahi.pipelinetest.R.string.copy_text))
             }
           }
         }

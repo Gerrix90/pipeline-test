@@ -52,6 +52,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -91,9 +93,13 @@ fun LiveCameraDialog(
     cameraProvider?.unbindAll()
     onDismissed((sumFps / fpsCount).toInt())
   }) {
-    Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+    Card(
+      modifier = Modifier.fillMaxWidth(),
+      shape = RoundedCornerShape(dimensionResource(com.jahi.pipelinetest.R.dimen.dialog_corner_radius))
+    ) {
       Column(
-        modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = Modifier.padding(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_default))
       ) {
         // Title
         Row(
@@ -101,10 +107,10 @@ fun LiveCameraDialog(
           horizontalArrangement = Arrangement.SpaceBetween,
           modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 8.dp)
+            .padding(bottom = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small))
         ) {
           Text(
-            "Live camera",
+            stringResource(com.jahi.pipelinetest.R.string.live_camera),
             style = MaterialTheme.typography.titleLarge,
           )
           if (streamingMessage != null) {
@@ -133,7 +139,7 @@ fun LiveCameraDialog(
               contentDescription = "",
               modifier = Modifier
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(8.dp)),
+                .clip(RoundedCornerShape(dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small))),
               contentScale = ContentScale.Inside
             )
           }
@@ -152,7 +158,7 @@ fun LiveCameraDialog(
         Row(
           modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
+            .padding(top = dimensionResource(com.jahi.pipelinetest.R.dimen.padding_small)),
           horizontalArrangement = Arrangement.End,
         ) {
           TextButton(
@@ -161,7 +167,7 @@ fun LiveCameraDialog(
               onDismissed((sumFps / fpsCount).toInt())
             },
           ) {
-            Text("OK")
+            Text(stringResource(com.jahi.pipelinetest.R.string.ok))
           }
         }
       }

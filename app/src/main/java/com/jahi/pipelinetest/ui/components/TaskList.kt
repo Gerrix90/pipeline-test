@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import com.jahi.pipelinetest.R
 import com.jahi.pipelinetest.model.Task
@@ -64,28 +65,32 @@ fun TaskList(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = dimensionResource(R.dimen.padding_small)),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Tasks ($completedTasks/$totalTasks)",
+                    text = stringResource(
+                        R.string.tasks_progress,
+                        completedTasks,
+                        totalTasks
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 LinearProgressIndicator(
                     progress = if (totalTasks > 0) completedTasks.toFloat() / totalTasks else 0f,
                     modifier = Modifier
-                        .width(100.dp)
-                        .height(8.dp)
+                        .width(dimensionResource(R.dimen.task_progress_width))
+                        .height(dimensionResource(R.dimen.task_progress_height))
                 )
             }
         } else {
             Text(
-                text = "Tasks",
+                text = stringResource(R.string.title_tasks),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
             )
         }
 
@@ -93,13 +98,13 @@ fun TaskList(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = dimensionResource(R.dimen.padding_small)),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(12.dp)
+                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_regular))
                 ) {
                     OutlinedTextField(
                         value = newDescription,
@@ -135,7 +140,7 @@ fun TaskList(
                         readOnly = true,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
+                            .padding(top = dimensionResource(R.dimen.padding_small)),
                         interactionSource = interactionSource,
                         trailingIcon = {
                             Row {
@@ -160,7 +165,7 @@ fun TaskList(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
+                            .padding(top = dimensionResource(R.dimen.padding_small)),
                         horizontalArrangement = Arrangement.End
                     ) {
                         TextButton(onClick = {
@@ -191,10 +196,10 @@ fun TaskList(
                 onClick = { isAdding = true },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = dimensionResource(R.dimen.padding_small))
             ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.task_add))
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_small)))
                 Text(stringResource(R.string.task_add))
             }
         }
@@ -219,7 +224,7 @@ fun TaskList(
                     onToggleCompletion = { taskViewModel.toggleTaskCompletion(task) },
                     onDelete = { taskViewModel.deleteTask(task) },
                     onUpdate = { updated -> taskViewModel.updateTask(updated) },
-                    modifier = Modifier.padding(vertical = 2.dp)
+                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_xxsmall))
                 )
             }
         }
@@ -238,7 +243,7 @@ fun TaskItem(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .padding(vertical = dimensionResource(R.dimen.padding_xxsmall)),
         colors = CardDefaults.cardColors(
             containerColor = if (task.isCompleted)
                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
@@ -253,7 +258,7 @@ fun TaskItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(dimensionResource(R.dimen.padding_regular)),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
@@ -265,7 +270,7 @@ fun TaskItem(
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = dimensionResource(R.dimen.padding_small))
                 ) {
                     OutlinedTextField(
                         value = editText,
@@ -273,7 +278,7 @@ fun TaskItem(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
                     val displayEditDate = editDueDate.takeIf { it.isNotBlank() }?.let {
                         try {
                             val dateTime = LocalDateTime.parse(it)
@@ -355,7 +360,7 @@ fun TaskItem(
                     text = task.description,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 8.dp),
+                        .padding(horizontal = dimensionResource(R.dimen.padding_small)),
                     textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
                     color = if (task.isCompleted)
                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
@@ -373,7 +378,7 @@ fun TaskItem(
                         text = displayDate,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(end = 8.dp)
+                        modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
                     )
                 }
                 IconButton(
