@@ -86,6 +86,7 @@
 - ⏳ Bulk task operations
 - ⏳ Search functionality
 - ⏳ Export/import tasks
+- ✅ Tasks tab text color lightened for readability
 
 ### Technical Debt
 - ⏳ Update deprecated APIs
