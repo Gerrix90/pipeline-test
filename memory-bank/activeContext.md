@@ -8,6 +8,10 @@
 1. **Codebase Decoupling Analysis**:
    - Generated `CodeDecouplingAnalysis.md` summarizing modularity and merge conflict risk.
    - Build verified with `./gradlew assembleDebug --offline`.
+2. **Removed Hardcoded UI Constants**:
+   - Moved strings and dp values from `ChatScreen` and `CountdownScreens` to `strings.xml` and `dimens.xml`.
+   - Replaced constants with `stringResource()` and `dimensionResource()` calls.
+   - Build verified with `./gradlew assembleDebug --offline`.
 
 ## Recent Changes (June 4, 2025)
 
@@ -176,8 +180,8 @@
 - Long functions in some ViewModels - need refactoring
 - Magic numbers for alarm timeouts - need constants
 - Task list UI consolidated into single TaskList component
-- **CRITICAL**: Hardcoded strings throughout UI - must move to strings.xml
-- **CRITICAL**: Hardcoded dimensions (16.dp, 8.dp, etc.) - must move to dimens.xml
+- **IN PROGRESS**: Hardcoded strings - partially moved to strings.xml (ChatScreen, CountdownScreens)
+- **IN PROGRESS**: Hardcoded dimensions - partially moved to dimens.xml (ChatScreen, CountdownScreens)
 - **CRITICAL**: Direct color values in Compose - must use theme colors only
 - **CRITICAL**: Magic numbers (50, 30000, etc.) - must be constants
 - **CRITICAL**: Hardcoded SharedPreferences keys - must be constants

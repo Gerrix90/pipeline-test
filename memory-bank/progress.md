@@ -7,6 +7,7 @@
 - ✅ Yearly countdown display  
 - ✅ Custom event management (CRUD)
 - ✅ Life hourglass visualization
+- ✅ Hardcoded UI values moved to resources for Chat and Countdown screens
 - ✅ Settings screen with birthdate picker
 - ✅ System back gesture from Settings returns to home
 - ✅ Dark theme throughout
@@ -92,6 +93,7 @@
 - ⏳ **Migrate to Timber logging** (replace existing Log.d calls)
 - ⏳ Add analytics
 - ⏳ Performance optimizations
+- ⏳ Remove remaining hardcoded strings and dimensions
 
 ## Known Issues 🐛
 

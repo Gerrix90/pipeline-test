@@ -41,12 +41,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-private const val PADDING_DEFAULT = 16
-private const val PADDING_SMALL = 8
-private const val MESSAGE_CORNER_RADIUS = 12
 
 data class ChatMessage(
     val text: String,
@@ -65,6 +62,8 @@ fun ChatScreen(
     var isLoading by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val paddingDefault = dimensionResource(id = R.dimen.padding_default)
+    val paddingSmall = dimensionResource(id = R.dimen.padding_small)
 
     // Sample responses for demo
     val sampleResponses = listOf(
@@ -104,7 +103,7 @@ fun ChatScreen(
                 title = { Text(stringResource(R.string.title_llm_chat)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.action_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -124,9 +123,9 @@ fun ChatScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = PADDING_DEFAULT.dp),
-                verticalArrangement = Arrangement.spacedBy(PADDING_SMALL.dp),
-                contentPadding = PaddingValues(vertical = PADDING_DEFAULT.dp)
+                    .padding(horizontal = paddingDefault),
+                verticalArrangement = Arrangement.spacedBy(paddingSmall),
+                contentPadding = PaddingValues(vertical = paddingDefault)
             ) {
                 items(messages) { message ->
                     MessageBubble(message = message)
@@ -143,13 +142,13 @@ fun ChatScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_DEFAULT.dp),
+                    .padding(paddingDefault),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(PADDING_DEFAULT.dp),
+                        .padding(paddingDefault),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
@@ -161,7 +160,7 @@ fun ChatScreen(
                         maxLines = 3
                     )
                     
-                    Spacer(modifier = Modifier.width(PADDING_SMALL.dp))
+                    Spacer(modifier = Modifier.width(paddingSmall))
                     
                     IconButton(
                         onClick = { sendMessage() },
@@ -169,8 +168,8 @@ fun ChatScreen(
                     ) {
                         Icon(
                             Icons.Default.Send,
-                            contentDescription = "Send",
-                            tint = if (inputText.isNotBlank() && !isLoading) 
+                            contentDescription = stringResource(R.string.action_send),
+                            tint = if (inputText.isNotBlank() && !isLoading)
                                 MaterialTheme.colorScheme.primary 
                             else 
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
@@ -192,8 +191,8 @@ private fun MessageBubble(
         horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
     ) {
         Card(
-            modifier = Modifier.widthIn(max = 280.dp),
-            shape = RoundedCornerShape(MESSAGE_CORNER_RADIUS.dp),
+            modifier = Modifier.widthIn(max = dimensionResource(id = R.dimen.chat_message_max_width)),
+            shape = RoundedCornerShape(dimensionResource(id = R.dimen.chat_message_corner_radius)),
             colors = CardDefaults.cardColors(
                 containerColor = if (message.isUser)
                     MaterialTheme.colorScheme.primary
@@ -203,7 +202,7 @@ private fun MessageBubble(
         ) {
             Text(
                 text = message.text,
-                modifier = Modifier.padding(PADDING_DEFAULT.dp),
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_default)),
                 color = if (message.isUser)
                     MaterialTheme.colorScheme.onPrimary
                 else
@@ -220,24 +219,24 @@ private fun LoadingMessage(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.Start
     ) {
         Card(
-            modifier = Modifier.widthIn(max = 120.dp),
-            shape = RoundedCornerShape(MESSAGE_CORNER_RADIUS.dp),
+            modifier = Modifier.widthIn(max = dimensionResource(id = R.dimen.chat_loading_max_width)),
+            shape = RoundedCornerShape(dimensionResource(id = R.dimen.chat_message_corner_radius)),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         ) {
             Row(
-                modifier = Modifier.padding(PADDING_DEFAULT.dp),
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_default)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(16.dp),
-                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(dimensionResource(id = R.dimen.chat_loading_indicator_size)),
+                    strokeWidth = dimensionResource(id = R.dimen.chat_loading_stroke_width),
                     color = MaterialTheme.colorScheme.primary
                 )
-                Spacer(modifier = Modifier.width(PADDING_SMALL.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
                 Text(
-                    text = "Typing...",
+                    text = stringResource(R.string.typing),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
