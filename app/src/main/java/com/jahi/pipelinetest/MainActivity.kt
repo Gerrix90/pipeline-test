@@ -161,8 +161,8 @@ class MainActivity : ComponentActivity() {
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
                                         selectedTextColor = com.jahi.pipelinetest.ui.theme.Slate100,
-                                        unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate400,
-                                        unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate400,
+                                        unselectedIconColor = com.jahi.pipelinetest.ui.theme.Slate200,
+                                        unselectedTextColor = com.jahi.pipelinetest.ui.theme.Slate200,
                                         indicatorColor = com.jahi.pipelinetest.ui.theme.Indigo600
                                     )
                                 )

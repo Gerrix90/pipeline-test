@@ -33,6 +33,14 @@
    - Updated Compose files to use resource references.
    - Build verified with `./gradlew assembleDebug --offline`.
 
+## Recent Changes (June 8, 2025)
+
+### Completed Today
+1. **Improved Tasks Tab Readability**:
+   - Added new `Slate200` color in theme.
+   - Tasks tab now uses this lighter gray instead of black.
+   - Build verified with `./gradlew assembleDebug --offline`.
+
 ## Recent Changes (June 4, 2025)
 
 ### Completed Today
