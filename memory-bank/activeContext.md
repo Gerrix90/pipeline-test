@@ -32,14 +32,15 @@
    - Added new strings (`title_tasks`, `text_copied`, `copy_text`, `action_take_picture`, `action_pick_from_album`, `action_prompt_templates`, `action_input_history`, `download_try_it`, `live_camera`).
    - Updated Compose files to use resource references.
    - Build verified with `./gradlew assembleDebug --offline`.
-
 ## Recent Changes (June 8, 2025)
 
 ### Completed Today
-1. **Improved Tasks Tab Readability**:
-   - Added new `Slate200` color in theme.
-   - Tasks tab now uses this lighter gray instead of black.
+1. **Reverted tasks tab color change**:
+   - Reverted merge commit that lightened tasks tab text color.
+   - Removed Slate200 color constant.
+   - Tasks tab uses Slate400 again.
    - Build verified with `./gradlew assembleDebug --offline`.
+
 
 ## Recent Changes (June 4, 2025)
 
