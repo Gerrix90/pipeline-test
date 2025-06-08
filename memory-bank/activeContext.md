@@ -40,6 +40,9 @@
    - Removed Slate200 color constant.
    - Tasks tab uses Slate400 again.
    - Build verified with `./gradlew assembleDebug --offline`.
+2. **Event name text color set to white**:
+   - TaskOverviewScreen now displays event names using white color for better contrast.
+   - Build verified with `./gradlew assembleDebug --offline`.
 
 
 ## Recent Changes (June 4, 2025)
