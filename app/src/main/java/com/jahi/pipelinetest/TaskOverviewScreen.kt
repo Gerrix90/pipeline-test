@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import com.jahi.pipelinetest.ui.components.TaskList
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
@@ -30,6 +31,7 @@ fun TaskOverviewScreen(
                 Text(
                     text = event.name,
                     style = MaterialTheme.typography.titleMedium,
+                    color = colorResource(R.color.white),
                     modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
                 )
             }

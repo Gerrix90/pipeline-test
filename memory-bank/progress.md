@@ -87,6 +87,7 @@
 - ⏳ Search functionality
 - ⏳ Export/import tasks
 - ⏳ Lighten tasks tab text color for readability
+- ✅ Event names displayed in white for better readability
 
 ### Technical Debt
 - ⏳ Update deprecated APIs
