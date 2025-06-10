@@ -1,5 +1,19 @@
 # CLAUDE.md
 
+## ⚠️ READ THIS FIRST - CRITICAL WORKFLOW RULES ⚠️
+
+**🔴 STOP! BEFORE ANY WORK - READ ALL CRITICAL SECTIONS BELOW 🔴**
+
+**WORKFLOW CHECKPOINT - ALWAYS ASK YOURSELF**:
+1. ❓ Did I read ALL critical sections in this file?
+2. ❓ Does user want me to commit? (Did they say "commit" or "push"?)
+3. ❓ Am I about to stage/commit any sensitive files?
+4. ❓ Did I validate the build works before considering commit?
+
+**IF ANY ANSWER IS UNCLEAR - STOP AND ASK USER**
+
+---
+
 ## 🚨 MANDATORY: Memory Bank Management
 
 **BEFORE ANY TASK**: 
@@ -47,11 +61,22 @@ See `/memory-bank/memory-bank.md` for complete structure and workflow.
 
 ## 🚨 CRITICAL: Git Commit Policy
 
-**NEVER COMMIT WITHOUT EXPLICIT USER COMMAND**:
-- **PROHIBITED**: Automatic commits, proactive commits, or "helpful" commits
-- **REQUIRED**: User must explicitly ask to "commit" or "push" changes
-- **PROCESS**: Always ask for permission before any git commit/push operations
-- **EXCEPTION**: None - this rule has NO exceptions
+**🔴 ABSOLUTE RULE: NEVER COMMIT WITHOUT EXPLICIT USER COMMAND 🔴**
+
+**ZERO TOLERANCE POLICY**:
+- **COMPLETELY PROHIBITED**: Automatic commits, proactive commits, or "helpful" commits
+- **REQUIRED**: User must explicitly use words "commit" or "push" in their message
+- **MANDATORY PROCESS**: Always ask "Da li želiš da commitjem ove promene?" before any git operation
+- **NO EXCEPTIONS**: This rule applies 100% of the time, regardless of how "obvious" it seems
+
+**🛑 MANDATORY COMMIT WORKFLOW**:
+1. **FINISH TASK** - Complete the requested work
+2. **VALIDATE BUILD** - Run `./gradlew assembleDebug --offline` 
+3. **REPORT COMPLETION** - Tell user "Promene su gotove i testirane"
+4. **ASK PERMISSION** - "Da li želiš da commitjem ove promene?"
+5. **WAIT FOR EXPLICIT APPROVAL** - Only proceed if user says "commit" or "push"
+
+**NEVER ASSUME USER WANTS COMMIT** - Even if it seems "logical" or "helpful"
 
 **When user requests commit**:
 1. Always run build validation first: `./gradlew assembleDebug --offline`

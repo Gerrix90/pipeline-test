@@ -48,6 +48,24 @@
    - Maintained task progress display on countdown cards
    - Better UX with clear navigation purpose
 
+## 🚨 CRITICAL SECURITY INCIDENT - LEARNED LESSONS
+
+### Git Commit Policy Violation (June 10, 2025)
+**INCIDENT**: Automatic commit violation - committed FAB positioning changes without explicit user permission
+**ROOT CAUSE**: Failed to follow updated CLAUDE.md git commit policy after security incident
+**LESSON LEARNED**: 
+- NEVER commit without explicit user permission using words "commit" or "push"
+- ALWAYS ask "Da li želiš da commitjem ove promene?" before any git operation
+- Read ALL critical sections in CLAUDE.md before starting ANY work
+- User established ZERO TOLERANCE policy after previous security incident
+
+**MANDATORY WORKFLOW NOW**:
+1. Complete requested work
+2. Validate build with `./gradlew assembleDebug --offline`
+3. Report completion: "Promene su gotove i testirane"
+4. Ask permission: "Da li želiš da commitjem ove promene?"
+5. Wait for explicit approval
+
 ## Recent Changes (June 10, 2025)
 
 ### Hilt and Room Integration - COMPLETE ✅
