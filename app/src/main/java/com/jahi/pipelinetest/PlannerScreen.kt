@@ -22,6 +22,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
+import androidx.compose.animation.core.animateFloatAsState
 import com.jahi.pipelinetest.model.CustomEvent
 import com.jahi.pipelinetest.ui.components.TaskList
 import com.jahi.pipelinetest.util.openDateTimePicker
@@ -42,69 +49,137 @@ fun PlannerScreen(
     var expandedEventId by remember { mutableStateOf<Int?>(null) }
     var showAddEventDialog by remember { mutableStateOf(false) }
     var editingEvent by remember { mutableStateOf<CustomEvent?>(null) }
+    
+    val context = LocalContext.current
+    val prefs = remember { Prefs(context) }
+    val density = LocalDensity.current
+    
+    // FAB position state
+    var fabOffsetX by remember { mutableStateOf(0f) }
+    var fabOffsetY by remember { mutableStateOf(0f) }
+    var screenWidth by remember { mutableStateOf(0f) }
+    var screenHeight by remember { mutableStateOf(0f) }
+    var fabSize by remember { mutableStateOf(0f) }
+    var isDragging by remember { mutableStateOf(false) }
+    
+    // Animate elevation when dragging
+    val fabElevation by animateFloatAsState(
+        targetValue = if (isDragging) 12.dp.value else 6.dp.value,
+        label = "fab_elevation"
+    )
+    
+    // Load saved position on first composition
+    LaunchedEffect(Unit) {
+        val savedX = prefs.fabPositionX
+        val savedY = prefs.fabPositionY
+        if (savedX != -1f && savedY != -1f) {
+            fabOffsetX = savedX
+            fabOffsetY = savedY
+        }
+    }
 
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(dimensionResource(R.dimen.padding_default))
+            .onGloballyPositioned { coordinates ->
+                screenWidth = coordinates.size.width.toFloat()
+                screenHeight = coordinates.size.height.toFloat()
+                // Initialize FAB position to bottom right if not set
+                if (fabOffsetX == 0f && fabOffsetY == 0f && prefs.fabPositionX == -1f) {
+                    fabOffsetX = screenWidth - fabSize - with(density) { 16.dp.toPx() }
+                    fabOffsetY = screenHeight - fabSize - with(density) { 16.dp.toPx() }
+                }
+            }
     ) {
-        // Header with Add Event button
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = dimensionResource(R.dimen.padding_default)),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(dimensionResource(R.dimen.padding_default))
         ) {
+            // Header without Add Event button
             Text(
                 text = stringResource(R.string.nav_planner),
                 style = MaterialTheme.typography.headlineMedium,
-                color = colorResource(R.color.white)
+                color = colorResource(R.color.white),
+                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_default))
             )
-            
-            Button(
-                onClick = { showAddEventDialog = true },
-                modifier = Modifier.size(56.dp),
-                contentPadding = PaddingValues(dimensionResource(R.dimen.padding_tiny))
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = stringResource(R.string.action_add_event)
-                )
-            }
-        }
 
-        if (events.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No events yet. Tap + to create your first event!",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = colorResource(R.color.white),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_default))
-                )
-            }
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
-            ) {
-                items(events) { event ->
-                    EventCard(
-                        event = event,
-                        isExpanded = expandedEventId == event.id,
-                        onToggleExpanded = { 
-                            expandedEventId = if (expandedEventId == event.id) null else event.id
-                        },
-                        onEditEvent = { editingEvent = event },
-                        onDeleteEvent = { plannerViewModel.deleteEvent(event.id) },
-                        tasks = tasks.filter { it.eventId == event.id },
-                        taskViewModel = taskViewModel
+            if (events.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No events yet. Tap + to create your first event!",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = colorResource(R.color.white),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(dimensionResource(R.dimen.padding_default))
                     )
                 }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+                ) {
+                    items(events) { event ->
+                        EventCard(
+                            event = event,
+                            isExpanded = expandedEventId == event.id,
+                            onToggleExpanded = { 
+                                expandedEventId = if (expandedEventId == event.id) null else event.id
+                            },
+                            onEditEvent = { editingEvent = event },
+                            onDeleteEvent = { plannerViewModel.deleteEvent(event.id) },
+                            tasks = tasks.filter { it.eventId == event.id },
+                            taskViewModel = taskViewModel
+                        )
+                    }
+                }
             }
+        }
+        
+        // Draggable FAB
+        FloatingActionButton(
+            onClick = { 
+                if (!isDragging) {
+                    showAddEventDialog = true
+                }
+            },
+            modifier = Modifier
+                .offset { IntOffset(fabOffsetX.roundToInt(), fabOffsetY.roundToInt()) }
+                .onGloballyPositioned { coordinates ->
+                    fabSize = coordinates.size.width.toFloat()
+                }
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { 
+                            isDragging = true
+                        },
+                        onDragEnd = {
+                            isDragging = false
+                            // Save position when drag ends
+                            prefs.fabPositionX = fabOffsetX
+                            prefs.fabPositionY = fabOffsetY
+                        }
+                    ) { _, dragAmount ->
+                        val newX = fabOffsetX + dragAmount.x
+                        val newY = fabOffsetY + dragAmount.y
+                        
+                        // Ensure FAB stays within screen bounds
+                        fabOffsetX = newX.coerceIn(0f, screenWidth - fabSize)
+                        fabOffsetY = newY.coerceIn(0f, screenHeight - fabSize)
+                    }
+                },
+            containerColor = if (isDragging) MaterialTheme.colorScheme.primary.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary,
+            elevation = FloatingActionButtonDefaults.elevation(
+                defaultElevation = fabElevation.dp,
+                pressedElevation = fabElevation.dp
+            )
+        ) {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = stringResource(R.string.action_add_event)
+            )
         }
     }
 
@@ -212,7 +287,7 @@ private fun EventCard(
 
             // Expanded Task List
             if (isExpanded) {
-                Divider(
+                HorizontalDivider(
                     modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_small)),
                     color = com.jahi.pipelinetest.ui.theme.Slate700
                 )

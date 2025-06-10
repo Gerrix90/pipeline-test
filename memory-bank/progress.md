@@ -27,6 +27,8 @@
 - ✅ **Multi-row task UI**: Better visibility and usability
 - ✅ **Calendar/Time picker**: Professional date/time selection
 - ✅ **Event click navigation**: Countdowns → Planner navigation
+- ✅ **Draggable FAB**: Customizable floating action button position
+- ✅ **Position persistence**: FAB position saved in SharedPreferences
 
 ### Widgets
 - ✅ Daily countdown widget

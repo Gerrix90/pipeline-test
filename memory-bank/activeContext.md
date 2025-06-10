@@ -4,6 +4,28 @@
 
 ## Recent Changes (December 2024)
 
+### Draggable FAB Implementation - COMPLETE ✅
+1. **Draggable Floating Action Button - COMPLETE ✅**:
+   - Removed Add Event button from header in PlannerScreen
+   - Implemented draggable FAB with gesture detection using detectDragGestures
+   - FAB positioned in bottom right by default, fully draggable anywhere on screen
+   - Position persistence using SharedPreferences (fabPositionX, fabPositionY)
+   - Visual feedback: transparency and elevation change during dragging
+   - Prevents click events during drag operation for better UX
+   - Screen bounds enforcement to keep FAB always visible
+
+2. **Position Persistence System - COMPLETE ✅**:
+   - Added fabPositionX and fabPositionY properties to Prefs class
+   - Automatic saving of FAB position when drag ends
+   - Position restoration when Planner screen is reopened
+   - Default position (bottom right) when no saved position exists
+
+3. **Enhanced User Experience - COMPLETE ✅**:
+   - Smooth animations for elevation changes during drag
+   - Visual feedback with color transparency during drag
+   - Boundary detection to prevent FAB from going off-screen
+   - Click prevention during drag to avoid accidental dialog opening
+
 ### Task UI Improvements and Navigation Enhancement - COMPLETE ✅
 1. **Task Card UI Redesign - COMPLETE ✅**:
    - Redesigned TaskItem component with multi-row layout for better visibility

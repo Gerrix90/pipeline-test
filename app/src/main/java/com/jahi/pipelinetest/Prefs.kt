@@ -29,11 +29,14 @@ class Prefs(context: Context) {
         private const val KEY_TASKS = "tasks"
         private const val KEY_NEXT_TASK_ID = "nextTaskId"
         private const val KEY_ELEVEN_LABS_API_KEY = "elevenLabsApiKey"
+        private const val KEY_FAB_POSITION_X = "fabPositionX"
+        private const val KEY_FAB_POSITION_Y = "fabPositionY"
         
         // Default values
         private const val DEFAULT_CURRENT_AGE = 30
         private const val DEFAULT_TARGET_AGE = 80
         private const val DEFAULT_NEXT_TASK_ID = 1
+        private const val DEFAULT_FAB_POSITION = -1f
     }
     
     private val prefs: SharedPreferences =
@@ -162,4 +165,12 @@ class Prefs(context: Context) {
     var elevenLabsApiKey: String
         get() = encryptedPrefs.getString(KEY_ELEVEN_LABS_API_KEY, "") ?: ""
         set(value) { encryptedPrefs.edit().putString(KEY_ELEVEN_LABS_API_KEY, value).apply() }
+
+    var fabPositionX: Float
+        get() = prefs.getFloat(KEY_FAB_POSITION_X, DEFAULT_FAB_POSITION)
+        set(value) { prefs.edit().putFloat(KEY_FAB_POSITION_X, value).apply() }
+
+    var fabPositionY: Float
+        get() = prefs.getFloat(KEY_FAB_POSITION_Y, DEFAULT_FAB_POSITION)
+        set(value) { prefs.edit().putFloat(KEY_FAB_POSITION_Y, value).apply() }
 }
