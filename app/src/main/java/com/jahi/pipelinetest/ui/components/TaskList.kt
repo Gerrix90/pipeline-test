@@ -256,118 +256,106 @@ fun TaskItem(
         var editText by remember { mutableStateOf(task.description) }
         var editDueDate by remember { mutableStateOf(task.dueDate ?: "") }
 
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(dimensionResource(R.dimen.padding_regular)),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(dimensionResource(R.dimen.padding_regular))
         ) {
-            Checkbox(
-                checked = task.isCompleted,
-                onCheckedChange = { onToggleCompletion() }
-            )
+            // First row: Checkbox and task description/edit field
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = task.isCompleted,
+                    onCheckedChange = { onToggleCompletion() }
+                )
 
-            if (isEditing) {
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = dimensionResource(R.dimen.padding_small))
-                ) {
+                if (isEditing) {
                     OutlinedTextField(
                         value = editText,
                         onValueChange = { editText = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = dimensionResource(R.dimen.padding_small)),
+                        label = { Text(stringResource(R.string.task_description_label)) }
                     )
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                    val displayEditDate = editDueDate.takeIf { it.isNotBlank() }?.let {
-                        try {
-                            val dateTime = LocalDateTime.parse(it)
-                            dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
-                        } catch (e: Exception) {
-                            it
-                        }
-                    } ?: ""
+                } else {
+                    Text(
+                        text = task.description,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(horizontal = dimensionResource(R.dimen.padding_small)),
+                        textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
+                        color = if (task.isCompleted)
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        else
+                            Color(0xFFE0E0E0)
+                    )
+                }
+            }
 
-                    val dateInteractionSource = remember { MutableInteractionSource() }
+            // Second row: Due date (editing or display)
+            if (isEditing) {
+                val displayEditDate = editDueDate.takeIf { it.isNotBlank() }?.let {
+                    try {
+                        val dateTime = LocalDateTime.parse(it)
+                        dateTime.format(DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm"))
+                    } catch (e: Exception) {
+                        it
+                    }
+                } ?: ""
 
-                    LaunchedEffect(dateInteractionSource) {
-                        dateInteractionSource.interactions.collect {
-                            if (it is PressInteraction.Release) {
-                                openDateTimePicker(context, editDueDate, true) { selected ->
-                                    editDueDate = selected
-                                }
+                val dateInteractionSource = remember { MutableInteractionSource() }
+
+                LaunchedEffect(dateInteractionSource) {
+                    dateInteractionSource.interactions.collect {
+                        if (it is PressInteraction.Release) {
+                            openDateTimePicker(context, editDueDate, true) { selected ->
+                                editDueDate = selected
                             }
                         }
                     }
+                }
 
-                    OutlinedTextField(
-                        value = displayEditDate,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.task_due_date_optional_label)) },
-                        placeholder = { Text(stringResource(R.string.task_select_date_time)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        interactionSource = dateInteractionSource,
-                        trailingIcon = {
-                            Row {
-                                if (editDueDate.isNotBlank()) {
-                                    IconButton(onClick = { editDueDate = "" }) {
-                                        Icon(
-                                            Icons.Default.Clear,
-                                            contentDescription = stringResource(R.string.clear_date)
-                                        )
-                                    }
-                                }
-                                IconButton(onClick = {
-                                    openDateTimePicker(context, editDueDate, true) { selected ->
-                                        editDueDate = selected
-                                    }
-                                }) {
+                OutlinedTextField(
+                    value = displayEditDate,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.task_due_date_optional_label)) },
+                    placeholder = { Text(stringResource(R.string.task_select_date_time)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 48.dp, // Align with text field above (checkbox width + padding)
+                            top = dimensionResource(R.dimen.padding_small)
+                        ),
+                    interactionSource = dateInteractionSource,
+                    trailingIcon = {
+                        Row {
+                            if (editDueDate.isNotBlank()) {
+                                IconButton(onClick = { editDueDate = "" }) {
                                     Icon(
-                                        Icons.Default.DateRange,
-                                        contentDescription = stringResource(R.string.select_date)
+                                        Icons.Default.Clear,
+                                        contentDescription = stringResource(R.string.clear_date)
                                     )
                                 }
                             }
+                            IconButton(onClick = {
+                                openDateTimePicker(context, editDueDate, true) { selected ->
+                                    editDueDate = selected
+                                }
+                            }) {
+                                Icon(
+                                    Icons.Default.DateRange,
+                                    contentDescription = stringResource(R.string.select_date)
+                                )
+                            }
                         }
-                    )
-                }
-                IconButton(
-                    onClick = {
-                        val due = editDueDate.takeIf { it.isNotBlank() }
-                        onUpdate(
-                            task.copy(
-                                description = editText,
-                                dueDate = due
-                            )
-                        )
-                        isEditing = false
                     }
-                ) {
-                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save_task))
-                }
-                IconButton(
-                    onClick = {
-                        isEditing = false
-                        editText = task.description
-                        editDueDate = task.dueDate ?: ""
-                    }
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel_edit))
-                }
-            } else {
-                Text(
-                    text = task.description,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = dimensionResource(R.dimen.padding_small)),
-                    textDecoration = if (task.isCompleted) TextDecoration.LineThrough else null,
-                    color = if (task.isCompleted)
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    else
-                        Color(0xFFE0E0E0)
                 )
+            } else {
+                // Display due date if it exists
                 task.dueDate?.let { due ->
                     val displayDate = try {
                         val dateTime = LocalDateTime.parse(due)
@@ -376,27 +364,66 @@ fun TaskItem(
                         due
                     }
                     Text(
-                        text = displayDate,
+                        text = "Due: $displayDate",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
+                        modifier = Modifier.padding(
+                            start = 48.dp, // Align with text above (checkbox width + padding)
+                            top = dimensionResource(R.dimen.padding_xxsmall)
+                        )
                     )
                 }
-                IconButton(
-                    onClick = {
-                        editText = task.description
-                        editDueDate = task.dueDate ?: ""
-                        isEditing = true
+            }
+
+            // Third row: Action buttons
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimensionResource(R.dimen.padding_small)),
+                horizontalArrangement = Arrangement.End
+            ) {
+                if (isEditing) {
+                    TextButton(
+                        onClick = {
+                            isEditing = false
+                            editText = task.description
+                            editDueDate = task.dueDate ?: ""
+                        }
+                    ) {
+                        Text(stringResource(R.string.cancel))
                     }
-                ) {
-                    Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_task))
-                }
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = stringResource(R.string.delete_task),
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                    TextButton(
+                        onClick = {
+                            val due = editDueDate.takeIf { it.isNotBlank() }
+                            onUpdate(
+                                task.copy(
+                                    description = editText,
+                                    dueDate = due
+                                )
+                            )
+                            isEditing = false
+                        },
+                        enabled = editText.isNotBlank()
+                    ) {
+                        Text(stringResource(R.string.action_save))
+                    }
+                } else {
+                    IconButton(
+                        onClick = {
+                            editText = task.description
+                            editDueDate = task.dueDate ?: ""
+                            isEditing = true
+                        }
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit_task))
+                    }
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = stringResource(R.string.delete_task),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         }

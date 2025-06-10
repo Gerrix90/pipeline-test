@@ -1,11 +1,14 @@
 package com.jahi.pipelinetest.domain
 
 import com.jahi.pipelinetest.model.Task
-import com.jahi.pipelinetest.repository.TaskRepository
+import com.jahi.pipelinetest.domain.repository.TaskRepositoryInterface
+import javax.inject.Inject
 
-class UpdateTaskUseCase(private val taskRepository: TaskRepository) {
+class UpdateTaskUseCase @Inject constructor(
+    private val taskRepository: TaskRepositoryInterface
+) {
     
-    operator fun invoke(task: Task) {
+    suspend operator fun invoke(task: Task) {
         taskRepository.updateTask(task)
     }
 }

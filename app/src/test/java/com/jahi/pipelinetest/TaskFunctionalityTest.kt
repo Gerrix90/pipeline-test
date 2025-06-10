@@ -3,8 +3,6 @@ package com.jahi.pipelinetest
 import org.junit.Test
 import org.junit.Assert.*
 import org.junit.Before
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import com.jahi.pipelinetest.model.Task
 import com.jahi.pipelinetest.repository.TaskRepository
 import com.jahi.pipelinetest.domain.*

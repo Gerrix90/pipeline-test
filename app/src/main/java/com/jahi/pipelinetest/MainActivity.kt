@@ -25,50 +25,28 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.res.stringResource
 import com.jahi.pipelinetest.R
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
+import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.jahi.pipelinetest.domain.CreateTaskUseCase
-import com.jahi.pipelinetest.domain.DeleteTaskUseCase
-import com.jahi.pipelinetest.domain.GetTasksUseCase
-import com.jahi.pipelinetest.domain.ToggleTaskCompletionUseCase
-import com.jahi.pipelinetest.domain.UpdateTaskUseCase
-import com.jahi.pipelinetest.repository.TaskRepository
 import com.jahi.pipelinetest.ui.theme.PipelineTestTheme
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
-import com.jahi.pipelinetest.viewmodel.TaskViewModelFactory
+import com.jahi.pipelinetest.viewmodel.PlannerViewModel
 import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
 
 @OptIn(ExperimentalMaterial3Api::class)
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val mainViewModel: MainViewModel by viewModels()
+    private val taskViewModel: TaskViewModel by viewModels()
+    private val plannerViewModel: PlannerViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val prefs = Prefs(this)
-        val viewModel = ViewModelProvider(this, MainViewModelFactory(prefs))[MainViewModel::class.java]
-        
-        // Initialize task dependencies
-        val taskRepository = TaskRepository(prefs)
-        val createTaskUseCase = CreateTaskUseCase(taskRepository)
-        val getTasksUseCase = GetTasksUseCase(taskRepository)
-        val updateTaskUseCase = UpdateTaskUseCase(taskRepository)
-        val deleteTaskUseCase = DeleteTaskUseCase(taskRepository)
-        val toggleTaskCompletionUseCase = ToggleTaskCompletionUseCase(taskRepository)
-        
-        val taskViewModelFactory = TaskViewModelFactory(
-            createTaskUseCase,
-            getTasksUseCase,
-            updateTaskUseCase,
-            deleteTaskUseCase,
-            toggleTaskCompletionUseCase,
-            taskRepository
-        )
-        val taskViewModel = ViewModelProvider(this, taskViewModelFactory)[TaskViewModel::class.java]
 
         lifecycleScope.launch {
             taskViewModel.allTasks.collect { tasks ->
@@ -77,16 +55,16 @@ class MainActivity : ComponentActivity() {
             }
         }
         
-        // Check if launched from notification and navigate to Tasks screen
+        // Check if launched from notification and navigate to Planner screen
         intent?.let { launchIntent ->
             if (launchIntent.getBooleanExtra(INTENT_EXTRA_NAVIGATE_TO_TASKS, false)) {
-                // Navigate to Tasks screen when launched from task notification
-                viewModel.selectScreen(SCREEN_TASKS)
+                // Navigate to Planner screen when launched from task notification
+                mainViewModel.selectScreen(SCREEN_PLANNER)
             } else {
                 val eventId = launchIntent.getIntExtra(EventAlarmReceiver.EXTRA_EVENT_ID, -1)
                 if (eventId != -1) {
-                    // Navigate to Tasks screen when launched from event notification
-                    viewModel.selectScreen(SCREEN_TASKS)
+                    // Navigate to Planner screen when launched from event notification
+                    mainViewModel.selectScreen(SCREEN_PLANNER)
                 }
             }
         }
@@ -107,15 +85,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PipelineTestTheme {
-                if (viewModel.showSettings) {
-                    SettingsScreen(viewModel) { viewModel.closeSettings() }
-                } else if (viewModel.screen == SCREEN_GALLERY) {
+                if (mainViewModel.showSettings) {
+                    SettingsScreen(mainViewModel) { mainViewModel.closeSettings() }
+                } else if (mainViewModel.screen == SCREEN_GALLERY) {
                     // AI Gallery fullscreen without Time Fomo app bars
                     GalleryScreen(
                         modifier = Modifier.fillMaxSize(),
                         onBackPressed = {
                             // Return to the previous screen (default to Countdowns)
-                            viewModel.selectScreen(SCREEN_COUNTDOWNS)
+                            mainViewModel.selectScreen(SCREEN_COUNTDOWNS)
                         }
                     )
                 } else {
@@ -132,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                     titleContentColor = com.jahi.pipelinetest.ui.theme.Slate100
                                 ),
                                 actions = {
-                                    IconButton(onClick = { viewModel.openSettings() }) {
+                                    IconButton(onClick = { mainViewModel.openSettings() }) {
                                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                                     }
                                 }
@@ -141,8 +119,8 @@ class MainActivity : ComponentActivity() {
                         bottomBar = {
                                 NavigationBar(containerColor = com.jahi.pipelinetest.ui.theme.SurfaceDark.copy(alpha = 0.8f)) {
                                 NavigationBarItem(
-                                    selected = viewModel.screen == SCREEN_COUNTDOWNS,
-                                    onClick = { viewModel.selectScreen(SCREEN_COUNTDOWNS) },
+                                    selected = mainViewModel.screen == SCREEN_COUNTDOWNS,
+                                    onClick = { mainViewModel.selectScreen(SCREEN_COUNTDOWNS) },
                                     label = { Text(stringResource(R.string.nav_countdowns)) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
@@ -154,9 +132,9 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                                 NavigationBarItem(
-                                    selected = viewModel.screen == SCREEN_TASKS,
-                                    onClick = { viewModel.selectScreen(SCREEN_TASKS) },
-                                    label = { Text(stringResource(R.string.nav_tasks)) },
+                                    selected = mainViewModel.screen == SCREEN_PLANNER,
+                                    onClick = { mainViewModel.selectScreen(SCREEN_PLANNER) },
+                                    label = { Text(stringResource(R.string.nav_planner)) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = com.jahi.pipelinetest.ui.theme.Slate100,
@@ -167,8 +145,8 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                                 NavigationBarItem(
-                                    selected = viewModel.screen == SCREEN_GALLERY,
-                                    onClick = { viewModel.selectScreen(SCREEN_GALLERY) },
+                                    selected = mainViewModel.screen == SCREEN_GALLERY,
+                                    onClick = { mainViewModel.selectScreen(SCREEN_GALLERY) },
                                     label = { Text(stringResource(R.string.nav_gallery)) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
@@ -180,8 +158,8 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
                                 NavigationBarItem(
-                                    selected = viewModel.screen == SCREEN_LIFE,
-                                    onClick = { viewModel.selectScreen(SCREEN_LIFE) },
+                                    selected = mainViewModel.screen == SCREEN_LIFE,
+                                    onClick = { mainViewModel.selectScreen(SCREEN_LIFE) },
                                     label = { Text(stringResource(R.string.nav_life)) },
                                     icon = { },
                                     colors = NavigationBarItemDefaults.colors(
@@ -195,11 +173,27 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     ) { innerPadding ->
-                        when (viewModel.screen) {
-                            SCREEN_COUNTDOWNS -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
-                            SCREEN_TASKS -> TaskOverviewScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
-                            SCREEN_LIFE -> LifeHourglassScreen(viewModel, Modifier.padding(innerPadding))
-                            else -> CountdownsScreen(viewModel, taskViewModel, Modifier.padding(innerPadding))
+                        when (mainViewModel.screen) {
+                            SCREEN_COUNTDOWNS -> CountdownsScreen(
+                                viewModel = mainViewModel, 
+                                taskViewModel = taskViewModel,
+                                onEventClick = { eventId ->
+                                    // Navigate to planner screen when event is clicked
+                                    mainViewModel.selectScreen(SCREEN_PLANNER)
+                                },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                            SCREEN_PLANNER -> PlannerScreen(plannerViewModel, taskViewModel, Modifier.padding(innerPadding))
+                            SCREEN_LIFE -> LifeHourglassScreen(mainViewModel, Modifier.padding(innerPadding))
+                            else -> CountdownsScreen(
+                                viewModel = mainViewModel, 
+                                taskViewModel = taskViewModel,
+                                onEventClick = { eventId ->
+                                    // Navigate to planner screen when event is clicked
+                                    mainViewModel.selectScreen(SCREEN_PLANNER)
+                                },
+                                modifier = Modifier.padding(innerPadding)
+                            )
                         }
                     }
                 }
@@ -210,17 +204,14 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         // Handle intent when app is already running
-        val prefs = Prefs(this)
-        val viewModel = ViewModelProvider(this, MainViewModelFactory(prefs))[MainViewModel::class.java]
-        
         if (intent.getBooleanExtra(INTENT_EXTRA_NAVIGATE_TO_TASKS, false)) {
-            // Navigate to Tasks screen when launched from task notification
-            viewModel.selectScreen(SCREEN_TASKS)
+            // Navigate to Planner screen when launched from task notification
+            mainViewModel.selectScreen(SCREEN_PLANNER)
         } else {
             val eventId = intent.getIntExtra(EventAlarmReceiver.EXTRA_EVENT_ID, -1)
             if (eventId != -1) {
-                // Navigate to Tasks screen when launched from event notification
-                viewModel.selectScreen(SCREEN_TASKS)
+                // Navigate to Planner screen when launched from event notification
+                mainViewModel.selectScreen(SCREEN_PLANNER)
             }
         }
     }
@@ -230,7 +221,7 @@ class MainActivity : ComponentActivity() {
         
         // Screen indices
         private const val SCREEN_COUNTDOWNS = 0
-        private const val SCREEN_TASKS = 1
+        private const val SCREEN_PLANNER = 1
         private const val SCREEN_GALLERY = 2
         private const val SCREEN_LIFE = 3
         
@@ -243,8 +234,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DefaultPreview() {
     PipelineTestTheme {
-        val context = LocalContext.current
-        val vm = remember { MainViewModel(Prefs(context)) }
-        CountdownsScreen(vm)
+        // Preview disabled due to Hilt dependency injection
+        Text("Preview disabled - use device/emulator for testing")
     }
 }

@@ -17,6 +17,9 @@
 - Material3 Components
 - Firebase for distribution
 - Kotlin Coroutines
+- **Room Database**: 2.7.1 - Local data persistence
+- **Hilt**: 2.51.1 - Dependency injection framework
+- **KSP**: 2.1.0-1.0.28 - Kotlin Symbol Processing
 - **MediaPipe Tasks**: AI/ML inference framework
 - **Timber**: Structured logging with DEBUG_FLOW tags
 - **EncryptedSharedPreferences**: Secure API key storage

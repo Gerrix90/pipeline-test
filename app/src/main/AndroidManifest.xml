@@ -22,7 +22,7 @@
         android:required="false" />
 
     <application
-        android:name="com.jahi.pipelinetest.gallery.GalleryApplication"
+        android:name=".TimeFomoApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

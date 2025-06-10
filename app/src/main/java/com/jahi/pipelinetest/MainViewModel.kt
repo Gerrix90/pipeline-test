@@ -5,22 +5,29 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import com.jahi.pipelinetest.domain.GetEventsUseCase
 import com.jahi.pipelinetest.model.CustomEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
-class MainViewModel(private val prefs: Prefs) : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val prefs: Prefs,
+    private val getEventsUseCase: GetEventsUseCase
+) : ViewModel() {
     var screen by mutableStateOf(0)
         private set
 
@@ -30,11 +37,14 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
     private val _now = MutableStateFlow(Instant.now())
     val now: StateFlow<Instant> = _now.asStateFlow()
 
-    var events = mutableStateListOf<CustomEvent>()
-        private set
+    val events: StateFlow<List<CustomEvent>> = getEventsUseCase()
+        .stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
     init {
-        events.addAll(prefs.customEvents)
         viewModelScope.launch {
             while (true) {
                 _now.value = Instant.now()
@@ -64,30 +74,6 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
         get() = prefs.elevenLabsApiKey
         set(value) { prefs.elevenLabsApiKey = value }
 
-    fun addEvent(event: CustomEvent) {
-        events.add(event)
-        prefs.customEvents = events
-    }
-
-    fun updateEvent(index: Int, event: CustomEvent) {
-        if (index in events.indices) {
-            events[index] = event
-            prefs.customEvents = events
-        }
-    }
-
-    fun removeEvent(index: Int) {
-        if (index in events.indices) {
-            events.removeAt(index)
-            prefs.customEvents = events
-        }
-    }
-
-    fun setEvents(newEvents: List<CustomEvent>) {
-        events.clear()
-        events.addAll(newEvents)
-        prefs.customEvents = events
-    }
 
     fun durationToEndOfDay(now: Instant = this.now.value): Duration {
         val z = ZoneId.systemDefault()
@@ -136,12 +122,5 @@ class MainViewModel(private val prefs: Prefs) : ViewModel() {
         val minutes = seconds / 60
         seconds %= 60
         return String.format("%02d:%02d:%02d", hours, minutes, seconds)
-    }
-}
-
-class MainViewModelFactory(private val prefs: Prefs) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        @Suppress("UNCHECKED_CAST")
-        return MainViewModel(prefs) as T
     }
 }

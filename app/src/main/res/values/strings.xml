@@ -15,7 +15,7 @@
 
     <!-- Navigation -->
     <string name="nav_countdowns">Countdowns</string>
-    <string name="nav_tasks">Tasks</string>
+    <string name="nav_planner">Planner</string>
     <string name="nav_gallery">AI Gallery</string>
     <string name="nav_life">Life</string>
 

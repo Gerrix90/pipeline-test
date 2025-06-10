@@ -1,10 +1,11 @@
 package com.jahi.pipelinetest.domain
 
-import com.jahi.pipelinetest.repository.TaskRepository
+import com.jahi.pipelinetest.domain.repository.TaskRepositoryInterface
+import javax.inject.Inject
 
-class DeleteTaskUseCase(private val taskRepository: TaskRepository) {
+class DeleteTaskUseCase @Inject constructor(private val taskRepository: TaskRepositoryInterface) {
     
-    operator fun invoke(taskId: Int) {
+    suspend operator fun invoke(taskId: Int) {
         taskRepository.deleteTask(taskId)
     }
 }

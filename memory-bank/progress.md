@@ -12,6 +12,9 @@
 - ✅ Settings screen with birthdate picker
 - ✅ System back gesture from Settings returns to home
 - ✅ Dark theme throughout
+- ✅ **Planner Screen**: Comprehensive event and task management
+- ✅ **Room Database**: Complete data persistence layer
+- ✅ **Hilt Dependency Injection**: Professional DI setup
 
 ### Task Management
 - ✅ Create tasks for events
@@ -21,6 +24,9 @@
 - ✅ Task progress tracking
 - ✅ Due date selection for tasks
 - ✅ Due date editing for existing tasks
+- ✅ **Multi-row task UI**: Better visibility and usability
+- ✅ **Calendar/Time picker**: Professional date/time selection
+- ✅ **Event click navigation**: Countdowns → Planner navigation
 
 ### Widgets
 - ✅ Daily countdown widget

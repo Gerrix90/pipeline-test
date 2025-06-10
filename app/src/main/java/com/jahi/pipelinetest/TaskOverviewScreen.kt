@@ -7,6 +7,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
@@ -20,13 +21,14 @@ fun TaskOverviewScreen(
     modifier: Modifier = Modifier
 ) {
     val tasks = taskViewModel.allTasks.collectAsState().value
+    val events by mainViewModel.events.collectAsState()
     
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
             .padding(dimensionResource(R.dimen.padding_default))
     ) {
-        mainViewModel.events.forEach { event ->
+        events.forEach { event ->
             item {
                 Text(
                     text = event.name,

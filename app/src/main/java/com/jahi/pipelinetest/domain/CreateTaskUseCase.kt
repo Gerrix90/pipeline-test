@@ -1,17 +1,20 @@
 package com.jahi.pipelinetest.domain
 
 import com.jahi.pipelinetest.model.Task
-import com.jahi.pipelinetest.repository.TaskRepository
+import com.jahi.pipelinetest.domain.repository.TaskRepositoryInterface
+import javax.inject.Inject
 
-class CreateTaskUseCase(private val taskRepository: TaskRepository) {
+class CreateTaskUseCase @Inject constructor(
+    private val taskRepository: TaskRepositoryInterface
+) {
 
-    operator fun invoke(eventId: Int, description: String, dueDate: String? = null) {
+    suspend operator fun invoke(eventId: Int, description: String, dueDate: String? = null) {
         val task = Task(
             id = taskRepository.generateTaskId(),
             eventId = eventId,
             description = description,
             dueDate = dueDate
         )
-        taskRepository.addTask(task)
+        taskRepository.insertTask(task)
     }
 }

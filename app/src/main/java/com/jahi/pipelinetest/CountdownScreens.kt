@@ -51,7 +51,6 @@ import com.jahi.pipelinetest.ui.theme.SurfaceDark
 import com.jahi.pipelinetest.ui.theme.Turquoise400
 import com.jahi.pipelinetest.ui.theme.Indigo200
 import com.jahi.pipelinetest.ui.theme.Yellow300
-import com.jahi.pipelinetest.ui.components.TaskList
 import com.jahi.pipelinetest.viewmodel.TaskViewModel
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
@@ -63,10 +62,10 @@ private fun CountdownCard(
     value: String,
     eventId: Int? = null,
     taskViewModel: TaskViewModel? = null,
+    onEventClick: ((Int) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var showTitle by remember { mutableStateOf(true) }
-    var showTasks by remember { mutableStateOf(false) }
     val tasks by (taskViewModel?.tasks?.collectAsState() ?: remember { mutableStateOf(emptyList()) })
     val eventTasks = eventId?.let { id -> tasks.filter { it.eventId == id } } ?: emptyList()
     
@@ -75,8 +74,8 @@ private fun CountdownCard(
             .fillMaxWidth()
             .padding(dimensionResource(id = R.dimen.padding_default))
             .clickable { 
-                if (eventId != null) {
-                    showTasks = !showTasks
+                if (eventId != null && onEventClick != null) {
+                    onEventClick(eventId)
                 } else {
                     showTitle = !showTitle
                 }
@@ -131,16 +130,8 @@ private fun CountdownCard(
                 }
             }
             
-            // Show tasks when expanded
-            if (showTasks && eventId != null && taskViewModel != null) {
-                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_default)))
-                TaskList(
-                    eventId = eventId,
-                    tasks = eventTasks,
-                    taskViewModel = taskViewModel,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else if (eventId != null) {
+            // Show hint for event interaction
+            if (eventId != null) {
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 Text(
                     text = stringResource(R.string.tap_to_manage_tasks),
@@ -156,6 +147,7 @@ private fun CountdownCard(
 fun CountdownsScreen(
     viewModel: MainViewModel,
     taskViewModel: TaskViewModel? = null,
+    onEventClick: ((Int) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val now by viewModel.now.collectAsState()
@@ -175,7 +167,8 @@ fun CountdownsScreen(
             )
         }
 
-        viewModel.events.forEach { event ->
+        val events by viewModel.events.collectAsState()
+        events.forEach { event ->
             if (event.date.isNotBlank()) {
                 val diff = viewModel.durationToEvent(event.date, now)
                 if (diff != null && !diff.isNegative && !diff.isZero) {
@@ -188,6 +181,7 @@ fun CountdownsScreen(
                         },
                         eventId = event.id,
                         taskViewModel = taskViewModel,
+                        onEventClick = onEventClick,
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
