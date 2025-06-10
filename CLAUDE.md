@@ -15,6 +15,51 @@
 
 See `/memory-bank/memory-bank.md` for complete structure and workflow.
 
+## 🚨 ABSOLUTELY CRITICAL: SECURITY AND SENSITIVE DATA
+
+**NEVER COMMIT SENSITIVE DATA - NO EXCEPTIONS EVER**:
+- **ABSOLUTELY PROHIBITED**: 
+  - API keys, passwords, tokens, secrets
+  - google-services.json or any Firebase configuration files
+  - Database credentials, connection strings
+  - Private keys, certificates, keystores
+  - Any file containing real production credentials
+  - Configuration files with sensitive data
+
+**SECURITY VALIDATION BEFORE ANY COMMIT**:
+1. **ALWAYS** check what files are being staged with `git status`
+2. **ALWAYS** review file contents before committing if they contain:
+   - Any API keys or tokens
+   - Configuration files (*.json, *.xml, *.properties)
+   - Any files that were previously in .gitignore
+3. **IMMEDIATELY STOP** if staging sensitive files
+4. **ASK USER EXPLICITLY** before committing any configuration files
+5. **NEVER ASSUME** it's safe to commit config files
+
+**IF SENSITIVE DATA IS ACCIDENTALLY COMMITTED**:
+1. **IMMEDIATELY** remove from repository with `git rm`
+2. **FORCE PUSH** to remove from git history completely
+3. **NOTIFY USER** that credentials should be regenerated
+4. **NEVER** just "fix it later" - fix it IMMEDIATELY
+
+**REMEMBER**: Once pushed to public repository, credentials are compromised FOREVER
+**THIS IS NOT NEGOTIABLE** - Security comes before everything else
+
+## 🚨 CRITICAL: Git Commit Policy
+
+**NEVER COMMIT WITHOUT EXPLICIT USER COMMAND**:
+- **PROHIBITED**: Automatic commits, proactive commits, or "helpful" commits
+- **REQUIRED**: User must explicitly ask to "commit" or "push" changes
+- **PROCESS**: Always ask for permission before any git commit/push operations
+- **EXCEPTION**: None - this rule has NO exceptions
+
+**When user requests commit**:
+1. Always run build validation first: `./gradlew assembleDebug --offline`
+2. **SECURITY CHECK**: Verify no sensitive data is being committed
+3. Create meaningful commit messages with proper descriptions
+4. Include Co-Authored-By: Claude line as shown in examples
+5. Update memory bank before committing
+
 ## 🚨 MANDATORY: Android Project Structure
 
 **MUST** follow the architectural patterns and structure defined in `@ANDROID_PROJECT_STRUCTURE.md`:
