@@ -19,6 +19,37 @@ This is NOT optional - this is the REQUIRED architecture for ALL features.
 
 **SEE**: `architecture-example.md` for concrete implementation examples
 
+## 🚨 MANDATORY: Follow @ANDROID_PROJECT_STRUCTURE.md
+
+All code MUST comply with the architectural patterns defined in `@ANDROID_PROJECT_STRUCTURE.md`:
+
+### Required Project Structure
+```
+features/[feature_name]/
+├── data/              # DATA LAYER
+│   ├── repositories/  # Repository implementations
+│   ├── sources/       # Data sources (remote/local)
+│   └── mappers/      # DTO to Domain mappers
+├── domain/            # DOMAIN LAYER  
+│   ├── models/        # Business entities
+│   ├── repositories/  # Repository interfaces
+│   └── use_cases/     # Business logic
+└── presentation/      # PRESENTATION LAYER
+    ├── screens/       # Compose screens
+    ├── components/    # Reusable components
+    ├── viewmodels/    # ViewModels
+    └── states/        # UI state models
+```
+
+### Key Principles from @ANDROID_PROJECT_STRUCTURE.md
+1. **Separation of Concerns**: Each layer has specific responsibility
+2. **Dependency Inversion**: High-level modules don't depend on low-level
+3. **Feature Isolation**: Features are self-contained modules
+4. **Single Responsibility**: Each class has one reason to change
+5. **Testability**: Each layer can be tested independently
+
+**CRITICAL**: See `@ANDROID_PROJECT_STRUCTURE.md` for complete requirements
+
 ### Key Components
 
 #### ViewModels

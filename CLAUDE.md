@@ -15,6 +15,15 @@
 
 See `/memory-bank/memory-bank.md` for complete structure and workflow.
 
+## 🚨 MANDATORY: Android Project Structure
+
+**MUST** follow the architectural patterns and structure defined in `@ANDROID_PROJECT_STRUCTURE.md`:
+- Clean Architecture + MVVM pattern is MANDATORY
+- Three-layer architecture: Presentation → Domain → Data
+- Feature-based module organization
+- Proper separation of concerns
+- See `@ANDROID_PROJECT_STRUCTURE.md` for detailed requirements
+
 ---
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.

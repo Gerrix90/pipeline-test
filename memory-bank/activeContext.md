@@ -2,6 +2,17 @@
 
 ## 🚨 THIS FILE MUST BE UPDATED AFTER EVERY TASK
 
+## Recent Changes (January 6, 2025)
+
+### Architecture Compliance Update
+1. **Added Mandatory Architecture Requirements**:
+   - Updated CLAUDE.md with @ANDROID_PROJECT_STRUCTURE.md requirement
+   - Modified memory-bank.md to include architecture compliance section
+   - Clean Architecture + MVVM pattern is now MANDATORY
+   - Three-layer architecture: Presentation → Domain → Data
+   - Feature-based module organization required
+   - All new code MUST follow patterns in @ANDROID_PROJECT_STRUCTURE.md
+
 ## Recent Changes (June 5, 2025)
 
 ### Completed Today

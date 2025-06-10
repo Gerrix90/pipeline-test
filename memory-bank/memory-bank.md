@@ -83,6 +83,15 @@ Create additional files/folders within memory-bank/ when they help organize:
 - Testing strategies
 - Deployment procedures
 
+## Mandatory Architecture Requirements
+
+**MUST** follow the architectural patterns defined in `@ANDROID_PROJECT_STRUCTURE.md`:
+- Clean Architecture + MVVM pattern is MANDATORY
+- Three-layer architecture: Presentation → Domain → Data  
+- Feature-based module organization
+- Proper separation of concerns
+- See `@ANDROID_PROJECT_STRUCTURE.md` for detailed structure
+
 ## Core Workflows
 
 ### Plan Mode
