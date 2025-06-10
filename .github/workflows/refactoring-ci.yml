@@ -32,26 +32,72 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
+      - name: Debug GOOGLE_SERVICES_JSON_CONTENT secret
+        run: |
+          echo "🔍 Debugging GOOGLE_SERVICES_JSON_CONTENT secret:"
+          echo "Secret length: ${#GOOGLE_SERVICES_JSON_CONTENT}"
+          if [ -z "$GOOGLE_SERVICES_JSON_CONTENT" ]; then
+            echo "❌ GOOGLE_SERVICES_JSON_CONTENT is EMPTY or NULL"
+          else
+            echo "✅ GOOGLE_SERVICES_JSON_CONTENT has content"
+            echo "First 100 characters:"
+            echo "$GOOGLE_SERVICES_JSON_CONTENT" | head -c 100
+            echo ""
+            echo "Last 50 characters:"
+            echo "$GOOGLE_SERVICES_JSON_CONTENT" | tail -c 50
+          fi
+        env:
+          GOOGLE_SERVICES_JSON_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}
+
       - name: Create google-services.json
         run: |
+          echo "🔨 Creating google-services.json file..."
+          if [ -z "$GOOGLE_SERVICES_JSON_CONTENT" ]; then
+            echo "❌ ERROR: GOOGLE_SERVICES_JSON_CONTENT secret is empty!"
+            echo "Please set this secret in Repository Settings > Secrets and Variables > Actions"
+            exit 1
+          fi
+          
           cat > app/google-services.json << 'EOF'
           ${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}
           EOF
+          echo "✅ google-services.json file created"
+        env:
+          GOOGLE_SERVICES_JSON_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}
           
       - name: Verify google-services.json
         run: |
+          echo "🔍 Verifying google-services.json file..."
+          
           if [ ! -f app/google-services.json ]; then
-            echo "Error: google-services.json was not created"
+            echo "❌ Error: google-services.json was not created"
+            exit 1
+          fi
+          
+          echo "📄 File exists, checking content:"
+          echo "File size: $(wc -c < app/google-services.json) bytes"
+          echo "File lines: $(wc -l < app/google-services.json)"
+          
+          # Show first few lines
+          echo "First 10 lines of file:"
+          head -10 app/google-services.json
+          
+          # Check if file is empty
+          if [ ! -s app/google-services.json ]; then
+            echo "❌ Error: google-services.json is empty"
             exit 1
           fi
           
           # Check if the file contains valid JSON
+          echo "🔍 Validating JSON format..."
           if ! python3 -m json.tool app/google-services.json > /dev/null 2>&1; then
-            echo "Error: google-services.json contains invalid JSON"
+            echo "❌ Error: google-services.json contains invalid JSON"
+            echo "JSON validation error details:"
+            python3 -m json.tool app/google-services.json
             exit 1
           fi
           
-          echo "google-services.json created successfully"
+          echo "✅ google-services.json created and validated successfully"
           
       - name: Build Debug APK
         run: ./gradlew assembleDebug -PbuildNumber=${{ github.run_number }} -PelevenLabKey=${{ secrets.ELEVENLAB_KEY }}
