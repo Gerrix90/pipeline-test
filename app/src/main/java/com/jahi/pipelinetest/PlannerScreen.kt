@@ -73,8 +73,13 @@ fun PlannerScreen(
         val savedX = prefs.fabPositionX
         val savedY = prefs.fabPositionY
         if (savedX != -1f && savedY != -1f) {
-            fabOffsetX = savedX
-            fabOffsetY = savedY
+            // Validate saved position is reasonable (not too close to edges)
+            val margin = with(density) { 16.dp.toPx() }
+            val minValidX = margin
+            val minValidY = margin
+            
+            fabOffsetX = if (savedX >= minValidX) savedX else minValidX
+            fabOffsetY = if (savedY >= minValidY) savedY else minValidY
         }
     }
 
@@ -86,8 +91,10 @@ fun PlannerScreen(
                 screenHeight = coordinates.size.height.toFloat()
                 // Initialize FAB position to bottom right if not set
                 if (fabOffsetX == 0f && fabOffsetY == 0f && prefs.fabPositionX == -1f) {
-                    fabOffsetX = screenWidth - fabSize - with(density) { 16.dp.toPx() }
-                    fabOffsetY = screenHeight - fabSize - with(density) { 16.dp.toPx() }
+                    val margin = with(density) { 24.dp.toPx() }
+                    val defaultFabSize = with(density) { 56.dp.toPx() } // Standard FAB size
+                    fabOffsetX = screenWidth - defaultFabSize - margin
+                    fabOffsetY = screenHeight - defaultFabSize - margin
                 }
             }
     ) {
@@ -165,9 +172,12 @@ fun PlannerScreen(
                         val newX = fabOffsetX + dragAmount.x
                         val newY = fabOffsetY + dragAmount.y
                         
-                        // Ensure FAB stays within screen bounds
-                        fabOffsetX = newX.coerceIn(0f, screenWidth - fabSize)
-                        fabOffsetY = newY.coerceIn(0f, screenHeight - fabSize)
+                        // Ensure FAB stays within screen bounds with margin
+                        val margin = with(density) { 8.dp.toPx() }
+                        val effectiveFabSize = if (fabSize > 0f) fabSize else with(density) { 56.dp.toPx() }
+                        
+                        fabOffsetX = newX.coerceIn(margin, screenWidth - effectiveFabSize - margin)
+                        fabOffsetY = newY.coerceIn(margin, screenHeight - effectiveFabSize - margin)
                     }
                 },
             containerColor = if (isDragging) MaterialTheme.colorScheme.primary.copy(alpha = 0.8f) else MaterialTheme.colorScheme.primary,
